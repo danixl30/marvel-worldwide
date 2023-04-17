@@ -1,0 +1,13 @@
+import { ValueObject } from 'src/core/domain/value-objects/value.object'
+
+export class SerieChannel implements ValueObject<SerieChannel> {
+    constructor(private readonly channel: string) {}
+
+    get value() {
+        return this.channel
+    }
+
+    equals(other: SerieChannel): boolean {
+        return other.value === this.value
+    }
+}
