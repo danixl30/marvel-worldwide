@@ -1,5 +1,6 @@
 import { Actor } from 'src/movie/domain/entities/actor/actor'
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
+import { Comic } from 'src/movie/domain/entities/comic/comic'
 import { ReleaseDate } from './value-objects/release.date'
 import { SerieChannel } from './value-objects/channel'
 import { SerieCreator } from './value-objects/creator'
@@ -21,6 +22,7 @@ export class Serie extends AggregateRoot<SerieId> {
         private _type: SerieType,
         private _episodes: SerieEpisodes,
         private _channel: SerieChannel,
+        private _basedOn: Comic,
         private _actors: Actor[] = [],
     ) {
         super(id)
@@ -60,6 +62,10 @@ export class Serie extends AggregateRoot<SerieId> {
 
     get channel() {
         return this._channel
+    }
+
+    get basedOn() {
+        return this._basedOn
     }
 
     validateState(): void {}

@@ -1,5 +1,6 @@
 import { Actor } from 'src/movie/domain/entities/actor/actor'
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
+import { Comic } from 'src/movie/domain/entities/comic/comic'
 import { ReleaseDate } from './value-objects/release.date'
 import { VideogameCreator } from './value-objects/creator'
 import { VideogameId } from './value-objects/id'
@@ -18,6 +19,7 @@ export class Videogame extends AggregateRoot<VideogameId> {
         private _creator: VideogameCreator,
         private _rating: VideogameRating,
         private _type: VideogameType,
+        private _basedOn: Comic,
         private _platforms: VideogamePlatform[] = [],
         private _actors: Actor[] = [],
     ) {
@@ -54,6 +56,10 @@ export class Videogame extends AggregateRoot<VideogameId> {
 
     get platforms() {
         return this._platforms
+    }
+
+    get basedOn() {
+        return this._basedOn
     }
 
     validateState(): void {}
