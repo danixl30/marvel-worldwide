@@ -62,5 +62,18 @@ export class Organization extends AggregateRoot<OrganizationId> {
         return this._firstApparition
     }
 
-    validateState(): void {}
+    validateState(): void {
+        if (
+            !this.id ||
+            !this.name ||
+            !this.firstApparition ||
+            !this.creationPlace ||
+            !this.headquarter ||
+            !this.slogan ||
+            !this.leader ||
+            !this.objetive ||
+            !this.members
+        )
+            throw new Error('Invalid organization')
+    }
 }

@@ -1,12 +1,12 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
-import { ProfileId } from './value-objects/profile.id'
+import { History } from './entities/history/history'
+import { HistoryId } from './entities/history/value-objects/id'
+import { Preference } from './entities/preference/preference'
 import { ProfileEmail } from './value-objects/profile.email'
+import { ProfileId } from './value-objects/profile.id'
 import { ProfileLanguage } from './value-objects/profile.language'
 import { ProfileUser } from './value-objects/profile.user'
-import { Preference } from './entities/preference/preference'
-import { History } from './entities/history/history'
 import { Rate } from './entities/rate/rate'
-import { HistoryId } from './entities/history/value-objects/id'
 
 export class Profile extends AggregateRoot<ProfileId> {
     constructor(
@@ -54,5 +54,16 @@ export class Profile extends AggregateRoot<ProfileId> {
         history?.endHistory()
     }
 
-    validateState(): void {}
+    validateState(): void {
+        if (
+            !this.id ||
+            !this.email ||
+            !this.language ||
+            !this.history ||
+            !this.user ||
+            !this.rates ||
+            !this.preferences
+        )
+            throw new Error('Invalid profile')
+    }
 }

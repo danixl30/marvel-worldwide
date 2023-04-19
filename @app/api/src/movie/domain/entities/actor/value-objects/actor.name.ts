@@ -4,7 +4,10 @@ export class ActorName implements ValueObject<ActorName> {
     constructor(
         private readonly _firstName: string,
         private readonly _lastName: string,
-    ) {}
+    ) {
+        if (!this.firstName || !this.lastName)
+            throw new Error('Invalid actor name')
+    }
 
     get firstName() {
         return this._firstName

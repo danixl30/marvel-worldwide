@@ -4,7 +4,10 @@ export class PersonName implements ValueObject<PersonName> {
     constructor(
         private readonly _firstName: string,
         private readonly _lastName: string,
-    ) {}
+    ) {
+        if (!this.firstName || !this.lastName)
+            throw new Error('Invalid person name')
+    }
 
     get firstName() {
         return this._firstName

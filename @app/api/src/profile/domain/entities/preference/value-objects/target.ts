@@ -4,7 +4,10 @@ export class PreferenceTarget implements ValueObject<PreferenceTarget> {
     constructor(
         private readonly _platform: string,
         private readonly _kind: string,
-    ) {}
+    ) {
+        if (!this.platform || !this.kind)
+            throw new Error('Invalid preference target')
+    }
 
     get platform() {
         return this._platform

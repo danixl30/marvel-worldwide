@@ -44,5 +44,16 @@ export class Heroe extends AggregateRoot<HeroeId> {
         return this._objects
     }
 
-    validateState(): void {}
+    validateState(): void {
+        if (
+            !this.id ||
+            !this.name ||
+            !this.person ||
+            !this.phrase ||
+            !this.creator ||
+            !this.powers ||
+            !this.objects
+        )
+            throw new Error('Inavlid heroe')
+    }
 }

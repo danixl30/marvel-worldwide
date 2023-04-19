@@ -4,7 +4,10 @@ export class ProductionCost implements ValueObject<ProductionCost> {
     constructor(
         private readonly _cost: number,
         private readonly _earning: number,
-    ) {}
+    ) {
+        if (!this.cost || !this.earning || this.cost < this.earning)
+            throw new Error('Invalid production cost')
+    }
 
     get cost() {
         return this._cost

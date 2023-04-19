@@ -5,7 +5,19 @@ export class MovieDuration implements ValueObject<MovieDuration> {
         private readonly _hours: number,
         private readonly _minutes: number,
         private readonly _seconds: number,
-    ) {}
+    ) {
+        if (
+            (!this.hours && !this.minutes && !this.seconds) ||
+            this.hours < 0 ||
+            this.hours > 24 ||
+            this.minutes < 0 ||
+            this.minutes > 60 ||
+            this.seconds < 0 ||
+            this.seconds > 60
+        ) {
+            throw new Error('Invalid movie duration')
+        }
+    }
 
     get hours() {
         return this._hours

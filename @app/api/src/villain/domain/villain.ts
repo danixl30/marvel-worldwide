@@ -38,5 +38,8 @@ export class Villain extends AggregateRoot<VillainId> {
         return this._objects
     }
 
-    validateState(): void {}
+    validateState(): void {
+        if (!this.id || !this.name || !this.person || !this.phrase)
+            throw new Error('Invalid villain')
+    }
 }

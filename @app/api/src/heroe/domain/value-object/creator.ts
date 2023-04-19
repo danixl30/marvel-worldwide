@@ -4,7 +4,10 @@ export class HeroeCreator implements ValueObject<HeroeCreator> {
     constructor(
         private readonly _firstName: string,
         private readonly _lastName: string,
-    ) {}
+    ) {
+        if (!this.firstName || !this.lastName)
+            throw new Error('Inavlid creator')
+    }
 
     get firstName() {
         return this._firstName

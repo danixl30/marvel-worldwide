@@ -68,5 +68,19 @@ export class Serie extends AggregateRoot<SerieId> {
         return this._basedOn
     }
 
-    validateState(): void {}
+    validateState(): void {
+        if (
+            !this.type ||
+            !this.id ||
+            !this.title ||
+            !this.episodes ||
+            !this.synopsis ||
+            !this.release ||
+            !this.basedOn ||
+            !this.rating ||
+            !this.channel ||
+            !this.creator
+        )
+            throw new Error('Invalid serie')
+    }
 }

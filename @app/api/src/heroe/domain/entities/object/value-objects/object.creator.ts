@@ -4,7 +4,10 @@ export class ObjectCreator implements ValueObject<ObjectCreator> {
     constructor(
         private readonly _firstName: string,
         private readonly _lastName: string,
-    ) {}
+    ) {
+        if (!this.firstName || !this.lastName)
+            throw new Error('Invalid object creator')
+    }
 
     get firstName() {
         return this._firstName

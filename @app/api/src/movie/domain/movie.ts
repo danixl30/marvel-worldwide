@@ -74,5 +74,22 @@ export class Movie extends AggregateRoot<MovieId> {
         return this._basedOn
     }
 
-    validateState(): void {}
+    validateState(): void {
+        if (
+            !this.id ||
+            !this.title ||
+            !this.synopsis ||
+            !this.release ||
+            !this.director ||
+            !this.duration ||
+            !this.cost ||
+            !this.type ||
+            !this.actors ||
+            !this.basedOn ||
+            !this.creator ||
+            !this.rating
+        ) {
+            throw new Error('Invalid movie')
+        }
+    }
 }

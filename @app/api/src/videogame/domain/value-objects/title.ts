@@ -1,7 +1,9 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class VideogameTitle implements ValueObject<VideogameTitle> {
-    constructor(private readonly title: string) {}
+    constructor(private readonly title: string) {
+        if (!title) throw new Error('Invalid videogame title')
+    }
 
     get value() {
         return this.title

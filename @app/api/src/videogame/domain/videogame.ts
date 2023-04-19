@@ -62,5 +62,19 @@ export class Videogame extends AggregateRoot<VideogameId> {
         return this._basedOn
     }
 
-    validateState(): void {}
+    validateState(): void {
+        if (
+            !this.id ||
+            !this.title ||
+            !this.synopsis ||
+            !this.basedOn ||
+            !this.release ||
+            !this.rating ||
+            !this.creator ||
+            !this.type ||
+            !this.platforms ||
+            !this.actors
+        )
+            throw new Error('Invalid videogame')
+    }
 }
