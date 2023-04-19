@@ -1,4 +1,6 @@
 import { DomainEvent } from 'src/core/domain/events/event'
+import { Enemy } from '../value-object/heroe.enemy'
+import { EnemyGroup } from '../value-object/heroe.group.enemy'
 import { ObjectItem } from 'src/heroe/domain/entities/object/object'
 import { Person } from 'src/heroe/domain/entities/person/person'
 import { Power } from 'src/heroe/domain/entities/power/power'
@@ -12,6 +14,8 @@ export class VillainCreatedEvent extends DomainEvent {
         private _name: VillainName,
         private _person: Person,
         private _phrase: VillainObjetive,
+        private _enemies: Enemy[] = [],
+        private _enemieGroups: EnemyGroup[] = [],
         private _powers: Power[] = [],
         private _objects: ObjectItem[],
     ) {
@@ -32,6 +36,14 @@ export class VillainCreatedEvent extends DomainEvent {
 
     get phrase() {
         return this._phrase
+    }
+
+    get enemies() {
+        return this._enemies
+    }
+
+    get enemieGroups() {
+        return this._enemieGroups
     }
 
     get powers() {

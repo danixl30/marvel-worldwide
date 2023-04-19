@@ -1,4 +1,5 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
+import { ArchEnemy } from './value-object/arch.enemy'
 import { HeroeCreatedEvent } from './events/heroe.created'
 import { HeroeCreator } from './value-object/creator'
 import { HeroeId } from './value-object/heroe.id'
@@ -16,8 +17,9 @@ export class Heroe extends AggregateRoot<HeroeId> {
         private _person: Person,
         private _phrase: HeroePhrase,
         private _creator: HeroeCreator,
+        private _archEnemy: ArchEnemy,
         private _powers: Power[] = [],
-        private _objects: ObjectItem[],
+        private _objects: ObjectItem[] = [],
     ) {
         super(id)
         this.publish(
@@ -27,6 +29,7 @@ export class Heroe extends AggregateRoot<HeroeId> {
                 this.person,
                 this.phrase,
                 this.creator,
+                this.archEnemy,
                 this.powers,
                 this.objects,
             ),
@@ -49,6 +52,10 @@ export class Heroe extends AggregateRoot<HeroeId> {
         return this._creator
     }
 
+    get archEnemy() {
+        return this._archEnemy
+    }
+
     get powers() {
         return this._powers
     }
@@ -65,7 +72,8 @@ export class Heroe extends AggregateRoot<HeroeId> {
             !this.phrase ||
             !this.creator ||
             !this.powers ||
-            !this.objects
+            !this.objects ||
+            !this.archEnemy
         )
             throw new InvalidHeroeException()
     }

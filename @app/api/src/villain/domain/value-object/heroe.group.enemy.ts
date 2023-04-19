@@ -1,15 +1,15 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
-export class ArchEnemyName implements ValueObject<ArchEnemyName> {
+export class EnemyGroup implements ValueObject<EnemyGroup> {
     private constructor(private readonly name: string) {
-        if (!name) throw new Error('Invali arch enemy name')
+        if (!name) throw new Error('Invalid villain name')
     }
 
     public get value(): string {
         return this.name
     }
 
-    equals(other: ArchEnemyName): boolean {
+    equals(other: EnemyGroup): boolean {
         return other.name === this.name
     }
 }

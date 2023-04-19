@@ -1,3 +1,4 @@
+import { ArchEnemy } from '../value-object/arch.enemy'
 import { DomainEvent } from 'src/core/domain/events/event'
 import { HeroeCreator } from '../value-object/creator'
 import { HeroeId } from '../value-object/heroe.id'
@@ -14,6 +15,7 @@ export class HeroeCreatedEvent extends DomainEvent {
         private _person: Person,
         private _phrase: HeroePhrase,
         private _creator: HeroeCreator,
+        private _archEnemy: ArchEnemy,
         private _powers: Power[] = [],
         private _objects: ObjectItem[],
     ) {
@@ -38,6 +40,10 @@ export class HeroeCreatedEvent extends DomainEvent {
 
     get creator() {
         return this._creator
+    }
+
+    get archEnemy() {
+        return this._archEnemy
     }
 
     get powers() {
