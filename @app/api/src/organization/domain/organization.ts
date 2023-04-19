@@ -4,6 +4,7 @@ import { FirstAparition } from './value-objects/first.aparition'
 import { Headquarter } from './entities/headquarter/hearquarter'
 import { InvalidOrganizationException } from './exceptions/invalid.organization'
 import { Member } from './entities/member/member'
+import { OrganizationCreatedEvent } from './events/organization.created'
 import { OrganizationFounder } from './value-objects/founder'
 import { OrganizationId } from './value-objects/organization.id'
 import { OrganizationLeader } from './value-objects/leader'
@@ -25,6 +26,20 @@ export class Organization extends AggregateRoot<OrganizationId> {
         private _firstApparition: FirstAparition,
     ) {
         super(id)
+        this.publish(
+            new OrganizationCreatedEvent(
+                id,
+                this.name,
+                this.objetive,
+                this.slogan,
+                this.leader,
+                this.headquarter,
+                this.founder,
+                this.creationPlace,
+                this.members,
+                this.firstApparition,
+            ),
+        )
     }
 
     get name() {

@@ -1,4 +1,5 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
+import { HeroeCreatedEvent } from './events/heroe.created'
 import { HeroeCreator } from './value-object/creator'
 import { HeroeId } from './value-object/heroe.id'
 import { HeroeName } from './value-object/name'
@@ -19,6 +20,17 @@ export class Heroe extends AggregateRoot<HeroeId> {
         private _objects: ObjectItem[],
     ) {
         super(id)
+        this.publish(
+            new HeroeCreatedEvent(
+                id,
+                this.name,
+                this.person,
+                this.phrase,
+                this.creator,
+                this.powers,
+                this.objects,
+            ),
+        )
     }
 
     get name() {

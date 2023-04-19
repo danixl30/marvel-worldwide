@@ -3,6 +3,7 @@ import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { Comic } from 'src/movie/domain/entities/comic/comic'
 import { InvalidVideogameException } from './exceptions/invalid.videogame'
 import { ReleaseDate } from './value-objects/release.date'
+import { VideogameCreatedEvent } from './events/videogame.created'
 import { VideogameCreator } from './value-objects/creator'
 import { VideogameId } from './value-objects/id'
 import { VideogamePlatform } from './value-objects/platform'
@@ -25,6 +26,20 @@ export class Videogame extends AggregateRoot<VideogameId> {
         private _actors: Actor[] = [],
     ) {
         super(id)
+        this.publish(
+            new VideogameCreatedEvent(
+                id,
+                this.title,
+                this.synopsis,
+                this.release,
+                this.creator,
+                this.rating,
+                this.type,
+                this.basedOn,
+                this.platforms,
+                this.actors,
+            ),
+        )
     }
 
     get title() {

@@ -3,6 +3,7 @@ import { InvalidVillainException } from './exceptions/invalid.villain'
 import { ObjectItem } from 'src/heroe/domain/entities/object/object'
 import { Person } from 'src/heroe/domain/entities/person/person'
 import { Power } from 'src/heroe/domain/entities/power/power'
+import { VillainCreatedEvent } from './events/villain.created'
 import { VillainId } from './value-object/villain.id'
 import { VillainName } from './value-object/name'
 import { VillainObjetive } from './value-object/objetive'
@@ -17,6 +18,16 @@ export class Villain extends AggregateRoot<VillainId> {
         private _objects: ObjectItem[],
     ) {
         super(id)
+        this.publish(
+            new VillainCreatedEvent(
+                id,
+                this.name,
+                this.person,
+                this.phrase,
+                this.powers,
+                this.objects,
+            ),
+        )
     }
 
     get name() {

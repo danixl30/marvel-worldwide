@@ -2,6 +2,7 @@ import { Actor } from './entities/actor/actor'
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { Comic } from './entities/comic/comic'
 import { InvalidMovieException } from './exceptions/invalid.movie'
+import { MovieCreatedEvent } from './events/movie.created'
 import { MovieCreator } from './value-objects/creator'
 import { MovieDirector } from './value-objects/director'
 import { MovieDuration } from './value-objects/duration'
@@ -29,6 +30,22 @@ export class Movie extends AggregateRoot<MovieId> {
         private _actors: Actor[] = [],
     ) {
         super(id)
+        this.publish(
+            new MovieCreatedEvent(
+                id,
+                this.title,
+                this.synopsis,
+                this.release,
+                this.creator,
+                this.rating,
+                this.director,
+                this.duration,
+                this.type,
+                this.cost,
+                this.basedOn,
+                this.actors,
+            ),
+        )
     }
 
     get title() {

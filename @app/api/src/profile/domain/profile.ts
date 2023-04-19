@@ -3,6 +3,7 @@ import { History } from './entities/history/history'
 import { HistoryId } from './entities/history/value-objects/id'
 import { InvalidProfileException } from './exceptions/invalid.profile'
 import { Preference } from './entities/preference/preference'
+import { ProfileCreatedEvent } from './events/profile.created'
 import { ProfileEmail } from './value-objects/profile.email'
 import { ProfileId } from './value-objects/profile.id'
 import { ProfileLanguage } from './value-objects/profile.language'
@@ -20,6 +21,17 @@ export class Profile extends AggregateRoot<ProfileId> {
         private _rates: Rate[] = [],
     ) {
         super(id)
+        this.publish(
+            new ProfileCreatedEvent(
+                id,
+                this.email,
+                this.language,
+                this.user,
+                this.preferences,
+                this.history,
+                this.rates,
+            ),
+        )
     }
 
     get email() {

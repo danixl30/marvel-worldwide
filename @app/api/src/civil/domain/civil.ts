@@ -1,4 +1,5 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
+import { CivilCreatedEvent } from './events/civil.created'
 import { CivilId } from './value-objects/id'
 import { CivilRelationship } from './value-objects/relationship'
 import { InvalidCivilException } from './exceptions/invalid.civil'
@@ -11,6 +12,7 @@ export class Civil extends AggregateRoot<CivilId> {
         private _relation: CivilRelationship,
     ) {
         super(id)
+        this.publish(new CivilCreatedEvent(id, this.person, this.relation))
     }
 
     get person() {
