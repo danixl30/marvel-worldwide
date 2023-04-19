@@ -1,6 +1,9 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { History } from './entities/history/history'
+import { HistoryAddedEvent } from './events/history.added'
+import { HistoryEndedEvent } from './events/history.ended'
 import { HistoryId } from './entities/history/value-objects/id'
+import { HistoryNotExistException } from './exceptions/history.not.exist'
 import { InvalidProfileException } from './exceptions/invalid.profile'
 import { Preference } from './entities/preference/preference'
 import { ProfileCreatedEvent } from './events/profile.created'
@@ -60,11 +63,14 @@ export class Profile extends AggregateRoot<ProfileId> {
 
     addHistory(history: History) {
         this._history.push(history)
+        this.publish(new HistoryAddedEvent(this.id, history))
     }
 
     endHistory(historyId: HistoryId) {
         const history = this.history.find((e) => e.id.equals(historyId))
-        history?.endHistory()
+        if (!history) throw new HistoryNotExistException()
+        history.endHistory()
+        this.publish(new HistoryEndedEvent(this.id, history))
     }
 
     validateState(): void {
