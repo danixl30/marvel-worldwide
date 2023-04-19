@@ -1,6 +1,7 @@
 import { Actor } from 'src/movie/domain/entities/actor/actor'
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { Comic } from 'src/movie/domain/entities/comic/comic'
+import { InvalidVideogameException } from './exceptions/invalid.videogame'
 import { ReleaseDate } from './value-objects/release.date'
 import { VideogameCreator } from './value-objects/creator'
 import { VideogameId } from './value-objects/id'
@@ -75,6 +76,6 @@ export class Videogame extends AggregateRoot<VideogameId> {
             !this.platforms ||
             !this.actors
         )
-            throw new Error('Invalid videogame')
+            throw new InvalidVideogameException()
     }
 }

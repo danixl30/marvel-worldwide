@@ -1,6 +1,7 @@
 import { Actor } from 'src/movie/domain/entities/actor/actor'
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { Comic } from 'src/movie/domain/entities/comic/comic'
+import { InvalidSerieException } from './exceptions/invalid.serie'
 import { ReleaseDate } from './value-objects/release.date'
 import { SerieChannel } from './value-objects/channel'
 import { SerieCreator } from './value-objects/creator'
@@ -81,6 +82,6 @@ export class Serie extends AggregateRoot<SerieId> {
             !this.channel ||
             !this.creator
         )
-            throw new Error('Invalid serie')
+            throw new InvalidSerieException()
     }
 }

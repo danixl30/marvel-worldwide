@@ -3,6 +3,7 @@ import { HeroeCreator } from './value-object/creator'
 import { HeroeId } from './value-object/heroe.id'
 import { HeroeName } from './value-object/name'
 import { HeroePhrase } from './value-object/phrase'
+import { InvalidHeroeException } from './exceptions/invalid.heroe'
 import { ObjectItem } from './entities/object/object'
 import { Person } from './entities/person/person'
 import { Power } from './entities/power/power'
@@ -54,6 +55,6 @@ export class Heroe extends AggregateRoot<HeroeId> {
             !this.powers ||
             !this.objects
         )
-            throw new Error('Inavlid heroe')
+            throw new InvalidHeroeException()
     }
 }

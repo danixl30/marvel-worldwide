@@ -1,6 +1,7 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { History } from './entities/history/history'
 import { HistoryId } from './entities/history/value-objects/id'
+import { InvalidProfileException } from './exceptions/invalid.profile'
 import { Preference } from './entities/preference/preference'
 import { ProfileEmail } from './value-objects/profile.email'
 import { ProfileId } from './value-objects/profile.id'
@@ -64,6 +65,6 @@ export class Profile extends AggregateRoot<ProfileId> {
             !this.rates ||
             !this.preferences
         )
-            throw new Error('Invalid profile')
+            throw new InvalidProfileException()
     }
 }

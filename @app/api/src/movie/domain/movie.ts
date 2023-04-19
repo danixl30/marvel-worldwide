@@ -1,6 +1,7 @@
 import { Actor } from './entities/actor/actor'
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { Comic } from './entities/comic/comic'
+import { InvalidMovieException } from './exceptions/invalid.movie'
 import { MovieCreator } from './value-objects/creator'
 import { MovieDirector } from './value-objects/director'
 import { MovieDuration } from './value-objects/duration'
@@ -89,7 +90,7 @@ export class Movie extends AggregateRoot<MovieId> {
             !this.creator ||
             !this.rating
         ) {
-            throw new Error('Invalid movie')
+            throw new InvalidMovieException()
         }
     }
 }

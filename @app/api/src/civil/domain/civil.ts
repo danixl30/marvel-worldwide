@@ -1,6 +1,7 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { CivilId } from './value-objects/id'
 import { CivilRelationship } from './value-objects/relationship'
+import { InvalidCivilException } from './exceptions/invalid.civil'
 import { Person } from 'src/heroe/domain/entities/person/person'
 
 export class Civil extends AggregateRoot<CivilId> {
@@ -22,6 +23,6 @@ export class Civil extends AggregateRoot<CivilId> {
 
     validateState(): void {
         if (!this.id || !this.person || !this.relation)
-            throw new Error('Invalid Civil')
+            throw new InvalidCivilException()
     }
 }

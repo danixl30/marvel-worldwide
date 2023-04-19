@@ -1,4 +1,5 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
+import { InvalidVillainException } from './exceptions/invalid.villain'
 import { ObjectItem } from 'src/heroe/domain/entities/object/object'
 import { Person } from 'src/heroe/domain/entities/person/person'
 import { Power } from 'src/heroe/domain/entities/power/power'
@@ -40,6 +41,6 @@ export class Villain extends AggregateRoot<VillainId> {
 
     validateState(): void {
         if (!this.id || !this.name || !this.person || !this.phrase)
-            throw new Error('Invalid villain')
+            throw new InvalidVillainException()
     }
 }

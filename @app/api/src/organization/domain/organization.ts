@@ -2,6 +2,7 @@ import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
 import { CreationPlace } from './value-objects/creation.place'
 import { FirstAparition } from './value-objects/first.aparition'
 import { Headquarter } from './entities/headquarter/hearquarter'
+import { InvalidOrganizationException } from './exceptions/invalid.organization'
 import { Member } from './entities/member/member'
 import { OrganizationFounder } from './value-objects/founder'
 import { OrganizationId } from './value-objects/organization.id'
@@ -74,6 +75,6 @@ export class Organization extends AggregateRoot<OrganizationId> {
             !this.objetive ||
             !this.members
         )
-            throw new Error('Invalid organization')
+            throw new InvalidOrganizationException()
     }
 }
