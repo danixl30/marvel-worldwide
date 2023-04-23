@@ -7,9 +7,9 @@ import { HeadquarterPlace } from './value-objects/headquarter.place'
 export class Headquarter extends Entity<HeadquarterId> {
     constructor(
         id: HeadquarterId,
-        private readonly _name: HeadquarterName,
-        private readonly _kind: HeadquarterKind,
-        private readonly _place: HeadquarterPlace,
+        private _name: HeadquarterName,
+        private _kind: HeadquarterKind,
+        private _place: HeadquarterPlace,
     ) {
         super(id)
     }
@@ -24,5 +24,17 @@ export class Headquarter extends Entity<HeadquarterId> {
 
     get place() {
         return this._place
+    }
+
+    changeName(name: HeadquarterName) {
+        this._name = name
+    }
+
+    changeKind(kind: HeadquarterKind) {
+        this._kind = kind
+    }
+
+    changePlace(place: HeadquarterPlace) {
+        this._place = place
     }
 }

@@ -4,6 +4,8 @@ module.exports = {
     extends: [
         'plugin:@typescript-eslint/recommended',
         'plugin:prettier/recommended',
+        'plugin:import/warnings',
+        'plugin:import/typescript',
     ],
     env: {
         node: true,
@@ -29,7 +31,17 @@ module.exports = {
         'prefer-const': ['error'],
         'prefer-object-spread': ['error'],
         'prefer-regex-literals': ['error'],
-        'sort-imports': ['warn'],
+        'import/extensions': [
+            'warn',
+            'ignorePackages',
+            {
+                js: 'never',
+                mjs: 'never',
+                jsx: 'never',
+                ts: 'never',
+                tsx: 'never',
+            },
+        ],
         semi: ['error', 'never'],
         'consistent-return': 2,
         indent: [1, 4],

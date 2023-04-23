@@ -4,6 +4,7 @@ import { FirstAparition } from './value-objects/first.aparition'
 import { Headquarter } from './entities/headquarter/hearquarter'
 import { InvalidOrganizationException } from './exceptions/invalid.organization'
 import { Member } from './entities/member/member'
+import { MemberId } from './entities/member/value-objects/member.id'
 import { OrganizationCreatedEvent } from './events/organization.created'
 import { OrganizationFounder } from './value-objects/founder'
 import { OrganizationId } from './value-objects/organization.id'
@@ -76,6 +77,46 @@ export class Organization extends AggregateRoot<OrganizationId> {
 
     get firstApparition() {
         return this._firstApparition
+    }
+
+    changeName(name: OrganizationName) {
+        this._name = name
+    }
+
+    changeObjetive(objetive: OrganizationObjetive) {
+        this._objetive = objetive
+    }
+
+    changeFirstApparition(apparition: FirstAparition) {
+        this._firstApparition = apparition
+    }
+
+    changeSlogan(slogan: Slogan) {
+        this._slogan = slogan
+    }
+
+    changeLeader(leader: OrganizationLeader) {
+        this._leader = leader
+    }
+
+    changeHeadQuarter(headquarter: Headquarter) {
+        this._headquarter = headquarter
+    }
+
+    changeCreationPlace(creationPlace: CreationPlace) {
+        this._creationPlace = creationPlace
+    }
+
+    addMember(member: Member) {
+        if (this.members.find((e) => e.equals(member.id)))
+            throw new Error('Member already exist')
+        if (this.members.find((e) => e.charge.equals(member.charge)))
+            throw new Error('Charge already exist')
+        this._members.push(member)
+    }
+
+    removeMember(member: MemberId) {
+        this._members = this.members.filter((e) => e.id.equals(member))
     }
 
     validateState(): void {

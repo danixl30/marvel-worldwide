@@ -37,4 +37,24 @@ export class ObjectItem extends Entity<ObjectId> {
     get creator() {
         return this._creator
     }
+
+    changeName(name: ObjectName) {
+        this._name = name
+    }
+
+    changeDescription(description: ObjectDescription) {
+        this._description = description
+    }
+
+    changeKind(kind: ObjectKind) {
+        this._kind = kind
+    }
+
+    changeMaterial(material: ObjectMaterial) {
+        this._material = material
+    }
+
+    changeCreator(creator: ObjectCreator) {
+        this._creator = creator
+    }
 }

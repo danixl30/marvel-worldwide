@@ -12,6 +12,10 @@ import { SerieRating } from './value-objects/rating'
 import { SerieSynopsis } from './value-objects/synopsis'
 import { SerieTitle } from './value-objects/title'
 import { SerieType } from './value-objects/type'
+import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
+import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
+import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
+import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
 
 export class Serie extends AggregateRoot<SerieId> {
     constructor(
@@ -83,6 +87,66 @@ export class Serie extends AggregateRoot<SerieId> {
 
     get basedOn() {
         return this._basedOn
+    }
+
+    changeTitle(title: SerieTitle) {
+        this._title = title
+    }
+
+    changeSynopsis(synopsis: SerieSynopsis) {
+        this._synopsis = synopsis
+    }
+
+    changeReleaseDate(release: ReleaseDate) {
+        this._release = release
+    }
+
+    changeType(type: SerieType) {
+        this._type = type
+    }
+
+    changeChannel(channel: SerieChannel) {
+        this._channel = channel
+    }
+
+    changeEpisodes(episodes: SerieEpisodes) {
+        this._episodes = episodes
+    }
+
+    changeCreator(creator: SerieCreator) {
+        this._creator = creator
+    }
+
+    changeBasedOn(basedOn: Comic) {
+        this._basedOn = basedOn
+    }
+
+    changeActorName(id: ActorId, name: ActorName) {
+        const actor = this.actors.find((e) => e.id.equals(id))
+        if (!actor) throw new Error('Actor not found')
+        actor.changeName(name)
+    }
+
+    changeActorCharacter(id: ActorId, character: ActorCharacter) {
+        const actor = this.actors.find((e) => e.id.equals(id))
+        if (!actor) throw new Error('Actor not found')
+        actor.changeCharacter(character)
+    }
+
+    changeActorRole(id: ActorId, role: ActorRole) {
+        const actor = this.actors.find((e) => e.id.equals(id))
+        if (!actor) throw new Error('Actor not found')
+        actor.changeRole(role)
+    }
+
+    addActor(actor: Actor) {
+        if (this.actors.find((e) => e.equals(actor.id)))
+            throw new Error('Actor already exist')
+        this._actors.push(actor)
+    }
+
+    removeActor(actorId: ActorId) {
+        this._actors = this.actors.filter((e) => !e.equals(actorId))
     }
 
     validateState(): void {

@@ -25,4 +25,16 @@ export class Actor extends Entity<ActorId> {
     get role() {
         return this._role
     }
+
+    changeName(name: ActorName) {
+        this._name = name
+    }
+
+    changeCharacter(character: ActorCharacter) {
+        this._character = character
+    }
+
+    changeRole(role: ActorRole) {
+        this._role = role
+    }
 }

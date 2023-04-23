@@ -12,6 +12,7 @@ import { ProfileId } from './value-objects/profile.id'
 import { ProfileLanguage } from './value-objects/profile.language'
 import { ProfileUser } from './value-objects/profile.user'
 import { Rate } from './entities/rate/rate'
+import { RateId } from './entities/rate/value-objects/rate.id'
 
 export class Profile extends AggregateRoot<ProfileId> {
     constructor(
@@ -71,6 +72,24 @@ export class Profile extends AggregateRoot<ProfileId> {
         if (!history) throw new HistoryNotExistException()
         history.endHistory()
         this.publish(new HistoryEndedEvent(this.id, history))
+    }
+
+    changeLanguage(language: ProfileLanguage) {
+        this._language = language
+    }
+
+    changeEmail(email: ProfileEmail) {
+        this._email = email
+    }
+
+    addRate(rate: Rate) {
+        if (this.rates.find((e) => e.id.equals(rate.id)))
+            throw new Error('Rate is added')
+        this._rates.push(rate)
+    }
+
+    removeRate(rateId: RateId) {
+        this._rates = this.rates.filter((e) => !e.id.equals(rateId))
     }
 
     validateState(): void {

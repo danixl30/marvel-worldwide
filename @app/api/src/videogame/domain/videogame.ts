@@ -11,6 +11,10 @@ import { VideogameRating } from './value-objects/rating'
 import { VideogameSynopsis } from './value-objects/synopsis'
 import { VideogameTitle } from './value-objects/title'
 import { VideogameType } from './value-objects/type'
+import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
+import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
+import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
+import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
 
 export class Videogame extends AggregateRoot<VideogameId> {
     constructor(
@@ -76,6 +80,68 @@ export class Videogame extends AggregateRoot<VideogameId> {
 
     get basedOn() {
         return this._basedOn
+    }
+
+    changeTitle(title: VideogameTitle) {
+        this._title = title
+    }
+
+    changeSynopsis(synopsis: VideogameSynopsis) {
+        this._synopsis = synopsis
+    }
+
+    changeReleaseDate(release: ReleaseDate) {
+        this._release = release
+    }
+
+    changeType(type: VideogameType) {
+        this._type = type
+    }
+
+    changeCreator(creator: VideogameCreator) {
+        this._creator = creator
+    }
+
+    changeBasedOn(basedOn: Comic) {
+        this._basedOn = basedOn
+    }
+
+    addPlatForm(platform: VideogamePlatform) {
+        if (this.platforms.find((e) => e.equals(platform)))
+            throw new Error('Platform already exist')
+        this._platforms.push(platform)
+    }
+
+    removePlatform(platform: VideogamePlatform) {
+        this._platforms = this.platforms.filter((e) => !e.equals(platform))
+    }
+
+    changeActorName(id: ActorId, name: ActorName) {
+        const actor = this.actors.find((e) => e.id.equals(id))
+        if (!actor) throw new Error('Actor not found')
+        actor.changeName(name)
+    }
+
+    changeActorCharacter(id: ActorId, character: ActorCharacter) {
+        const actor = this.actors.find((e) => e.id.equals(id))
+        if (!actor) throw new Error('Actor not found')
+        actor.changeCharacter(character)
+    }
+
+    changeActorRole(id: ActorId, role: ActorRole) {
+        const actor = this.actors.find((e) => e.id.equals(id))
+        if (!actor) throw new Error('Actor not found')
+        actor.changeRole(role)
+    }
+
+    addActor(actor: Actor) {
+        if (this.actors.find((e) => e.equals(actor.id)))
+            throw new Error('Actor already exist')
+        this._actors.push(actor)
+    }
+
+    removeActor(actorId: ActorId) {
+        this._actors = this.actors.filter((e) => !e.equals(actorId))
     }
 
     validateState(): void {

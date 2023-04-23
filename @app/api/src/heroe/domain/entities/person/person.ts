@@ -13,7 +13,6 @@ export class Person extends Entity<PersonId> {
         id: PersonId,
         private _name: PersonName,
         private _gender: PersonGender,
-        private _occupation: PersonOccupation,
         private _maritialStatus: MaritialStatus,
         private _hair: PersonHair,
         private _eye: PersonEye,
@@ -29,10 +28,6 @@ export class Person extends Entity<PersonId> {
 
     get gender() {
         return this._gender
-    }
-
-    get occupation() {
-        return this._occupation
     }
 
     get maritialStatus() {
@@ -53,5 +48,49 @@ export class Person extends Entity<PersonId> {
 
     get occupations() {
         return this._occupations
+    }
+
+    changeName(name: PersonName) {
+        this._name = name
+    }
+
+    changeGender(gender: PersonGender) {
+        this._gender = gender
+    }
+
+    changeMaritialStatus(status: MaritialStatus) {
+        this._maritialStatus = status
+    }
+
+    changeHair(hair: PersonHair) {
+        this._hair = hair
+    }
+
+    changeEyes(eyes: PersonEye) {
+        this._eye = eyes
+    }
+
+    addOccupation(occupation: PersonOccupation) {
+        if (this.occupations.find((e) => e.equals(occupation)))
+            throw new Error('occupation already exist')
+        this._occupations.push(occupation)
+    }
+
+    removeOccupation(occupation: PersonOccupation) {
+        this._occupations = this._occupations.filter(
+            (e) => !e.equals(occupation),
+        )
+    }
+
+    addNationality(nationality: PersonNationality) {
+        if (this.nationalites.find((e) => e.equals(nationality)))
+            throw new Error('Nationality already exist')
+        this._nationalities.push(nationality)
+    }
+
+    removeNationality(nationality: PersonNationality) {
+        this._nationalities = this._nationalities.filter(
+            (e) => !e.equals(nationality),
+        )
     }
 }
