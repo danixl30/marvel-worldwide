@@ -1,4 +1,5 @@
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
+import { Optional } from '@mono/types-utils'
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export interface Repository<
@@ -7,4 +8,5 @@ export interface Repository<
 > {
     save(aggregate: T): Promise<T>
     delete(aggregate: T): Promise<T>
+    getById(id: I): Promise<Optional<I>>
 }
