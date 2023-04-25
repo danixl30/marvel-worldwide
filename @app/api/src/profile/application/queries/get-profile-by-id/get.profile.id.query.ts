@@ -23,7 +23,6 @@ export class GetProfileByIdQuery
             new ProfileId(data.id),
         )
         if (!profile) return Result.error(new ProfileNotFoundError())
-        await this.profileRepository.delete(profile)
         return Result.success({
             id: profile.id.value,
             language: profile.language.value,
