@@ -8,5 +8,5 @@ export interface Repository<
 > {
     save(aggregate: T): Promise<T>
     delete(aggregate: T): Promise<T>
-    getById(id: I): Promise<Optional<I>>
+    getById(id: I): Promise<Optional<T>>
 }

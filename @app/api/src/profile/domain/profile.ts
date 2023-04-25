@@ -10,16 +10,15 @@ import { ProfileCreatedEvent } from './events/profile.created'
 import { ProfileEmail } from './value-objects/profile.email'
 import { ProfileId } from './value-objects/profile.id'
 import { ProfileLanguage } from './value-objects/profile.language'
-import { ProfileUser } from './value-objects/profile.user'
 import { Rate } from './entities/rate/rate'
 import { RateId } from './entities/rate/value-objects/rate.id'
+import { ProfileDeletedEvent } from './events/profile.deleted'
 
 export class Profile extends AggregateRoot<ProfileId> {
     constructor(
         id: ProfileId,
         private _email: ProfileEmail,
         private _language: ProfileLanguage,
-        private _user: ProfileUser,
         private _preferences: Preference[],
         private _history: History[] = [],
         private _rates: Rate[] = [],
@@ -30,7 +29,6 @@ export class Profile extends AggregateRoot<ProfileId> {
                 id,
                 this.email,
                 this.language,
-                this.user,
                 this.preferences,
                 this.history,
                 this.rates,
@@ -44,10 +42,6 @@ export class Profile extends AggregateRoot<ProfileId> {
 
     get language() {
         return this._language
-    }
-
-    get user() {
-        return this._user
     }
 
     get preferences() {
@@ -92,13 +86,16 @@ export class Profile extends AggregateRoot<ProfileId> {
         this._rates = this.rates.filter((e) => !e.id.equals(rateId))
     }
 
+    delete() {
+        this.publish(new ProfileDeletedEvent(this.id))
+    }
+
     validateState(): void {
         if (
             !this.id ||
             !this.email ||
             !this.language ||
             !this.history ||
-            !this.user ||
             !this.rates ||
             !this.preferences
         )

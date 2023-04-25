@@ -4,7 +4,6 @@ import { Preference } from '../entities/preference/preference'
 import { ProfileEmail } from '../value-objects/profile.email'
 import { ProfileId } from '../value-objects/profile.id'
 import { ProfileLanguage } from '../value-objects/profile.language'
-import { ProfileUser } from '../value-objects/profile.user'
 import { Rate } from '../entities/rate/rate'
 
 export class ProfileCreatedEvent extends DomainEvent {
@@ -12,7 +11,6 @@ export class ProfileCreatedEvent extends DomainEvent {
         private _id: ProfileId,
         private _email: ProfileEmail,
         private _language: ProfileLanguage,
-        private _user: ProfileUser,
         private _preferences: Preference[],
         private _history: History[] = [],
         private _rates: Rate[] = [],
@@ -30,10 +28,6 @@ export class ProfileCreatedEvent extends DomainEvent {
 
     get language() {
         return this._language
-    }
-
-    get user() {
-        return this._user
     }
 
     get preferences() {
