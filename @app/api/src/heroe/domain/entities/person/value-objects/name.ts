@@ -1,12 +1,8 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class PersonName implements ValueObject<PersonName> {
-    constructor(
-        private readonly _firstName: string,
-        private readonly _lastName: string,
-    ) {
-        if (!this.firstName || !this.lastName)
-            throw new Error('Invalid person name')
+    constructor(private readonly _firstName: string, private readonly _lastName: string) {
+        if (!this.firstName || !this.lastName) throw new Error('Invalid person name')
     }
 
     get firstName() {

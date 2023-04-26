@@ -3,8 +3,7 @@ import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class OrganizationFounder implements ValueObject<OrganizationFounder> {
     constructor(private readonly _id: string, private readonly _name: string) {
-        if (!regExpUUID.test(this.id) || !this.name)
-            throw new Error('Invalid organization founder')
+        if (!regExpUUID.test(this.id) || !this.name) throw new Error('Invalid organization founder')
     }
 
     get value() {

@@ -4,11 +4,7 @@ import { MemberId } from './value-objects/member.id'
 import { MemberName } from './value-objects/member.name'
 
 export class Member extends Entity<MemberId> {
-    constructor(
-        id: MemberId,
-        private _name: MemberName,
-        private _charge: MemberCharge,
-    ) {
+    constructor(id: MemberId, private _name: MemberName, private _charge: MemberCharge) {
         super(id)
     }
 

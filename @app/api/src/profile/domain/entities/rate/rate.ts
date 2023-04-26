@@ -5,12 +5,7 @@ import { RateTarget } from './value-objects/rate.target'
 import { RateTimestamp } from './value-objects/rate.timestamp'
 
 export class Rate extends Entity<RateId> {
-    constructor(
-        id: RateId,
-        private _target: RateTarget,
-        private _calification: RateCalification,
-        private _timestamp = new RateTimestamp(),
-    ) {
+    constructor(id: RateId, private _target: RateTarget, private _calification: RateCalification, private _timestamp = new RateTimestamp()) {
         super(id)
     }
 

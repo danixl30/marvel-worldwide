@@ -4,11 +4,7 @@ import { DomainEvent } from 'src/core/domain/events/event'
 import { Person } from 'src/heroe/domain/entities/person/person'
 
 export class CivilCreatedEvent extends DomainEvent {
-    constructor(
-        private _id: CivilId,
-        private _person: Person,
-        private _relation: CivilRelationship,
-    ) {
+    constructor(private _id: CivilId, private _person: Person, private _relation: CivilRelationship) {
         super()
     }
 

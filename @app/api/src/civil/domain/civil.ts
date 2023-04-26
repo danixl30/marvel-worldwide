@@ -11,13 +11,10 @@ import { PersonHair } from 'src/heroe/domain/entities/person/value-objects/hair'
 import { PersonName } from 'src/heroe/domain/entities/person/value-objects/name'
 import { PersonNationality } from 'src/heroe/domain/entities/person/value-objects/nationality'
 import { PersonOccupation } from 'src/heroe/domain/entities/person/value-objects/occupation'
+import { CivilDeletedEvent } from './events/civil.deleted'
 
 export class Civil extends AggregateRoot<CivilId> {
-    constructor(
-        id: CivilId,
-        private _person: Person,
-        private _relation: CivilRelationship,
-    ) {
+    constructor(id: CivilId, private _person: Person, private _relation: CivilRelationship) {
         super(id)
         this.publish(new CivilCreatedEvent(id, this.person, this.relation))
     }
@@ -70,8 +67,11 @@ export class Civil extends AggregateRoot<CivilId> {
         this.person.removeNationality(nationality)
     }
 
+    delete() {
+        this.publish(new CivilDeletedEvent(this.id))
+    }
+
     validateState(): void {
-        if (!this.id || !this.person || !this.relation)
-            throw new InvalidCivilException()
+        if (!this.id || !this.person || !this.relation) throw new InvalidCivilException()
     }
 }

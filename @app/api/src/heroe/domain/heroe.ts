@@ -39,18 +39,7 @@ export class Heroe extends AggregateRoot<HeroeId> {
         private _objects: ObjectItem[] = [],
     ) {
         super(id)
-        this.publish(
-            new HeroeCreatedEvent(
-                id,
-                this.name,
-                this.person,
-                this.phrase,
-                this.creator,
-                this.archEnemy,
-                this.powers,
-                this.objects,
-            ),
-        )
+        this.publish(new HeroeCreatedEvent(id, this.name, this.person, this.phrase, this.creator, this.archEnemy, this.powers, this.objects))
     }
 
     get name() {
@@ -134,8 +123,7 @@ export class Heroe extends AggregateRoot<HeroeId> {
     }
 
     addPower(power: Power) {
-        if (this.powers.find((e) => e.id.equals(power.id)))
-            throw new Error('Power already exist')
+        if (this.powers.find((e) => e.id.equals(power.id))) throw new Error('Power already exist')
         this._powers.push(power)
     }
 
@@ -162,8 +150,7 @@ export class Heroe extends AggregateRoot<HeroeId> {
     }
 
     addObject(object: ObjectItem) {
-        if (this.objects.find((e) => e.id.equals(object.id)))
-            throw new Error('Object already exist')
+        if (this.objects.find((e) => e.id.equals(object.id))) throw new Error('Object already exist')
         this._objects.push(object)
     }
 
@@ -202,16 +189,7 @@ export class Heroe extends AggregateRoot<HeroeId> {
     }
 
     validateState(): void {
-        if (
-            !this.id ||
-            !this.name ||
-            !this.person ||
-            !this.phrase ||
-            !this.creator ||
-            !this.powers ||
-            !this.objects ||
-            !this.archEnemy
-        )
+        if (!this.id || !this.name || !this.person || !this.phrase || !this.creator || !this.powers || !this.objects || !this.archEnemy)
             throw new InvalidHeroeException()
     }
 }

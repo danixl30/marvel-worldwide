@@ -1,10 +1,7 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class HeadquarterPlace implements ValueObject<HeadquarterPlace> {
-    constructor(
-        private readonly country: string,
-        private readonly city: string,
-    ) {
+    constructor(private readonly country: string, private readonly city: string) {
         if (!country || !city) throw new Error('Invalid headquarter place')
     }
 

@@ -24,16 +24,7 @@ export class Profile extends AggregateRoot<ProfileId> {
         private _rates: Rate[] = [],
     ) {
         super(id)
-        this.publish(
-            new ProfileCreatedEvent(
-                id,
-                this.email,
-                this.language,
-                this.preferences,
-                this.history,
-                this.rates,
-            ),
-        )
+        this.publish(new ProfileCreatedEvent(id, this.email, this.language, this.preferences, this.history, this.rates))
     }
 
     get email() {
@@ -77,8 +68,7 @@ export class Profile extends AggregateRoot<ProfileId> {
     }
 
     addRate(rate: Rate) {
-        if (this.rates.find((e) => e.id.equals(rate.id)))
-            throw new Error('Rate is added')
+        if (this.rates.find((e) => e.id.equals(rate.id))) throw new Error('Rate is added')
         this._rates.push(rate)
     }
 
@@ -91,14 +81,6 @@ export class Profile extends AggregateRoot<ProfileId> {
     }
 
     validateState(): void {
-        if (
-            !this.id ||
-            !this.email ||
-            !this.language ||
-            !this.history ||
-            !this.rates ||
-            !this.preferences
-        )
-            throw new InvalidProfileException()
+        if (!this.id || !this.email || !this.language || !this.history || !this.rates || !this.preferences) throw new InvalidProfileException()
     }
 }

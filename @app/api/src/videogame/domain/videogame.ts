@@ -107,8 +107,7 @@ export class Videogame extends AggregateRoot<VideogameId> {
     }
 
     addPlatForm(platform: VideogamePlatform) {
-        if (this.platforms.find((e) => e.equals(platform)))
-            throw new Error('Platform already exist')
+        if (this.platforms.find((e) => e.equals(platform))) throw new Error('Platform already exist')
         this._platforms.push(platform)
     }
 
@@ -135,8 +134,7 @@ export class Videogame extends AggregateRoot<VideogameId> {
     }
 
     addActor(actor: Actor) {
-        if (this.actors.find((e) => e.equals(actor.id)))
-            throw new Error('Actor already exist')
+        if (this.actors.find((e) => e.equals(actor.id))) throw new Error('Actor already exist')
         this._actors.push(actor)
     }
 

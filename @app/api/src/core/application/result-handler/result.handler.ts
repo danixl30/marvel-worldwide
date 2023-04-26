@@ -3,8 +3,7 @@ import { ResultHandler } from './types/result.callbacks'
 
 export class Result<T, E extends ApplicationError> {
     private constructor(private value?: T, private error?: E) {
-        if (value !== undefined && error !== undefined)
-            throw new Error('Value and error not to be definined same time')
+        if (value !== undefined && error !== undefined) throw new Error('Value and error not to be definined same time')
     }
 
     unwrap(): T {

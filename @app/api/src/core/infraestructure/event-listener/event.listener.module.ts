@@ -4,12 +4,7 @@ import { join } from 'node:path'
 import { objectValues } from '@mono/object-utils'
 
 const initializeModules = () => {
-    const data = glob.sync(
-        join(
-            __dirname,
-            '../../../**/infraestructure/modules/*.event.listener.module.js',
-        ).replace(/\\/g, '/'),
-    )
+    const data = glob.sync(join(__dirname, '../../../**/infraestructure/modules/*.event.listener.module.js').replace(/\\/g, '/'))
     return data.map((e) => {
         const module = require(e)
         return objectValues(module)[0]

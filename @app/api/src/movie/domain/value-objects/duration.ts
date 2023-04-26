@@ -1,11 +1,7 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class MovieDuration implements ValueObject<MovieDuration> {
-    constructor(
-        private readonly _hours: number,
-        private readonly _minutes: number,
-        private readonly _seconds: number,
-    ) {
+    constructor(private readonly _hours: number, private readonly _minutes: number, private readonly _seconds: number) {
         if (
             (!this.hours && !this.minutes && !this.seconds) ||
             this.hours < 0 ||

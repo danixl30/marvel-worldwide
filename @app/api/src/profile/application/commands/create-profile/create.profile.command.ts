@@ -14,33 +14,14 @@ import { Preference } from 'src/profile/domain/entities/preference/preference'
 import { PreferenceId } from 'src/profile/domain/entities/preference/value-objects/id'
 import { PreferenceTarget } from 'src/profile/domain/entities/preference/value-objects/target'
 
-export class CreateProfileCommand
-    implements
-        ApplicationService<
-            CreateProfileDTO,
-            CreateProfileResponse,
-            ApplicationError
-        >
-{
-    constructor(
-        private readonly profileRepository: ProfileRepository,
-        private readonly uuidGenerator: UUIDGenerator,
-        private eventHandler: EventHandler,
-    ) {}
-    async execute(
-        data: CreateProfileDTO,
-    ): Promise<Result<CreateProfileResponse, ApplicationError>> {
+export class CreateProfileCommand implements ApplicationService<CreateProfileDTO, CreateProfileResponse, ApplicationError> {
+    constructor(private readonly profileRepository: ProfileRepository, private readonly uuidGenerator: UUIDGenerator, private eventHandler: EventHandler) {}
+    async execute(data: CreateProfileDTO): Promise<Result<CreateProfileResponse, ApplicationError>> {
         const profile = new Profile(
             new ProfileId(this.uuidGenerator.generate()),
             new ProfileEmail(data.email),
             new ProfileLanguage(data.language),
-            data.preferences.map(
-                (e) =>
-                    new Preference(
-                        new PreferenceId(this.uuidGenerator.generate()),
-                        new PreferenceTarget(e.platform, e.kind),
-                    ),
-            ),
+            data.preferences.map((e) => new Preference(new PreferenceId(this.uuidGenerator.generate()), new PreferenceTarget(e.platform, e.kind))),
         )
         await this.profileRepository.save(profile)
         this.eventHandler.publish(profile.pullEvents())

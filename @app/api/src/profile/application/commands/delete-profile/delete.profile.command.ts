@@ -8,24 +8,10 @@ import { EventHandler } from 'src/core/application/event-handler/event.handler'
 import { ProfileId } from 'src/profile/domain/value-objects/profile.id'
 import { ProfileNotFoundError } from '../../errors/profile.not.found'
 
-export class DeleteProfileCommand
-    implements
-        ApplicationService<
-            DeleteProfileDTO,
-            DeleteProfileResponse,
-            ApplicationError
-        >
-{
-    constructor(
-        private readonly profileRepository: ProfileRepository,
-        private readonly eventHandler: EventHandler,
-    ) {}
-    async execute(
-        data: DeleteProfileDTO,
-    ): Promise<Result<DeleteProfileResponse, any>> {
-        const profile = await this.profileRepository.getById(
-            new ProfileId(data.id),
-        )
+export class DeleteProfileCommand implements ApplicationService<DeleteProfileDTO, DeleteProfileResponse, ApplicationError> {
+    constructor(private readonly profileRepository: ProfileRepository, private readonly eventHandler: EventHandler) {}
+    async execute(data: DeleteProfileDTO): Promise<Result<DeleteProfileResponse, any>> {
+        const profile = await this.profileRepository.getById(new ProfileId(data.id))
         if (!profile) return Result.error(new ProfileNotFoundError())
         await this.profileRepository.delete(profile)
         profile.delete()

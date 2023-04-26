@@ -9,15 +9,6 @@ import { RateLimitModule } from '../rate-limit/rate.limit.module'
 import { ResolversModule } from '../resolvers/resolvers.module'
 
 @Module({
-    imports: [
-        EnvModule,
-        RateLimitModule,
-        DatabaseConnectionModule,
-        ControllersModule,
-        EventHandlerModule,
-        EventListenerModule,
-        GatewayModule,
-        ResolversModule,
-    ],
+    imports: [EnvModule, RateLimitModule, DatabaseConnectionModule, ControllersModule, EventHandlerModule, EventListenerModule, GatewayModule, ResolversModule],
 })
 export class AppModule {}

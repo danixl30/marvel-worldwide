@@ -1,12 +1,8 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class PreferenceTarget implements ValueObject<PreferenceTarget> {
-    constructor(
-        private readonly _platform: string,
-        private readonly _kind: string,
-    ) {
-        if (!this.platform || !this.kind)
-            throw new Error('Invalid preference target')
+    constructor(private readonly _platform: string, private readonly _kind: string) {
+        if (!this.platform || !this.kind) throw new Error('Invalid preference target')
     }
 
     get platform() {

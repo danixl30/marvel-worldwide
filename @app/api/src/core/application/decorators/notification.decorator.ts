@@ -4,14 +4,7 @@ import { NotificationHandler } from '../notifications/handler/notification.handl
 import { Result } from '../result-handler/result.handler'
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
-export class NotificationDecorator<
-    T,
-    U,
-    E extends ApplicationError,
-    D extends object,
-    V extends ValueObject<V>,
-> implements ApplicationService<T, U, E>
-{
+export class NotificationDecorator<T, U, E extends ApplicationError, D extends object, V extends ValueObject<V>> implements ApplicationService<T, U, E> {
     constructor(
         private service: ApplicationService<T, U, E>,
         private notificationHandler: NotificationHandler<D, V>,

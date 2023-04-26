@@ -9,24 +9,15 @@ export class EventHandlerNative implements EventHandler {
         [name: string]: ((e: DomainEvent) => Promise<void>)[]
     } = {}
     publish(events: DomainEvent[]): void {
-        events.forEach((event) =>
-            this.subscribers[event.constructor.name]?.forEach((sub) =>
-                sub(event),
-            ),
-        )
+        events.forEach((event) => this.subscribers[event.constructor.name]?.forEach((sub) => sub(event)))
     }
 
-    subscribe(
-        name: string,
-        callback: (event: DomainEvent) => Promise<void>,
-    ): Subscription {
+    subscribe(name: string, callback: (event: DomainEvent) => Promise<void>): Subscription {
         if (!this.subscribers[name]) this.subscribers[name] = []
         this.subscribers[name].push(callback)
         return {
             unsubscribe: () => {
-                this.subscribers[name] = this.subscribers[name].filter(
-                    (e) => e !== callback,
-                )
+                this.subscribers[name] = this.subscribers[name].filter((e) => e !== callback)
             },
         }
     }
