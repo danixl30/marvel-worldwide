@@ -26,6 +26,7 @@ import { ObjectDescription } from './entities/object/value-objects/object.descri
 import { ObjectKind } from './entities/object/value-objects/object.kind'
 import { ObjectMaterial } from './entities/object/value-objects/object.material'
 import { ObjectCreator } from './entities/object/value-objects/object.creator'
+import { HeroeDeletedEvent } from './events/heroe.deleted'
 
 export class Heroe extends AggregateRoot<HeroeId> {
     constructor(
@@ -186,6 +187,10 @@ export class Heroe extends AggregateRoot<HeroeId> {
 
     removeObject(objectId: ObjectId) {
         this._objects = this.objects.filter((e) => !e.id.equals(objectId))
+    }
+
+    delete() {
+        this.publish(new HeroeDeletedEvent(this.id))
     }
 
     validateState(): void {

@@ -1,7 +1,7 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class HeroeName implements ValueObject<HeroeName> {
-    private constructor(private readonly name: string) {
+    constructor(private readonly name: string) {
         if (!name) throw new Error('Inavlid name')
     }
 

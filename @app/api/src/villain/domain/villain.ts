@@ -26,6 +26,7 @@ import { ObjectDescription } from 'src/heroe/domain/entities/object/value-object
 import { ObjectKind } from 'src/heroe/domain/entities/object/value-objects/object.kind'
 import { ObjectMaterial } from 'src/heroe/domain/entities/object/value-objects/object.material'
 import { ObjectCreator } from 'src/heroe/domain/entities/object/value-objects/object.creator'
+import { VillainDeletedEvent } from './events/villain.deleted'
 
 export class Villain extends AggregateRoot<VillainId> {
     constructor(
@@ -188,6 +189,10 @@ export class Villain extends AggregateRoot<VillainId> {
 
     removeObject(objectId: ObjectId) {
         this._objects = this.objects.filter((e) => !e.id.equals(objectId))
+    }
+
+    delete() {
+        this.publish(new VillainDeletedEvent(this.id))
     }
 
     validateState(): void {
