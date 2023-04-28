@@ -12,6 +12,7 @@ import { OrganizationLeader } from './value-objects/leader'
 import { OrganizationName } from './value-objects/name'
 import { OrganizationObjetive } from './value-objects/objetive'
 import { Slogan } from './value-objects/slogan'
+import { OrganizationDeletedEvent } from './events/organization.deleted'
 
 export class Organization extends AggregateRoot<OrganizationId> {
     constructor(
@@ -115,6 +116,10 @@ export class Organization extends AggregateRoot<OrganizationId> {
 
     removeMember(member: MemberId) {
         this._members = this.members.filter((e) => e.id.equals(member))
+    }
+
+    delete() {
+        this.publish(new OrganizationDeletedEvent(this.id))
     }
 
     validateState(): void {
