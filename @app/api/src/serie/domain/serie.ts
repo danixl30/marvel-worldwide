@@ -16,6 +16,7 @@ import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
 import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
 import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
 import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
+import { SerieDeletedEvent } from './events/serie.deleted'
 
 export class Serie extends AggregateRoot<SerieId> {
     constructor(
@@ -146,6 +147,10 @@ export class Serie extends AggregateRoot<SerieId> {
 
     removeActor(actorId: ActorId) {
         this._actors = this.actors.filter((e) => !e.equals(actorId))
+    }
+
+    delete() {
+        this.publish(new SerieDeletedEvent(this.id))
     }
 
     validateState(): void {

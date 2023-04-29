@@ -33,13 +33,13 @@ const DEFAULT_RATING = 1
 export class CreateMovieCommand implements ApplicationService<CreateMovieDTO, CreateMovieResponse, ApplicationError> {
     constructor(
         private readonly movieRepository: MovieRepository,
-        private readonly uuidCenerator: UUIDGenerator,
+        private readonly uuidGenerator: UUIDGenerator,
         private readonly eventHandler: EventHandler,
     ) {}
 
     private createComicByDTO(data: CreateMovieDTO): Comic {
         return new Comic(
-            new ComicId(this.uuidCenerator.generate()),
+            new ComicId(this.uuidGenerator.generate()),
             new ComicTitle(data.comic!.title),
             new ComicAuthor(data.comic!.author.firstName, data.comic!.author.lastName),
             new ComicVolumen(data.comic!.volumen),
@@ -50,7 +50,7 @@ export class CreateMovieCommand implements ApplicationService<CreateMovieDTO, Cr
         return data.actors.map(
             (e) =>
                 new Actor(
-                    new ActorId(this.uuidCenerator.generate()),
+                    new ActorId(this.uuidGenerator.generate()),
                     new ActorName(e.name.firstName, e.name.lastName),
                     new ActorCharacter(e.character),
                     new ActorRole(e.role),
@@ -63,7 +63,7 @@ export class CreateMovieCommand implements ApplicationService<CreateMovieDTO, Cr
         if (!comic) return Result.error(new ComicNotFoundError())
         const actors = this.createActorsByDTO(data)
         const movie = new Movie(
-            new MovieId(this.uuidCenerator.generate()),
+            new MovieId(this.uuidGenerator.generate()),
             new MovieTitle(data.title),
             new MovieSynopsis(data.synopsis),
             new ReleaseDate(data.release),
