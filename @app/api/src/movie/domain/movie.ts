@@ -17,6 +17,7 @@ import { ActorName } from './entities/actor/value-objects/actor.name'
 import { ActorId } from './entities/actor/value-objects/actor.id'
 import { ActorCharacter } from './entities/actor/value-objects/actor.character'
 import { ActorRole } from './entities/actor/value-objects/actor.role'
+import { MovieDeletedEvent } from './events/movie.deleted'
 
 export class Movie extends AggregateRoot<MovieId> {
     constructor(
@@ -157,6 +158,10 @@ export class Movie extends AggregateRoot<MovieId> {
 
     removeActor(actorId: ActorId) {
         this._actors = this.actors.filter((e) => !e.equals(actorId))
+    }
+
+    delete() {
+        this.publish(new MovieDeletedEvent(this.id))
     }
 
     validateState(): void {

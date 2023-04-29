@@ -2,12 +2,8 @@ import { ValueObject } from 'src/core/domain/value-objects/value.object'
 import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class ActorCharacter implements ValueObject<ActorCharacter> {
-    constructor(private readonly _id: string, private readonly _name: string) {
-        if (!regExpUUID.test(this.id) || !this.name) throw new Error('Invalid actor character')
-    }
-
-    get name() {
-        return this._name
+    constructor(private readonly _id: string) {
+        if (!regExpUUID.test(this.id)) throw new Error('Invalid actor character')
     }
 
     get id() {
@@ -15,7 +11,7 @@ export class ActorCharacter implements ValueObject<ActorCharacter> {
     }
 
     get value() {
-        return this.id + ' ' + this.name
+        return this.id
     }
 
     equals(other: ActorCharacter): boolean {
