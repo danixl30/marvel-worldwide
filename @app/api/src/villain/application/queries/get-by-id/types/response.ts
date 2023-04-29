@@ -1,4 +1,7 @@
-import { ObjectDTO, PowerDTO } from 'src/heroe/application/commands/create/types/dto'
+import {
+    ObjectDTO,
+    PowerDTO,
+} from 'src/heroe/application/commands/create/types/dto'
 import { Genders } from 'src/heroe/domain/entities/person/value-objects/gender'
 import { MaritialStatuses } from 'src/heroe/domain/entities/person/value-objects/maritial.status'
 

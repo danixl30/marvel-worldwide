@@ -152,7 +152,8 @@ export class Movie extends AggregateRoot<MovieId> {
     }
 
     addActor(actor: Actor) {
-        if (this.actors.find((e) => e.equals(actor.id))) throw new Error('Actor already exist')
+        if (this.actors.find((e) => e.equals(actor.id)))
+            throw new Error('Actor already exist')
         this._actors.push(actor)
     }
 

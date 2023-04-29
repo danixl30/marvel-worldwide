@@ -7,11 +7,22 @@ import { Result } from 'src/core/application/result-handler/result.handler'
 import { VideogameId } from 'src/videogame/domain/value-objects/id'
 import { VideogameNotFoundError } from '../../errors/videogame.not.found'
 
-export class GetVideogameByIdQuery implements ApplicationService<GetVideogameByIdDTO, GetVideogameByIdResponse, ApplicationError> {
+export class GetVideogameByIdQuery
+    implements
+        ApplicationService<
+            GetVideogameByIdDTO,
+            GetVideogameByIdResponse,
+            ApplicationError
+        >
+{
     constructor(private readonly vidogameRepository: VideogameRepository) {}
 
-    async execute(data: GetVideogameByIdDTO): Promise<Result<GetVideogameByIdResponse, ApplicationError>> {
-        const videogame = await this.vidogameRepository.getById(new VideogameId(data.id))
+    async execute(
+        data: GetVideogameByIdDTO,
+    ): Promise<Result<GetVideogameByIdResponse, ApplicationError>> {
+        const videogame = await this.vidogameRepository.getById(
+            new VideogameId(data.id),
+        )
         if (!videogame) return Result.error(new VideogameNotFoundError())
         return Result.success({
             id: videogame.id.value,

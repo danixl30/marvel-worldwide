@@ -7,10 +7,19 @@ import { Result } from 'src/core/application/result-handler/result.handler'
 import { CivilId } from 'src/civil/domain/value-objects/id'
 import { CivilNotFoundError } from '../../exceptions/civil.not.found'
 
-export class GetCivilByIdQuery implements ApplicationService<GetCivilByIdDTO, GetCivilByIdResponse, ApplicationError> {
+export class GetCivilByIdQuery
+    implements
+        ApplicationService<
+            GetCivilByIdDTO,
+            GetCivilByIdResponse,
+            ApplicationError
+        >
+{
     constructor(private readonly civilRepository: CivilRepository) {}
 
-    async execute(data: GetCivilByIdDTO): Promise<Result<GetCivilByIdResponse, ApplicationError>> {
+    async execute(
+        data: GetCivilByIdDTO,
+    ): Promise<Result<GetCivilByIdResponse, ApplicationError>> {
         const civil = await this.civilRepository.getById(new CivilId(data.id))
         if (!civil) return Result.error(new CivilNotFoundError())
         await this.civilRepository.delete(civil)

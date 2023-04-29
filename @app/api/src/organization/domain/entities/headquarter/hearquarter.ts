@@ -5,7 +5,12 @@ import { HeadquarterName } from './value-objects/headquarter.name'
 import { HeadquarterPlace } from './value-objects/headquarter.place'
 
 export class Headquarter extends Entity<HeadquarterId> {
-    constructor(id: HeadquarterId, private _name: HeadquarterName, private _kind: HeadquarterKind, private _place: HeadquarterPlace) {
+    constructor(
+        id: HeadquarterId,
+        private _name: HeadquarterName,
+        private _kind: HeadquarterKind,
+        private _place: HeadquarterPlace,
+    ) {
         super(id)
     }
 

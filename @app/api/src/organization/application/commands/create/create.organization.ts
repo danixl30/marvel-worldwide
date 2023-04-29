@@ -25,7 +25,14 @@ import { CreationPlace } from 'src/organization/domain/value-objects/creation.pl
 import { FirstAparition } from 'src/organization/domain/value-objects/first.aparition'
 import { HeadquarterNotFoundError } from '../../errors/headquarter.not.found'
 
-export class CreateOrganizationCommand implements ApplicationService<CreateOrganizationDTO, CreateOrganizationResponse, ApplicationError> {
+export class CreateOrganizationCommand
+    implements
+        ApplicationService<
+            CreateOrganizationDTO,
+            CreateOrganizationResponse,
+            ApplicationError
+        >
+{
     constructor(
         private readonly organizationRepository: OrganizationRepository,
         private readonly uuidGenerator: UUIDGenerator,
@@ -37,17 +44,26 @@ export class CreateOrganizationCommand implements ApplicationService<CreateOrgan
             new HeadquarterId(this.uuidGenerator.generate()),
             new HeadquarterName(dto.headquarter!.name),
             new HeadquarterKind(dto.headquarter!.kind),
-            new HeadquarterPlace(dto.headquarter!.place.country, dto.headquarter!.place.city),
+            new HeadquarterPlace(
+                dto.headquarter!.place.country,
+                dto.headquarter!.place.city,
+            ),
         )
     }
 
     private createMembersByDTO(dto: CreateOrganizationDTO): Member[] {
-        return dto.members.map((e) => new Member(new MemberId(e.id), new MemberCharge(e.charge)))
+        return dto.members.map(
+            (e) => new Member(new MemberId(e.id), new MemberCharge(e.charge)),
+        )
     }
 
-    async execute(data: CreateOrganizationDTO): Promise<Result<CreateOrganizationResponse, ApplicationError>> {
+    async execute(
+        data: CreateOrganizationDTO,
+    ): Promise<Result<CreateOrganizationResponse, ApplicationError>> {
         const headquarter = data.headquarterId
-            ? await this.organizationRepository.getHeadquarterById(new HeadquarterId(data.headquarterId))
+            ? await this.organizationRepository.getHeadquarterById(
+                  new HeadquarterId(data.headquarterId),
+              )
             : this.createHeadquarterByDTO(data)
         if (!headquarter) return Result.error(new HeadquarterNotFoundError())
         const members = this.createMembersByDTO(data)

@@ -7,10 +7,19 @@ import { Result } from 'src/core/application/result-handler/result.handler'
 import { MovieId } from 'src/movie/domain/value-objects/movie.id'
 import { MovieNotFoundError } from '../../errors/movie.not.found'
 
-export class GetMovieByIdQuery implements ApplicationService<GetMovieByIdDTO, GetMovieByIdResponse, ApplicationError> {
+export class GetMovieByIdQuery
+    implements
+        ApplicationService<
+            GetMovieByIdDTO,
+            GetMovieByIdResponse,
+            ApplicationError
+        >
+{
     constructor(private readonly movieRepository: MovieRepository) {}
 
-    async execute(data: GetMovieByIdDTO): Promise<Result<GetMovieByIdResponse, ApplicationError>> {
+    async execute(
+        data: GetMovieByIdDTO,
+    ): Promise<Result<GetMovieByIdResponse, ApplicationError>> {
         const movie = await this.movieRepository.getById(new MovieId(data.id))
         if (!movie) return Result.error(new MovieNotFoundError())
         return Result.success({

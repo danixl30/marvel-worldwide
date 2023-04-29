@@ -5,7 +5,12 @@ import { PowerName } from './value-objects/power.name'
 import { PowerType } from './value-objects/power.type'
 
 export class Power extends Entity<PowerId> {
-    constructor(id: PowerId, private _name: PowerName, private _description: PowerDescription, private _type: PowerType) {
+    constructor(
+        id: PowerId,
+        private _name: PowerName,
+        private _description: PowerDescription,
+        private _type: PowerType,
+    ) {
         super(id)
     }
 

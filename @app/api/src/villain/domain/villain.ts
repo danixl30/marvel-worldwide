@@ -40,7 +40,18 @@ export class Villain extends AggregateRoot<VillainId> {
         private _objects: ObjectItem[],
     ) {
         super(id)
-        this.publish(new VillainCreatedEvent(id, this.name, this.person, this.objetive, this.enemies, this.enemieGroups, this.powers, this.objects))
+        this.publish(
+            new VillainCreatedEvent(
+                id,
+                this.name,
+                this.person,
+                this.objetive,
+                this.enemies,
+                this.enemieGroups,
+                this.powers,
+                this.objects,
+            ),
+        )
     }
 
     get name() {
@@ -80,12 +91,14 @@ export class Villain extends AggregateRoot<VillainId> {
     }
 
     addEnemy(enemy: Enemy) {
-        if (this.enemies.find((e) => e.equals(enemy))) throw new Error('Enemy already exist')
+        if (this.enemies.find((e) => e.equals(enemy)))
+            throw new Error('Enemy already exist')
         this._enemies.push(enemy)
     }
 
     removeEnemy(group: EnemyGroup) {
-        if (this.enemieGroups.find((e) => e.equals(group))) throw new Error('Enemy group already exist')
+        if (this.enemieGroups.find((e) => e.equals(group)))
+            throw new Error('Enemy group already exist')
         this._enemieGroups.push(group)
     }
 
@@ -126,7 +139,8 @@ export class Villain extends AggregateRoot<VillainId> {
     }
 
     addPower(power: Power) {
-        if (this.powers.find((e) => e.id.equals(power.id))) throw new Error('Power already exist')
+        if (this.powers.find((e) => e.id.equals(power.id)))
+            throw new Error('Power already exist')
         this._powers.push(power)
     }
 
@@ -153,7 +167,8 @@ export class Villain extends AggregateRoot<VillainId> {
     }
 
     addObject(object: ObjectItem) {
-        if (this.objects.find((e) => e.id.equals(object.id))) throw new Error('Object already exist')
+        if (this.objects.find((e) => e.id.equals(object.id)))
+            throw new Error('Object already exist')
         this._objects.push(object)
     }
 
@@ -196,6 +211,7 @@ export class Villain extends AggregateRoot<VillainId> {
     }
 
     validateState(): void {
-        if (!this.id || !this.name || !this.person || !this.objetive) throw new InvalidVillainException()
+        if (!this.id || !this.name || !this.person || !this.objetive)
+            throw new InvalidVillainException()
     }
 }

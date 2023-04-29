@@ -8,10 +8,22 @@ import { Result } from 'src/core/application/result-handler/result.handler'
 import { SerieId } from 'src/serie/domain/value-objects/id'
 import { SerieNotFoundError } from '../../errors/serie.not.found'
 
-export class DeleteSerieCommand implements ApplicationService<DeleteSerieDTO, DeleteSerieResponse, ApplicationError> {
-    constructor(private readonly serieRepository: SerieRepository, private readonly eventHandler: EventHandler) {}
+export class DeleteSerieCommand
+    implements
+        ApplicationService<
+            DeleteSerieDTO,
+            DeleteSerieResponse,
+            ApplicationError
+        >
+{
+    constructor(
+        private readonly serieRepository: SerieRepository,
+        private readonly eventHandler: EventHandler,
+    ) {}
 
-    async execute(data: DeleteSerieDTO): Promise<Result<DeleteSerieResponse, ApplicationError>> {
+    async execute(
+        data: DeleteSerieDTO,
+    ): Promise<Result<DeleteSerieResponse, ApplicationError>> {
         const serie = await this.serieRepository.getById(new SerieId(data.id))
         if (!serie) return Result.error(new SerieNotFoundError())
         serie.delete()

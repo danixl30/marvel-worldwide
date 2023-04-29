@@ -15,7 +15,10 @@ import { PersonOccupation } from 'src/heroe/domain/entities/person/value-objects
 import { CreateVillainDTO } from './types/dto'
 import { CreateVillainResponse } from './types/response'
 import { VillainRepository } from '../../repositories/villain.repository'
-import { ObjectDTO, PowerDTO } from 'src/heroe/application/commands/create/types/dto'
+import {
+    ObjectDTO,
+    PowerDTO,
+} from 'src/heroe/application/commands/create/types/dto'
 import { ObjectItem } from 'src/heroe/domain/entities/object/object'
 import { ObjectId } from 'src/heroe/domain/entities/object/value-objects/object.id'
 import { ObjectName } from 'src/heroe/domain/entities/object/value-objects/object.name'
@@ -36,7 +39,14 @@ import { VillainObjetive } from 'src/villain/domain/value-object/objetive'
 import { Enemy } from 'src/villain/domain/value-object/heroe.enemy'
 import { EnemyGroup } from 'src/villain/domain/value-object/heroe.group.enemy'
 
-export class CreateVillainCommand implements ApplicationService<CreateVillainDTO, CreateVillainResponse, ApplicationError> {
+export class CreateVillainCommand
+    implements
+        ApplicationService<
+            CreateVillainDTO,
+            CreateVillainResponse,
+            ApplicationError
+        >
+{
     constructor(
         private readonly villainRepository: VillainRepository,
         private readonly uuidGenerator: UUIDGenerator,
@@ -67,24 +77,43 @@ export class CreateVillainCommand implements ApplicationService<CreateVillainDTO
         )
     }
     private createPowerByDTO(dto: PowerDTO): Power {
-        return new Power(new PowerId(this.uuidGenerator.generate()), new PowerName(dto.name), new PowerDescription(dto.description), new PowerType(dto.type))
+        return new Power(
+            new PowerId(this.uuidGenerator.generate()),
+            new PowerName(dto.name),
+            new PowerDescription(dto.description),
+            new PowerType(dto.type),
+        )
     }
 
-    async execute(data: CreateVillainDTO): Promise<Result<CreateVillainResponse, ApplicationError>> {
-        const person = data.personId ? await this.villainRepository.getPersonById(new PersonId(data.personId!)) : this.createPersonByDTO(data)
+    async execute(
+        data: CreateVillainDTO,
+    ): Promise<Result<CreateVillainResponse, ApplicationError>> {
+        const person = data.personId
+            ? await this.villainRepository.getPersonById(
+                  new PersonId(data.personId!),
+              )
+            : this.createPersonByDTO(data)
         if (!person) return Result.error(new PersonNotFoundError())
         const objectsDb = await data.objectsId.asyncMap(async (e) => {
-            const object = await this.villainRepository.getObjectById(new ObjectId(e))
+            const object = await this.villainRepository.getObjectById(
+                new ObjectId(e),
+            )
             if (!object) throw new Error('Object not found')
             return object
         })
-        const objectsPrimitive: ObjectItem[] = data.objects.map(this.createObjectByDTO.bind(this))
+        const objectsPrimitive: ObjectItem[] = data.objects.map(
+            this.createObjectByDTO.bind(this),
+        )
         const powersDb = await data.powersId.asyncMap(async (e) => {
-            const power = await this.villainRepository.getPowerById(new PowerId(e))
+            const power = await this.villainRepository.getPowerById(
+                new PowerId(e),
+            )
             if (!power) throw new Error('Power not found')
             return power
         })
-        const powersPrimitive: Power[] = data.powers.map(this.createPowerByDTO.bind(this))
+        const powersPrimitive: Power[] = data.powers.map(
+            this.createPowerByDTO.bind(this),
+        )
         const villain = new Villain(
             new VillainId(this.uuidGenerator.generate()),
             new VillainName(data.name),

@@ -5,7 +5,12 @@ import { ComicTitle } from './value-objects/title'
 import { ComicVolumen } from './value-objects/volumen'
 
 export class Comic extends Entity<ComicId> {
-    constructor(id: ComicId, private _title: ComicTitle, private _author: ComicAuthor, private _volumen: ComicVolumen) {
+    constructor(
+        id: ComicId,
+        private _title: ComicTitle,
+        private _author: ComicAuthor,
+        private _volumen: ComicVolumen,
+    ) {
         super(id)
     }
 

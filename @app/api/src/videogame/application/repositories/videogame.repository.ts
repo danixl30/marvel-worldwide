@@ -7,7 +7,8 @@ import { ComicId } from 'src/movie/domain/entities/comic/value-objects/id'
 import { VideogameId } from 'src/videogame/domain/value-objects/id'
 import { Videogame } from 'src/videogame/domain/videogame'
 
-export interface VideogameRepository extends Repository<VideogameId, Videogame> {
+export interface VideogameRepository
+    extends Repository<VideogameId, Videogame> {
     getActorByName(name: ActorName): Promise<Optional<Actor>>
     getComicById(id: ComicId): Promise<Optional<Comic>>
 }

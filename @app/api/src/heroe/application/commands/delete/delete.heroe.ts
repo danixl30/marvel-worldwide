@@ -8,10 +8,22 @@ import { DeleteHeroeResponse } from './types/response'
 import { HeroeId } from 'src/heroe/domain/value-object/heroe.id'
 import { HeroeNotFoundError } from '../../errors/heroe.not.found'
 
-export class DeleteHeroeCommand implements ApplicationService<DeleteHeroeDTO, DeleteHeroeResponse, ApplicationError> {
-    constructor(private readonly heroeRepository: HeroeRepository, private readonly eventHandler: EventHandler) {}
+export class DeleteHeroeCommand
+    implements
+        ApplicationService<
+            DeleteHeroeDTO,
+            DeleteHeroeResponse,
+            ApplicationError
+        >
+{
+    constructor(
+        private readonly heroeRepository: HeroeRepository,
+        private readonly eventHandler: EventHandler,
+    ) {}
 
-    async execute(data: DeleteHeroeDTO): Promise<Result<DeleteHeroeResponse, ApplicationError>> {
+    async execute(
+        data: DeleteHeroeDTO,
+    ): Promise<Result<DeleteHeroeResponse, ApplicationError>> {
         const heroe = await this.heroeRepository.getById(new HeroeId(data.id))
         if (!heroe) return Result.error(new HeroeNotFoundError())
         heroe.delete()

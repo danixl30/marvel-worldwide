@@ -5,7 +5,12 @@ import { HistoryTarget } from './value-objects/target'
 import { HistoryTimestamp } from './value-objects/timestamp'
 
 export class History extends Entity<HistoryId> {
-    constructor(id: HistoryId, private _target: HistoryTarget, private _timestamp = new HistoryTimestamp(), private _end?: HistoryEnd) {
+    constructor(
+        id: HistoryId,
+        private _target: HistoryTarget,
+        private _timestamp = new HistoryTimestamp(),
+        private _end?: HistoryEnd,
+    ) {
         super(id)
     }
 

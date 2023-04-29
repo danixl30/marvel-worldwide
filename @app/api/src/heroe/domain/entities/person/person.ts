@@ -71,20 +71,26 @@ export class Person extends Entity<PersonId> {
     }
 
     addOccupation(occupation: PersonOccupation) {
-        if (this.occupations.find((e) => e.equals(occupation))) throw new Error('occupation already exist')
+        if (this.occupations.find((e) => e.equals(occupation)))
+            throw new Error('occupation already exist')
         this._occupations.push(occupation)
     }
 
     removeOccupation(occupation: PersonOccupation) {
-        this._occupations = this._occupations.filter((e) => !e.equals(occupation))
+        this._occupations = this._occupations.filter(
+            (e) => !e.equals(occupation),
+        )
     }
 
     addNationality(nationality: PersonNationality) {
-        if (this.nationalites.find((e) => e.equals(nationality))) throw new Error('Nationality already exist')
+        if (this.nationalites.find((e) => e.equals(nationality)))
+            throw new Error('Nationality already exist')
         this._nationalities.push(nationality)
     }
 
     removeNationality(nationality: PersonNationality) {
-        this._nationalities = this._nationalities.filter((e) => !e.equals(nationality))
+        this._nationalities = this._nationalities.filter(
+            (e) => !e.equals(nationality),
+        )
     }
 }

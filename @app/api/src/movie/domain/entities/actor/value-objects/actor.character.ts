@@ -3,7 +3,8 @@ import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class ActorCharacter implements ValueObject<ActorCharacter> {
     constructor(private readonly _id: string) {
-        if (!regExpUUID.test(this.id)) throw new Error('Invalid actor character')
+        if (!regExpUUID.test(this.id))
+            throw new Error('Invalid actor character')
     }
 
     get id() {

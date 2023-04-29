@@ -8,11 +8,25 @@ import { Result } from 'src/core/application/result-handler/result.handler'
 import { OrganizationId } from 'src/organization/domain/value-objects/organization.id'
 import { OrganizationNotFoundError } from '../../errors/organization.not.found'
 
-export class DeleteOrganizationCommand implements ApplicationService<DeleteOrganizationDTO, DeleteOrganizationResponse, ApplicationError> {
-    constructor(private readonly organizationRepository: OrganizationRepository, private readonly eventHandler: EventHandler) {}
+export class DeleteOrganizationCommand
+    implements
+        ApplicationService<
+            DeleteOrganizationDTO,
+            DeleteOrganizationResponse,
+            ApplicationError
+        >
+{
+    constructor(
+        private readonly organizationRepository: OrganizationRepository,
+        private readonly eventHandler: EventHandler,
+    ) {}
 
-    async execute(data: DeleteOrganizationDTO): Promise<Result<DeleteOrganizationResponse, ApplicationError>> {
-        const organization = await this.organizationRepository.getById(new OrganizationId(data.id))
+    async execute(
+        data: DeleteOrganizationDTO,
+    ): Promise<Result<DeleteOrganizationResponse, ApplicationError>> {
+        const organization = await this.organizationRepository.getById(
+            new OrganizationId(data.id),
+        )
         if (!organization) return Result.error(new OrganizationNotFoundError())
         organization.delete()
         await this.organizationRepository.delete(organization)

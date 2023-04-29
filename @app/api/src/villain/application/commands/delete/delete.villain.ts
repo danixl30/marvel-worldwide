@@ -8,11 +8,25 @@ import { DeleteVillainResponse } from './types/response'
 import { VillainId } from 'src/villain/domain/value-object/villain.id'
 import { VillainNotFoundError } from '../../errors/villain.not.found'
 
-export class DeleteVillainCommand implements ApplicationService<DeleteVillainDTO, DeleteVillainResponse, ApplicationError> {
-    constructor(private readonly villainRepository: VillainRepository, private readonly eventHandler: EventHandler) {}
+export class DeleteVillainCommand
+    implements
+        ApplicationService<
+            DeleteVillainDTO,
+            DeleteVillainResponse,
+            ApplicationError
+        >
+{
+    constructor(
+        private readonly villainRepository: VillainRepository,
+        private readonly eventHandler: EventHandler,
+    ) {}
 
-    async execute(data: DeleteVillainDTO): Promise<Result<DeleteVillainResponse, ApplicationError>> {
-        const villain = await this.villainRepository.getById(new VillainId(data.id))
+    async execute(
+        data: DeleteVillainDTO,
+    ): Promise<Result<DeleteVillainResponse, ApplicationError>> {
+        const villain = await this.villainRepository.getById(
+            new VillainId(data.id),
+        )
         if (!villain) return Result.error(new VillainNotFoundError())
         villain.delete()
         await this.villainRepository.delete(villain)

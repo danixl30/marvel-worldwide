@@ -29,7 +29,14 @@ import { SerieEpisodes } from 'src/serie/domain/value-objects/episodes'
 import { SerieChannel } from 'src/serie/domain/value-objects/channel'
 
 const DEFAULT_RATING = 1
-export class CerateSerieCommand implements ApplicationService<CreateSerieDTO, CreateSerieResponse, ApplicationError> {
+export class CerateSerieCommand
+    implements
+        ApplicationService<
+            CreateSerieDTO,
+            CreateSerieResponse,
+            ApplicationError
+        >
+{
     constructor(
         private readonly serieRepository: SerieRepository,
         private readonly uuidGenerator: UUIDGenerator,
@@ -40,7 +47,10 @@ export class CerateSerieCommand implements ApplicationService<CreateSerieDTO, Cr
         return new Comic(
             new ComicId(this.uuidGenerator.generate()),
             new ComicTitle(data.comic!.title),
-            new ComicAuthor(data.comic!.author.firstName, data.comic!.author.lastName),
+            new ComicAuthor(
+                data.comic!.author.firstName,
+                data.comic!.author.lastName,
+            ),
             new ComicVolumen(data.comic!.volumen),
         )
     }
@@ -57,8 +67,12 @@ export class CerateSerieCommand implements ApplicationService<CreateSerieDTO, Cr
         )
     }
 
-    async execute(data: CreateSerieDTO): Promise<Result<CreateSerieResponse, ApplicationError>> {
-        const comic = data.comicId ? await this.serieRepository.getComicById(new ComicId(data.comicId)) : this.createComicByDTO(data)
+    async execute(
+        data: CreateSerieDTO,
+    ): Promise<Result<CreateSerieResponse, ApplicationError>> {
+        const comic = data.comicId
+            ? await this.serieRepository.getComicById(new ComicId(data.comicId))
+            : this.createComicByDTO(data)
         if (!comic) return Result.error(new ComicNotFoundError())
         const actors = this.createActorsByDTO(data)
         const serie = new Serie(

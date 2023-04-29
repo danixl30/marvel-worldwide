@@ -7,10 +7,21 @@ import { ProfileRepository } from '../../repositories/profile.repository'
 import { ProfileId } from 'src/profile/domain/value-objects/profile.id'
 import { ProfileNotFoundError } from '../../errors/profile.not.found'
 
-export class GetProfileByIdQuery implements ApplicationService<GetProfileByIdDTO, GetProfileByIdResponse, ApplicationError> {
+export class GetProfileByIdQuery
+    implements
+        ApplicationService<
+            GetProfileByIdDTO,
+            GetProfileByIdResponse,
+            ApplicationError
+        >
+{
     constructor(private readonly profileRepository: ProfileRepository) {}
-    async execute(data: GetProfileByIdDTO): Promise<Result<GetProfileByIdResponse, ApplicationError>> {
-        const profile = await this.profileRepository.getById(new ProfileId(data.id))
+    async execute(
+        data: GetProfileByIdDTO,
+    ): Promise<Result<GetProfileByIdResponse, ApplicationError>> {
+        const profile = await this.profileRepository.getById(
+            new ProfileId(data.id),
+        )
         if (!profile) return Result.error(new ProfileNotFoundError())
         return Result.success({
             id: profile.id.value,

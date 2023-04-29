@@ -30,7 +30,14 @@ import { ProductionCost } from 'src/movie/domain/value-objects/production.cost'
 import { ComicNotFoundError } from '../../errors/comic.not.found'
 
 const DEFAULT_RATING = 1
-export class CreateMovieCommand implements ApplicationService<CreateMovieDTO, CreateMovieResponse, ApplicationError> {
+export class CreateMovieCommand
+    implements
+        ApplicationService<
+            CreateMovieDTO,
+            CreateMovieResponse,
+            ApplicationError
+        >
+{
     constructor(
         private readonly movieRepository: MovieRepository,
         private readonly uuidGenerator: UUIDGenerator,
@@ -41,7 +48,10 @@ export class CreateMovieCommand implements ApplicationService<CreateMovieDTO, Cr
         return new Comic(
             new ComicId(this.uuidGenerator.generate()),
             new ComicTitle(data.comic!.title),
-            new ComicAuthor(data.comic!.author.firstName, data.comic!.author.lastName),
+            new ComicAuthor(
+                data.comic!.author.firstName,
+                data.comic!.author.lastName,
+            ),
             new ComicVolumen(data.comic!.volumen),
         )
     }
@@ -58,8 +68,12 @@ export class CreateMovieCommand implements ApplicationService<CreateMovieDTO, Cr
         )
     }
 
-    async execute(data: CreateMovieDTO): Promise<Result<CreateMovieResponse, ApplicationError>> {
-        const comic = data.comicId ? await this.movieRepository.getComicById(new ComicId(data.comicId)) : this.createComicByDTO(data)
+    async execute(
+        data: CreateMovieDTO,
+    ): Promise<Result<CreateMovieResponse, ApplicationError>> {
+        const comic = data.comicId
+            ? await this.movieRepository.getComicById(new ComicId(data.comicId))
+            : this.createComicByDTO(data)
         if (!comic) return Result.error(new ComicNotFoundError())
         const actors = this.createActorsByDTO(data)
         const movie = new Movie(
@@ -70,7 +84,11 @@ export class CreateMovieCommand implements ApplicationService<CreateMovieDTO, Cr
             new MovieCreator(data.creator),
             new MovieRating(DEFAULT_RATING),
             new MovieDirector(data.director.firstName, data.director.lastName),
-            new MovieDuration(data.duration.hours, data.duration.minutes, data.duration.seconds),
+            new MovieDuration(
+                data.duration.hours,
+                data.duration.minutes,
+                data.duration.seconds,
+            ),
             new MovieType(data.type),
             new ProductionCost(data.cost.cost, data.cost.earning),
             comic,

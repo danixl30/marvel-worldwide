@@ -28,7 +28,14 @@ import { VideogameType } from 'src/videogame/domain/value-objects/type'
 import { VideogamePlatform } from 'src/videogame/domain/value-objects/platform'
 
 const DEFAULT_RATING = 1
-export class CreateVideogameCommand implements ApplicationService<CreateVideogameDTO, CreateVideogameResponse, ApplicationError> {
+export class CreateVideogameCommand
+    implements
+        ApplicationService<
+            CreateVideogameDTO,
+            CreateVideogameResponse,
+            ApplicationError
+        >
+{
     constructor(
         private readonly vidogameRepository: VideogameRepository,
         private readonly uuidGenerator: UUIDGenerator,
@@ -39,7 +46,10 @@ export class CreateVideogameCommand implements ApplicationService<CreateVideogam
         return new Comic(
             new ComicId(this.uuidGenerator.generate()),
             new ComicTitle(data.comic!.title),
-            new ComicAuthor(data.comic!.author.firstName, data.comic!.author.lastName),
+            new ComicAuthor(
+                data.comic!.author.firstName,
+                data.comic!.author.lastName,
+            ),
             new ComicVolumen(data.comic!.volumen),
         )
     }
@@ -56,8 +66,14 @@ export class CreateVideogameCommand implements ApplicationService<CreateVideogam
         )
     }
 
-    async execute(data: CreateVideogameDTO): Promise<Result<CreateVideogameResponse, ApplicationError>> {
-        const comic = data.comicId ? await this.vidogameRepository.getComicById(new ComicId(data.comicId)) : this.createComicByDTO(data)
+    async execute(
+        data: CreateVideogameDTO,
+    ): Promise<Result<CreateVideogameResponse, ApplicationError>> {
+        const comic = data.comicId
+            ? await this.vidogameRepository.getComicById(
+                  new ComicId(data.comicId),
+              )
+            : this.createComicByDTO(data)
         if (!comic) return Result.error(new ComicNotFoundError())
         const actors = this.createActorsByDTO(data)
         const videogame = new Videogame(

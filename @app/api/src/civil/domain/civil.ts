@@ -14,7 +14,11 @@ import { PersonOccupation } from 'src/heroe/domain/entities/person/value-objects
 import { CivilDeletedEvent } from './events/civil.deleted'
 
 export class Civil extends AggregateRoot<CivilId> {
-    constructor(id: CivilId, private _person: Person, private _relation: CivilRelationship) {
+    constructor(
+        id: CivilId,
+        private _person: Person,
+        private _relation: CivilRelationship,
+    ) {
         super(id)
         this.publish(new CivilCreatedEvent(id, this.person, this.relation))
     }
@@ -72,6 +76,7 @@ export class Civil extends AggregateRoot<CivilId> {
     }
 
     validateState(): void {
-        if (!this.id || !this.person || !this.relation) throw new InvalidCivilException()
+        if (!this.id || !this.person || !this.relation)
+            throw new InvalidCivilException()
     }
 }

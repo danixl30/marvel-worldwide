@@ -7,10 +7,19 @@ import { HeroeRepository } from '../../repositories/heroe.repository'
 import { HeroeId } from 'src/heroe/domain/value-object/heroe.id'
 import { HeroeNotFoundError } from '../../errors/heroe.not.found'
 
-export class GetHeroeByIdQuery implements ApplicationService<GetHeroeByIdDTO, GetHeroeByIdResponse, ApplicationError> {
+export class GetHeroeByIdQuery
+    implements
+        ApplicationService<
+            GetHeroeByIdDTO,
+            GetHeroeByIdResponse,
+            ApplicationError
+        >
+{
     constructor(private readonly heroeRepository: HeroeRepository) {}
 
-    async execute(data: GetHeroeByIdDTO): Promise<Result<GetHeroeByIdResponse, ApplicationError>> {
+    async execute(
+        data: GetHeroeByIdDTO,
+    ): Promise<Result<GetHeroeByIdResponse, ApplicationError>> {
         const heroe = await this.heroeRepository.getById(new HeroeId(data.id))
         if (!heroe) return Result.error(new HeroeNotFoundError())
         return Result.success({

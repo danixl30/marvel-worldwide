@@ -20,7 +20,14 @@ import { PersonNationality } from 'src/heroe/domain/entities/person/value-object
 import { PersonOccupation } from 'src/heroe/domain/entities/person/value-objects/occupation'
 import { PersonNotFoundError } from '../../exceptions/person.not.found'
 
-export class CreateCivilCommand implements ApplicationService<CreateCivilDTO, CreateCivilResponse, ApplicationError> {
+export class CreateCivilCommand
+    implements
+        ApplicationService<
+            CreateCivilDTO,
+            CreateCivilResponse,
+            ApplicationError
+        >
+{
     constructor(
         private readonly civilRepository: CivilRepository,
         private readonly uuidGenerator: UUIDGenerator,
@@ -40,10 +47,20 @@ export class CreateCivilCommand implements ApplicationService<CreateCivilDTO, Cr
         )
     }
 
-    async execute(data: CreateCivilDTO): Promise<Result<CreateCivilResponse, ApplicationError>> {
-        const person = data.personId ? await this.civilRepository.getPersonById(new PersonId(data.personId!)) : this.createPersonByDTO(data)
+    async execute(
+        data: CreateCivilDTO,
+    ): Promise<Result<CreateCivilResponse, ApplicationError>> {
+        const person = data.personId
+            ? await this.civilRepository.getPersonById(
+                  new PersonId(data.personId!),
+              )
+            : this.createPersonByDTO(data)
         if (!person) return Result.error(new PersonNotFoundError())
-        const civil = new Civil(new CivilId(this.uuidGenerator.generate()), person, new CivilRelationship(data.relation.target, data.relation.kind))
+        const civil = new Civil(
+            new CivilId(this.uuidGenerator.generate()),
+            person,
+            new CivilRelationship(data.relation.target, data.relation.kind),
+        )
         await this.civilRepository.save(civil)
         this.eventHandler.publish(civil.pullEvents())
         return Result.success({

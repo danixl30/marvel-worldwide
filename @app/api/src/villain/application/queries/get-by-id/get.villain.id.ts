@@ -7,11 +7,22 @@ import { VillainRepository } from '../../repositories/villain.repository'
 import { VillainId } from 'src/villain/domain/value-object/villain.id'
 import { VillainNotFoundError } from '../../errors/villain.not.found'
 
-export class GetVillainByIdQuery implements ApplicationService<GetVillainByIdDTO, GetVillainByIdResponse, ApplicationError> {
+export class GetVillainByIdQuery
+    implements
+        ApplicationService<
+            GetVillainByIdDTO,
+            GetVillainByIdResponse,
+            ApplicationError
+        >
+{
     constructor(private readonly villainRepository: VillainRepository) {}
 
-    async execute(data: GetVillainByIdDTO): Promise<Result<GetVillainByIdResponse, ApplicationError>> {
-        const villain = await this.villainRepository.getById(new VillainId(data.id))
+    async execute(
+        data: GetVillainByIdDTO,
+    ): Promise<Result<GetVillainByIdResponse, ApplicationError>> {
+        const villain = await this.villainRepository.getById(
+            new VillainId(data.id),
+        )
         if (!villain) return Result.error(new VillainNotFoundError())
         return Result.success({
             id: data.id,

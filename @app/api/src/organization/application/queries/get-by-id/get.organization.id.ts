@@ -7,11 +7,24 @@ import { Result } from 'src/core/application/result-handler/result.handler'
 import { OrganizationId } from 'src/organization/domain/value-objects/organization.id'
 import { OrganizationNotFoundError } from '../../errors/organization.not.found'
 
-export class GetOrganizationByIdQuery implements ApplicationService<GetOrganizationByIdDTO, GetOrganizationByIdResponse, ApplicationError> {
-    constructor(private readonly organizationRepository: OrganizationRepository) {}
+export class GetOrganizationByIdQuery
+    implements
+        ApplicationService<
+            GetOrganizationByIdDTO,
+            GetOrganizationByIdResponse,
+            ApplicationError
+        >
+{
+    constructor(
+        private readonly organizationRepository: OrganizationRepository,
+    ) {}
 
-    async execute(data: GetOrganizationByIdDTO): Promise<Result<GetOrganizationByIdResponse, ApplicationError>> {
-        const organization = await this.organizationRepository.getById(new OrganizationId(data.id))
+    async execute(
+        data: GetOrganizationByIdDTO,
+    ): Promise<Result<GetOrganizationByIdResponse, ApplicationError>> {
+        const organization = await this.organizationRepository.getById(
+            new OrganizationId(data.id),
+        )
         if (!organization) return Result.error(new OrganizationNotFoundError())
         return Result.success({
             id: organization.id.value,

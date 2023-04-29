@@ -5,7 +5,12 @@ import { ActorRole } from './value-objects/actor.role'
 import { Entity } from 'src/core/domain/entity/entity'
 
 export class Actor extends Entity<ActorId> {
-    constructor(id: ActorId, private _name: ActorName, private _character: ActorCharacter, private _role: ActorRole) {
+    constructor(
+        id: ActorId,
+        private _name: ActorName,
+        private _character: ActorCharacter,
+        private _role: ActorRole,
+    ) {
         super(id)
     }
 

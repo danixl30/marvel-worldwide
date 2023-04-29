@@ -109,8 +109,10 @@ export class Organization extends AggregateRoot<OrganizationId> {
     }
 
     addMember(member: Member) {
-        if (this.members.find((e) => e.equals(member.id))) throw new Error('Member already exist')
-        if (this.members.find((e) => e.charge.equals(member.charge))) throw new Error('Charge already exist')
+        if (this.members.find((e) => e.equals(member.id)))
+            throw new Error('Member already exist')
+        if (this.members.find((e) => e.charge.equals(member.charge)))
+            throw new Error('Charge already exist')
         this._members.push(member)
     }
 

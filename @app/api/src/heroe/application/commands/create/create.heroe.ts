@@ -35,7 +35,14 @@ import { HeroePhrase } from 'src/heroe/domain/value-object/phrase'
 import { HeroeCreator } from 'src/heroe/domain/value-object/creator'
 import { ArchEnemy } from 'src/heroe/domain/value-object/arch.enemy'
 
-export class CreateHeroeCommand implements ApplicationService<CreateHeroeDTO, CreateHeroeResponse, ApplicationError> {
+export class CreateHeroeCommand
+    implements
+        ApplicationService<
+            CreateHeroeDTO,
+            CreateHeroeResponse,
+            ApplicationError
+        >
+{
     constructor(
         private readonly heroeRepository: HeroeRepository,
         private readonly uuidGenerator: UUIDGenerator,
@@ -66,24 +73,43 @@ export class CreateHeroeCommand implements ApplicationService<CreateHeroeDTO, Cr
         )
     }
     private createPowerByDTO(dto: PowerDTO): Power {
-        return new Power(new PowerId(this.uuidGenerator.generate()), new PowerName(dto.name), new PowerDescription(dto.description), new PowerType(dto.type))
+        return new Power(
+            new PowerId(this.uuidGenerator.generate()),
+            new PowerName(dto.name),
+            new PowerDescription(dto.description),
+            new PowerType(dto.type),
+        )
     }
 
-    async execute(data: CreateHeroeDTO): Promise<Result<CreateHeroeResponse, ApplicationError>> {
-        const person = data.personId ? await this.heroeRepository.getPersonById(new PersonId(data.personId!)) : this.createPersonByDTO(data)
+    async execute(
+        data: CreateHeroeDTO,
+    ): Promise<Result<CreateHeroeResponse, ApplicationError>> {
+        const person = data.personId
+            ? await this.heroeRepository.getPersonById(
+                  new PersonId(data.personId!),
+              )
+            : this.createPersonByDTO(data)
         if (!person) return Result.error(new PersonNotFoundError())
         const objectsDb = await data.objectsId.asyncMap(async (e) => {
-            const object = await this.heroeRepository.getObjectById(new ObjectId(e))
+            const object = await this.heroeRepository.getObjectById(
+                new ObjectId(e),
+            )
             if (!object) throw new Error('Object not found')
             return object
         })
-        const objectsPrimitive: ObjectItem[] = data.objects.map(this.createObjectByDTO.bind(this))
+        const objectsPrimitive: ObjectItem[] = data.objects.map(
+            this.createObjectByDTO.bind(this),
+        )
         const powersDb = await data.powersId.asyncMap(async (e) => {
-            const power = await this.heroeRepository.getPowerById(new PowerId(e))
+            const power = await this.heroeRepository.getPowerById(
+                new PowerId(e),
+            )
             if (!power) throw new Error('Power not found')
             return power
         })
-        const powersPrimitive: Power[] = data.powers.map(this.createPowerByDTO.bind(this))
+        const powersPrimitive: Power[] = data.powers.map(
+            this.createPowerByDTO.bind(this),
+        )
         const heroe = new Heroe(
             new HeroeId(this.uuidGenerator.generate()),
             new HeroeName(data.name),

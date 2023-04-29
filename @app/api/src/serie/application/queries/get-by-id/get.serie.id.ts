@@ -7,10 +7,19 @@ import { Result } from 'src/core/application/result-handler/result.handler'
 import { SerieId } from 'src/serie/domain/value-objects/id'
 import { SerieNotFoundError } from '../../errors/serie.not.found'
 
-export class GetSerieByIdQuery implements ApplicationService<GetSerieByIdDTO, GetSerieByIdResponse, ApplicationError> {
+export class GetSerieByIdQuery
+    implements
+        ApplicationService<
+            GetSerieByIdDTO,
+            GetSerieByIdResponse,
+            ApplicationError
+        >
+{
     constructor(private readonly serieRepository: SerieRepository) {}
 
-    async execute(data: GetSerieByIdDTO): Promise<Result<GetSerieByIdResponse, ApplicationError>> {
+    async execute(
+        data: GetSerieByIdDTO,
+    ): Promise<Result<GetSerieByIdResponse, ApplicationError>> {
         const serie = await this.serieRepository.getById(new SerieId(data.id))
         if (!serie) return Result.error(new SerieNotFoundError())
         return Result.success({
