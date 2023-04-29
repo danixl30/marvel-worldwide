@@ -36,4 +36,5 @@ export type GetMovieByIdResponse = {
         role: string
         character: string
     }[]
+    rating: number
 }

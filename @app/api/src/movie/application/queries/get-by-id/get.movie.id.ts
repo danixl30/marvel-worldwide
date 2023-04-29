@@ -38,6 +38,7 @@ export class GetMovieByIdQuery implements ApplicationService<GetMovieByIdDTO, Ge
                 role: e.role.value,
                 character: e.character.value,
             })),
+            rating: movie.rating.value,
         })
     }
 }
