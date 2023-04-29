@@ -15,6 +15,7 @@ import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
 import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
 import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
 import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
+import { VideogameDeletedEvent } from './events/videogame.deleted'
 
 export class Videogame extends AggregateRoot<VideogameId> {
     constructor(
@@ -140,6 +141,10 @@ export class Videogame extends AggregateRoot<VideogameId> {
 
     removeActor(actorId: ActorId) {
         this._actors = this.actors.filter((e) => !e.equals(actorId))
+    }
+
+    delete() {
+        this.publish(new VideogameDeletedEvent(this.id))
     }
 
     validateState(): void {
