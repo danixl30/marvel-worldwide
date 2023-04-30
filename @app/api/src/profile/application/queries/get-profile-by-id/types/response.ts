@@ -13,7 +13,7 @@ export type GetProfileByIdResponse = {
     }[]
     rates: {
         id: string
-        targetId: string
+        kind: string
         calification: number
     }[]
 }

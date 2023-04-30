@@ -38,7 +38,7 @@ export class GetProfileByIdQuery
             })),
             rates: profile.rates.map((e) => ({
                 id: e.id.value,
-                targetId: e.target.targetId,
+                kind: e.kind.value,
                 calification: e.calification.value,
             })),
         })

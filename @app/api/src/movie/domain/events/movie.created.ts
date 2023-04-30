@@ -5,7 +5,6 @@ import { MovieCreator } from '../value-objects/creator'
 import { MovieDirector } from '../value-objects/director'
 import { MovieDuration } from '../value-objects/duration'
 import { MovieId } from '../value-objects/movie.id'
-import { MovieRating } from '../value-objects/rating'
 import { MovieSynopsis } from '../value-objects/synopsis'
 import { MovieTitle } from '../value-objects/title'
 import { MovieType } from '../value-objects/type'
@@ -19,7 +18,6 @@ export class MovieCreatedEvent extends DomainEvent {
         private _synopsis: MovieSynopsis,
         private _release: ReleaseDate,
         private _creator: MovieCreator,
-        private _rating: MovieRating,
         private _director: MovieDirector,
         private _duration: MovieDuration,
         private _type: MovieType,
@@ -48,10 +46,6 @@ export class MovieCreatedEvent extends DomainEvent {
 
     get creator() {
         return this._creator
-    }
-
-    get rating() {
-        return this._rating
     }
 
     get director() {

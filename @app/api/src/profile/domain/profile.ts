@@ -11,8 +11,9 @@ import { ProfileEmail } from './value-objects/profile.email'
 import { ProfileId } from './value-objects/profile.id'
 import { ProfileLanguage } from './value-objects/profile.language'
 import { Rate } from './entities/rate/rate'
-import { RateId } from './entities/rate/value-objects/rate.id'
 import { ProfileDeletedEvent } from './events/profile.deleted'
+import { ProfileRateAddedEvent } from './events/rate.added'
+import { ProfileRateRemovedEvent } from './events/rate.removed'
 
 export class Profile extends AggregateRoot<ProfileId> {
     constructor(
@@ -80,10 +81,12 @@ export class Profile extends AggregateRoot<ProfileId> {
         if (this.rates.find((e) => e.id.equals(rate.id)))
             throw new Error('Rate is added')
         this._rates.push(rate)
+        this.publish(new ProfileRateAddedEvent(this.id, rate))
     }
 
-    removeRate(rateId: RateId) {
-        this._rates = this.rates.filter((e) => !e.id.equals(rateId))
+    removeRate(rate: Rate) {
+        this._rates = this.rates.filter((e) => !e.id.equals(rate.id))
+        this.publish(new ProfileRateRemovedEvent(this.id, rate))
     }
 
     delete() {

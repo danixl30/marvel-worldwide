@@ -4,14 +4,13 @@ import { AddRateResponse } from './types/response'
 import { ApplicationError } from 'src/core/application/error/application.error'
 import { Result } from 'src/core/application/result-handler/result.handler'
 import { ProfileRepository } from '../../repositories/profile.repository'
-import { UUIDGenerator } from 'src/core/application/UUID/UUID.generator'
 import { EventHandler } from 'src/core/application/event-handler/event.handler'
 import { Rate } from 'src/profile/domain/entities/rate/rate'
 import { ProfileNotFoundError } from '../../errors/profile.not.found'
 import { ProfileId } from 'src/profile/domain/value-objects/profile.id'
 import { RateId } from 'src/profile/domain/entities/rate/value-objects/rate.id'
-import { RateTarget } from 'src/profile/domain/entities/rate/value-objects/rate.target'
 import { RateCalification } from 'src/profile/domain/entities/rate/value-objects/rate.calification'
+import { RateKind } from 'src/profile/domain/entities/rate/value-objects/rate.kind'
 
 export class AddRateCommand
     implements
@@ -19,7 +18,6 @@ export class AddRateCommand
 {
     constructor(
         private readonly profileRepository: ProfileRepository,
-        private readonly uuidGenerator: UUIDGenerator,
         private readonly eventHandler: EventHandler,
     ) {}
 
@@ -31,8 +29,8 @@ export class AddRateCommand
         )
         if (!profile) return Result.error(new ProfileNotFoundError())
         const rate = new Rate(
-            new RateId(this.uuidGenerator.generate()),
-            new RateTarget(data.target, data.kind),
+            new RateId(data.target),
+            new RateKind(data.kind),
             new RateCalification(data.calification),
         )
         profile.addRate(rate)

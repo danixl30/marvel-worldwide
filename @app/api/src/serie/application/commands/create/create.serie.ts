@@ -23,12 +23,10 @@ import { SerieTitle } from 'src/serie/domain/value-objects/title'
 import { SerieSynopsis } from 'src/serie/domain/value-objects/synopsis'
 import { ReleaseDate } from 'src/serie/domain/value-objects/release.date'
 import { SerieCreator } from 'src/serie/domain/value-objects/creator'
-import { SerieRating } from 'src/serie/domain/value-objects/rating'
 import { SerieType } from 'src/serie/domain/value-objects/type'
 import { SerieEpisodes } from 'src/serie/domain/value-objects/episodes'
 import { SerieChannel } from 'src/serie/domain/value-objects/channel'
 
-const DEFAULT_RATING = 1
 export class CerateSerieCommand
     implements
         ApplicationService<
@@ -81,7 +79,6 @@ export class CerateSerieCommand
             new SerieSynopsis(data.synopsis),
             new ReleaseDate(data.release),
             new SerieCreator(data.creator),
-            new SerieRating(DEFAULT_RATING),
             new SerieType(data.type),
             new SerieEpisodes(data.episodes),
             new SerieChannel(data.channel),

@@ -7,7 +7,6 @@ import { VideogameCreatedEvent } from './events/videogame.created'
 import { VideogameCreator } from './value-objects/creator'
 import { VideogameId } from './value-objects/id'
 import { VideogamePlatform } from './value-objects/platform'
-import { VideogameRating } from './value-objects/rating'
 import { VideogameSynopsis } from './value-objects/synopsis'
 import { VideogameTitle } from './value-objects/title'
 import { VideogameType } from './value-objects/type'
@@ -16,6 +15,9 @@ import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.n
 import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
 import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
 import { VideogameDeletedEvent } from './events/videogame.deleted'
+import { Rate } from 'src/movie/domain/entities/rate/rate'
+import { VideogameRateAddedEvent } from './events/videogame.rate.added'
+import { VideogameRateRemovedEvent } from './events/videogame.rate.removed'
 
 export class Videogame extends AggregateRoot<VideogameId> {
     constructor(
@@ -24,11 +26,11 @@ export class Videogame extends AggregateRoot<VideogameId> {
         private _synopsis: VideogameSynopsis,
         private _release: ReleaseDate,
         private _creator: VideogameCreator,
-        private _rating: VideogameRating,
         private _type: VideogameType,
         private _basedOn: Comic,
         private _platforms: VideogamePlatform[] = [],
         private _actors: Actor[] = [],
+        private _rates: Rate[] = [],
     ) {
         super(id)
         this.publish(
@@ -38,7 +40,6 @@ export class Videogame extends AggregateRoot<VideogameId> {
                 this.synopsis,
                 this.release,
                 this.creator,
-                this.rating,
                 this.type,
                 this.basedOn,
                 this.platforms,
@@ -63,8 +64,16 @@ export class Videogame extends AggregateRoot<VideogameId> {
         return this._creator
     }
 
+    get rates() {
+        return this._rates
+    }
+
     get rating() {
-        return this._rating
+        if (this.rates.isEmpty()) return 0
+        return (
+            this.rates.reduce((acc, e) => acc + e.calification.value, 0) /
+            this.rates.length
+        )
     }
 
     get type() {
@@ -143,6 +152,18 @@ export class Videogame extends AggregateRoot<VideogameId> {
 
     removeActor(actorId: ActorId) {
         this._actors = this.actors.filter((e) => !e.equals(actorId))
+    }
+
+    addRate(rate: Rate) {
+        if (this.rates.find((e) => e.equals(rate.id)))
+            throw new Error('Rate already exist')
+        this._rates.push(rate)
+        this.publish(new VideogameRateAddedEvent(this.id, rate))
+    }
+
+    removeRate(rate: Rate) {
+        this._rates = this.rates.filter((e) => !e.equals(rate.id))
+        this.publish(new VideogameRateRemovedEvent(this.id, rate))
     }
 
     delete() {

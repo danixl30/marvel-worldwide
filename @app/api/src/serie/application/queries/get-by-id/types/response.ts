@@ -25,5 +25,9 @@ export type GetSerieByIdResponse = {
         role: string
         character: string
     }[]
+    rates: {
+        id: string
+        calification: number
+    }[]
     rating: number
 }

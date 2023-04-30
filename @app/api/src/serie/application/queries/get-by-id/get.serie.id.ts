@@ -43,7 +43,11 @@ export class GetSerieByIdQuery
                 role: e.role.value,
                 character: e.character.value,
             })),
-            rating: serie.rating.value,
+            rates: serie.rates.map((e) => ({
+                id: e.id.value,
+                calification: e.calification.value,
+            })),
+            rating: serie.rating,
         })
     }
 }

@@ -6,7 +6,6 @@ import { SerieChannel } from '../value-objects/channel'
 import { SerieCreator } from '../value-objects/creator'
 import { SerieEpisodes } from '../value-objects/episodes'
 import { SerieId } from '../value-objects/id'
-import { SerieRating } from '../value-objects/rating'
 import { SerieSynopsis } from '../value-objects/synopsis'
 import { SerieTitle } from '../value-objects/title'
 import { SerieType } from '../value-objects/type'
@@ -18,7 +17,6 @@ export class SerieCreatedEvent extends DomainEvent {
         private _synopsis: SerieSynopsis,
         private _release: ReleaseDate,
         private _creator: SerieCreator,
-        private _rating: SerieRating,
         private _type: SerieType,
         private _episodes: SerieEpisodes,
         private _channel: SerieChannel,
@@ -46,10 +44,6 @@ export class SerieCreatedEvent extends DomainEvent {
 
     get creator() {
         return this._creator
-    }
-
-    get rating() {
-        return this._rating
     }
 
     get type() {

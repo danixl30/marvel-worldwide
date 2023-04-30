@@ -7,7 +7,6 @@ import { MovieCreator } from './value-objects/creator'
 import { MovieDirector } from './value-objects/director'
 import { MovieDuration } from './value-objects/duration'
 import { MovieId } from './value-objects/movie.id'
-import { MovieRating } from './value-objects/rating'
 import { MovieSynopsis } from './value-objects/synopsis'
 import { MovieTitle } from './value-objects/title'
 import { MovieType } from './value-objects/type'
@@ -18,6 +17,9 @@ import { ActorId } from './entities/actor/value-objects/actor.id'
 import { ActorCharacter } from './entities/actor/value-objects/actor.character'
 import { ActorRole } from './entities/actor/value-objects/actor.role'
 import { MovieDeletedEvent } from './events/movie.deleted'
+import { Rate } from './entities/rate/rate'
+import { MovieRateAddedEvent } from './events/movie.rate.added'
+import { MovieRateRemovedEvent } from './events/movie.rate.removed'
 
 export class Movie extends AggregateRoot<MovieId> {
     constructor(
@@ -26,13 +28,13 @@ export class Movie extends AggregateRoot<MovieId> {
         private _synopsis: MovieSynopsis,
         private _release: ReleaseDate,
         private _creator: MovieCreator,
-        private _rating: MovieRating,
         private _director: MovieDirector,
         private _duration: MovieDuration,
         private _type: MovieType,
         private _cost: ProductionCost,
         private _basedOn: Comic,
         private _actors: Actor[] = [],
+        private _rates: Rate[] = [],
     ) {
         super(id)
         this.publish(
@@ -42,7 +44,6 @@ export class Movie extends AggregateRoot<MovieId> {
                 this.synopsis,
                 this.release,
                 this.creator,
-                this.rating,
                 this.director,
                 this.duration,
                 this.type,
@@ -69,8 +70,16 @@ export class Movie extends AggregateRoot<MovieId> {
         return this._creator
     }
 
+    get rates() {
+        return this._rates
+    }
+
     get rating() {
-        return this._rating
+        if (this.rates.isEmpty()) return 0
+        return (
+            this.rates.reduce((acc, e) => acc + e.calification.value, 0) /
+            this.rates.length
+        )
     }
 
     get director() {
@@ -159,6 +168,18 @@ export class Movie extends AggregateRoot<MovieId> {
 
     removeActor(actorId: ActorId) {
         this._actors = this.actors.filter((e) => !e.equals(actorId))
+    }
+
+    addRate(rate: Rate) {
+        if (this.rates.find((e) => e.equals(rate.id)))
+            throw new Error('Rate already exist')
+        this._rates.push(rate)
+        this.publish(new MovieRateAddedEvent(this.id, rate))
+    }
+
+    removeRate(rate: Rate) {
+        this._rates = this.rates.filter((e) => !e.equals(rate.id))
+        this.publish(new MovieRateRemovedEvent(this.id, rate))
     }
 
     delete() {

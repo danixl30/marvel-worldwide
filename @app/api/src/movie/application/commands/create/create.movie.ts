@@ -22,14 +22,12 @@ import { MovieTitle } from 'src/movie/domain/value-objects/title'
 import { MovieSynopsis } from 'src/movie/domain/value-objects/synopsis'
 import { ReleaseDate } from 'src/movie/domain/value-objects/release.date'
 import { MovieCreator } from 'src/movie/domain/value-objects/creator'
-import { MovieRating } from 'src/movie/domain/value-objects/rating'
 import { MovieDirector } from 'src/movie/domain/value-objects/director'
 import { MovieDuration } from 'src/movie/domain/value-objects/duration'
 import { MovieType } from 'src/movie/domain/value-objects/type'
 import { ProductionCost } from 'src/movie/domain/value-objects/production.cost'
 import { ComicNotFoundError } from '../../errors/comic.not.found'
 
-const DEFAULT_RATING = 1
 export class CreateMovieCommand
     implements
         ApplicationService<
@@ -82,7 +80,6 @@ export class CreateMovieCommand
             new MovieSynopsis(data.synopsis),
             new ReleaseDate(data.release),
             new MovieCreator(data.creator),
-            new MovieRating(DEFAULT_RATING),
             new MovieDirector(data.director.firstName, data.director.lastName),
             new MovieDuration(
                 data.duration.hours,

@@ -8,7 +8,6 @@ import { SerieCreatedEvent } from './events/serie.created'
 import { SerieCreator } from './value-objects/creator'
 import { SerieEpisodes } from './value-objects/episodes'
 import { SerieId } from './value-objects/id'
-import { SerieRating } from './value-objects/rating'
 import { SerieSynopsis } from './value-objects/synopsis'
 import { SerieTitle } from './value-objects/title'
 import { SerieType } from './value-objects/type'
@@ -17,6 +16,9 @@ import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.n
 import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
 import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
 import { SerieDeletedEvent } from './events/serie.deleted'
+import { Rate } from 'src/movie/domain/entities/rate/rate'
+import { SerieRateAddedEvent } from './events/serie.rate.added'
+import { SerieRateRemovedEvent } from './events/serie.rate.removed'
 
 export class Serie extends AggregateRoot<SerieId> {
     constructor(
@@ -25,12 +27,12 @@ export class Serie extends AggregateRoot<SerieId> {
         private _synopsis: SerieSynopsis,
         private _release: ReleaseDate,
         private _creator: SerieCreator,
-        private _rating: SerieRating,
         private _type: SerieType,
         private _episodes: SerieEpisodes,
         private _channel: SerieChannel,
         private _basedOn: Comic,
         private _actors: Actor[] = [],
+        private _rates: Rate[] = [],
     ) {
         super(id)
         this.publish(
@@ -40,7 +42,6 @@ export class Serie extends AggregateRoot<SerieId> {
                 this.synopsis,
                 this.release,
                 this.creator,
-                this.rating,
                 this.type,
                 this.episodes,
                 this.channel,
@@ -66,8 +67,16 @@ export class Serie extends AggregateRoot<SerieId> {
         return this._creator
     }
 
+    get rates() {
+        return this._rates
+    }
+
     get rating() {
-        return this._rating
+        if (this.rates.isEmpty()) return 0
+        return (
+            this.rates.reduce((acc, e) => acc + e.calification.value, 0) /
+            this.rates.length
+        )
     }
 
     get type() {
@@ -148,6 +157,18 @@ export class Serie extends AggregateRoot<SerieId> {
 
     removeActor(actorId: ActorId) {
         this._actors = this.actors.filter((e) => !e.equals(actorId))
+    }
+
+    addRate(rate: Rate) {
+        if (this.rates.find((e) => e.equals(rate.id)))
+            throw new Error('Rate already exist')
+        this._rates.push(rate)
+        this.publish(new SerieRateAddedEvent(this.id, rate))
+    }
+
+    removeRate(rate: Rate) {
+        this._rates = this.rates.filter((e) => !e.equals(rate.id))
+        this.publish(new SerieRateRemovedEvent(this.id, rate))
     }
 
     delete() {

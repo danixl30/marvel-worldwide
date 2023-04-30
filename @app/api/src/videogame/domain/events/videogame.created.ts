@@ -5,7 +5,6 @@ import { ReleaseDate } from '../value-objects/release.date'
 import { VideogameCreator } from '../value-objects/creator'
 import { VideogameId } from '../value-objects/id'
 import { VideogamePlatform } from '../value-objects/platform'
-import { VideogameRating } from '../value-objects/rating'
 import { VideogameSynopsis } from '../value-objects/synopsis'
 import { VideogameTitle } from '../value-objects/title'
 import { VideogameType } from '../value-objects/type'
@@ -17,7 +16,6 @@ export class VideogameCreatedEvent extends DomainEvent {
         private _synopsis: VideogameSynopsis,
         private _release: ReleaseDate,
         private _creator: VideogameCreator,
-        private _rating: VideogameRating,
         private _type: VideogameType,
         private _basedOn: Comic,
         private _platforms: VideogamePlatform[] = [],
@@ -44,10 +42,6 @@ export class VideogameCreatedEvent extends DomainEvent {
 
     get creator() {
         return this._creator
-    }
-
-    get rating() {
-        return this._rating
     }
 
     get type() {

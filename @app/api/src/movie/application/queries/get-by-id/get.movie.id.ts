@@ -47,7 +47,11 @@ export class GetMovieByIdQuery
                 role: e.role.value,
                 character: e.character.value,
             })),
-            rating: movie.rating.value,
+            rates: movie.rates.map((e) => ({
+                id: e.id.value,
+                calification: e.calification.value,
+            })),
+            rating: movie.rating,
         })
     }
 }

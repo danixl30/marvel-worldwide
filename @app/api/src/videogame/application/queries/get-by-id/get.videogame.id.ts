@@ -44,7 +44,11 @@ export class GetVideogameByIdQuery
                 role: e.role.value,
                 character: e.character.value,
             })),
-            rating: videogame.rating.value,
+            rating: videogame.rating,
+            rates: videogame.rates.map((e) => ({
+                id: e.id.value,
+                calification: e.calification.value,
+            })),
         })
     }
 }

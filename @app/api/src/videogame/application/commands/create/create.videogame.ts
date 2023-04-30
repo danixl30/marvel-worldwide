@@ -23,11 +23,9 @@ import { VideogameTitle } from 'src/videogame/domain/value-objects/title'
 import { VideogameSynopsis } from 'src/videogame/domain/value-objects/synopsis'
 import { ReleaseDate } from 'src/videogame/domain/value-objects/release.date'
 import { VideogameCreator } from 'src/videogame/domain/value-objects/creator'
-import { VideogameRating } from 'src/videogame/domain/value-objects/rating'
 import { VideogameType } from 'src/videogame/domain/value-objects/type'
 import { VideogamePlatform } from 'src/videogame/domain/value-objects/platform'
 
-const DEFAULT_RATING = 1
 export class CreateVideogameCommand
     implements
         ApplicationService<
@@ -82,7 +80,6 @@ export class CreateVideogameCommand
             new VideogameSynopsis(data.synopsis),
             new ReleaseDate(data.release),
             new VideogameCreator(data.creator),
-            new VideogameRating(DEFAULT_RATING),
             new VideogameType(data.type),
             comic,
             data.platforms.map((e) => new VideogamePlatform(e)),
