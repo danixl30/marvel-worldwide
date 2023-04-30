@@ -19,4 +19,5 @@ export interface HeroeRepository extends Repository<HeroeId, Heroe> {
     getPowerById(id: PowerId): Promise<Optional<Power>>
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Heroe[]>
     getHeroesByPowerType(type: PowerType): Promise<Heroe[]>
+    getTop5MoreUsedObjects(): Promise<ObjectItem[]>
 }
