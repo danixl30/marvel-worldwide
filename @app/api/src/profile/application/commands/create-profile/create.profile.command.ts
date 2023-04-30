@@ -25,7 +25,7 @@ export class CreateProfileCommand
     constructor(
         private readonly profileRepository: ProfileRepository,
         private readonly uuidGenerator: UUIDGenerator,
-        private eventHandler: EventHandler,
+        private readonly eventHandler: EventHandler,
     ) {}
     async execute(
         data: CreateProfileDTO,
