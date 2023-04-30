@@ -6,6 +6,9 @@ declare global {
         asyncMap<U>(
             callback: (e: T, i: number, arr: T[]) => Promise<U>,
         ): Promise<U[]>
+        asyncFilter(
+            callback: (e: T, i: number, arr: T[]) => Promise<boolean>,
+        ): Promise<T[]>
         isEmpty(): boolean
         isNotEmpty(): boolean
         with(index: number, element: T): T[]
@@ -20,7 +23,12 @@ Array.prototype.asyncForEach = async function (callback) {
 }
 
 Array.prototype.asyncMap = async function (callback) {
-    return await Promise.all(this.map(callback))
+    return Promise.all(this.map(callback))
+}
+
+Array.prototype.asyncFilter = async function (callback) {
+    const arr = await Promise.all(this.map(callback))
+    return this.filter((_e, index) => (arr[index] ? true : false))
 }
 
 Array.prototype.isNotEmpty = function (): boolean {

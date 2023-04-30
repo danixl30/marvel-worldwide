@@ -8,6 +8,7 @@ import { PersonId } from 'src/heroe/domain/entities/person/value-objects/id'
 import { PersonName } from 'src/heroe/domain/entities/person/value-objects/name'
 import { Power } from 'src/heroe/domain/entities/power/power'
 import { PowerId } from 'src/heroe/domain/entities/power/value-objects/power.id'
+import { PowerType } from 'src/heroe/domain/entities/power/value-objects/power.type'
 import { VillainId } from 'src/villain/domain/value-object/villain.id'
 import { Villain } from 'src/villain/domain/villain'
 
@@ -17,4 +18,5 @@ export interface VillainRepository extends Repository<VillainId, Villain> {
     getObjectById(id: ObjectId): Promise<Optional<ObjectItem>>
     getPowerById(id: PowerId): Promise<Optional<Power>>
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Villain[]>
+    getVillainsByPowerType(type: PowerType): Promise<Villain[]>
 }
