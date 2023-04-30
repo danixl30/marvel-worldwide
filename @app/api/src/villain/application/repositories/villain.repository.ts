@@ -1,4 +1,5 @@
 import { Optional } from '@mono/types-utils'
+import { SearchByCriteriaDTO } from 'src/civil/application/repositories/types/search.criteria.dto'
 import { Repository } from 'src/core/application/repository/repository'
 import { ObjectItem } from 'src/heroe/domain/entities/object/object'
 import { ObjectId } from 'src/heroe/domain/entities/object/value-objects/object.id'
@@ -15,4 +16,5 @@ export interface VillainRepository extends Repository<VillainId, Villain> {
     getPersonById(id: PersonId): Promise<Optional<Person>>
     getObjectById(id: ObjectId): Promise<Optional<ObjectItem>>
     getPowerById(id: PowerId): Promise<Optional<Power>>
+    getByCriteria(criteria: SearchByCriteriaDTO): Promise<Villain[]>
 }

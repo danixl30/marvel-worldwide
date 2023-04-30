@@ -1,4 +1,5 @@
 import { Optional } from '@mono/types-utils'
+import { SearchByCriteriaDTO } from 'src/civil/application/repositories/types/search.criteria.dto'
 import { Repository } from 'src/core/application/repository/repository'
 import { Actor } from 'src/movie/domain/entities/actor/actor'
 import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
@@ -11,4 +12,5 @@ export interface VideogameRepository
     extends Repository<VideogameId, Videogame> {
     getActorByName(name: ActorName): Promise<Optional<Actor>>
     getComicById(id: ComicId): Promise<Optional<Comic>>
+    getByCriteria(criteria: SearchByCriteriaDTO): Promise<Videogame[]>
 }

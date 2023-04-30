@@ -1,4 +1,5 @@
 import { Optional } from '@mono/types-utils'
+import { SearchByCriteriaDTO } from 'src/civil/application/repositories/types/search.criteria.dto'
 import { Repository } from 'src/core/application/repository/repository'
 import { Headquarter } from 'src/organization/domain/entities/headquarter/hearquarter'
 import { HeadquarterId } from 'src/organization/domain/entities/headquarter/value-objects/headquarter.id'
@@ -12,4 +13,5 @@ export interface OrganizationRepository
         location: HeadquarterPlace,
     ): Promise<Optional<Headquarter>>
     getHeadquarterById(id: HeadquarterId): Promise<Optional<Headquarter>>
+    getByCriteria(criteria: SearchByCriteriaDTO): Promise<Organization[]>
 }
