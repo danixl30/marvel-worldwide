@@ -12,4 +12,5 @@ export interface SerieRepository extends Repository<SerieId, Serie> {
     getActorByName(name: ActorName): Promise<Optional<Actor>>
     getComicById(id: ComicId): Promise<Optional<Comic>>
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Serie[]>
+    getAll(): Promise<Serie[]>
 }
