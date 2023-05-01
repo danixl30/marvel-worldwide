@@ -14,4 +14,5 @@ export interface MovieRepository extends Repository<MovieId, Movie> {
     getComicById(id: ComicId): Promise<Optional<Comic>>
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Movie[]>
     getByType(type: MovieType): Promise<Movie[]>
+    getAtLeast2WeeksNearRelease(): Promise<Movie[]>
 }

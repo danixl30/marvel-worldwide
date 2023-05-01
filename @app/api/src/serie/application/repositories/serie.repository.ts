@@ -13,4 +13,5 @@ export interface SerieRepository extends Repository<SerieId, Serie> {
     getComicById(id: ComicId): Promise<Optional<Comic>>
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Serie[]>
     getAll(): Promise<Serie[]>
+    getAtLeast2WeeksNearRelease(): Promise<Serie[]>
 }

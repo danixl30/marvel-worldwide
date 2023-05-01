@@ -13,4 +13,5 @@ export interface VideogameRepository
     getActorByName(name: ActorName): Promise<Optional<Actor>>
     getComicById(id: ComicId): Promise<Optional<Comic>>
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Videogame[]>
+    getAtLeast2WeeksNearRelease(): Promise<Videogame[]>
 }
