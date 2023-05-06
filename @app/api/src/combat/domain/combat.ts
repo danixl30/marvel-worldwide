@@ -54,8 +54,9 @@ export class Combat extends AggregateRoot<CombatId> {
     modifyCharacter(character: Character) {
         if (!this.characters.find((e) => e.equals(character.id)))
             throw new Error('Charcter not exist')
-        this._characters = this.characters.map((e) =>
-            e.equals(character.id) ? character : e,
+        this._characters = this.characters.toReplaced(
+            (e) => e.equals(character.id),
+            character,
         )
     }
 

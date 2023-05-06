@@ -15,6 +15,10 @@ declare global {
         toReversed(): T[]
         toSorted(callback: (a: T, b: T) => number): T[]
         toSpliced(start: number, elementCount: number, ...items: T[]): T[]
+        toReplaced(
+            callback: (e: T, i: number, arr: T[]) => boolean,
+            element: T,
+        ): T[]
     }
 }
 
@@ -65,5 +69,11 @@ if (!Array.prototype.toSpliced)
         newArr.splice(start, elementCount, ...items)
         return newArr
     }
+
+Array.prototype.toReplaced = function (callback, element) {
+    const index = (this as unknown[]).findIndex(callback)
+    if (index === -1) return [...this]
+    return (this as unknown[]).with(index, element)
+}
 
 export default null

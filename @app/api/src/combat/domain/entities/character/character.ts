@@ -23,9 +23,7 @@ export class Character extends Entity<CharacterId> {
     changePower(prev: PowerId, current: PowerId) {
         if (this.powers.find((e) => e.equals(current)))
             throw new Error('Power already exist')
-        const oldIndex = this.powers.findIndex((e) => e.equals(prev))
-        if (oldIndex === -1) throw new Error('Old power not found')
-        this._powers = this.powers.with(oldIndex, current)
+        this._powers = this.powers.toReplaced((e) => e.equals(prev), current)
     }
 
     addPower(power: PowerId) {
@@ -43,9 +41,7 @@ export class Character extends Entity<CharacterId> {
     changeObject(prev: ObjectId, current: ObjectId) {
         if (this.objects.find((e) => e.equals(current)))
             throw new Error('Object already exist')
-        const oldIndex = this.objects.findIndex((e) => e.equals(prev))
-        if (oldIndex === -1) throw new Error('Old object not found')
-        this._objects = this.objects.with(oldIndex, current)
+        this._objects = this.objects.toReplaced((e) => e.equals(prev), current)
     }
 
     addObject(object: ObjectId) {
