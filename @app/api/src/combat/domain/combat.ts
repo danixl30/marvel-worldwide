@@ -6,6 +6,7 @@ import { Character } from './entities/character/character'
 import { InvalidCombatException } from './exceptions/invalid.combat'
 import { CombatCreatedEvent } from './events/combat.created'
 import { CombatDeletedEvent } from './events/combat.deleted'
+import { CharacterId } from './entities/character/value-objects/id'
 
 export class Combat extends AggregateRoot<CombatId> {
     constructor(
@@ -38,6 +39,24 @@ export class Combat extends AggregateRoot<CombatId> {
 
     changeDate(date: CombatDate) {
         this._date = date
+    }
+
+    removeCharacter(character: CharacterId) {
+        this._characters = this.characters.filter((e) => !e.equals(character))
+    }
+
+    addCharcter(character: Character) {
+        if (this.characters.find((e) => e.equals(character.id)))
+            throw new Error('Charcter already exist')
+        this._characters.push(character)
+    }
+
+    modifyCharacter(character: Character) {
+        if (!this.characters.find((e) => e.equals(character.id)))
+            throw new Error('Charcter not exist')
+        this._characters = this.characters.map((e) =>
+            e.equals(character.id) ? character : e,
+        )
     }
 
     delete() {
