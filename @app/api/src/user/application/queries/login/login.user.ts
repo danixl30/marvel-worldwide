@@ -21,7 +21,7 @@ export class Login
         data: LoginDTO,
     ): Promise<Result<LoginResponse, ApplicationError>> {
         const user = await this.userRepository.getByEmail(data.email)
-        if (!user || (await this.crypto.compare(data.password, user.password)))
+        if (!user || !(await this.crypto.compare(data.password, user.password)))
             throw new Error('Error in login')
         const token = this.tokenProvider.sign({
             id: user.id,
