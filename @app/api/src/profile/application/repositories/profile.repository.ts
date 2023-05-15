@@ -11,4 +11,5 @@ export interface ProfileRepository extends Repository<ProfileId, Profile> {
             target: HistoryTarget
         }[]
     >
+    getTop10History(id: ProfileId): Promise<History[]>
 }
