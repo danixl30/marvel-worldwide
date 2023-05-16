@@ -8,6 +8,7 @@ import { ComicId } from 'src/movie/domain/entities/comic/value-objects/id'
 import { Movie } from 'src/movie/domain/movie'
 import { MovieId } from 'src/movie/domain/value-objects/movie.id'
 import { MovieType } from 'src/movie/domain/value-objects/type'
+import { ProfileId } from 'src/profile/domain/value-objects/profile.id'
 
 export interface MovieRepository extends Repository<MovieId, Movie> {
     getActorByName(name: ActorName): Promise<Optional<Actor>>
@@ -15,4 +16,5 @@ export interface MovieRepository extends Repository<MovieId, Movie> {
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Movie[]>
     getByType(type: MovieType): Promise<Movie[]>
     getAtLeast2WeeksNearRelease(): Promise<Movie[]>
+    getTrending(profileId: ProfileId): Promise<Movie[]>
 }
