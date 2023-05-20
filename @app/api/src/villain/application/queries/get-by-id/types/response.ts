@@ -21,7 +21,10 @@ export type GetVillainByIdResponse = {
     objects: ({ id: string } & ObjectDTO)[]
     powers: ({ id: string } & PowerDTO)[]
     name: string
-    enemies: string[]
+    enemies: {
+        id: string
+        name: string
+    }[]
     enemieGroups: string[]
     objetive: string
 }

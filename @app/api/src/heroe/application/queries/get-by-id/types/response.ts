@@ -24,6 +24,9 @@ export type GetHeroeByIdResponse = {
         firstName: string
         lastName: string
     }
-    archEnemy: string
+    archEnemy: {
+        id: string
+        name: string
+    }
     phrase: string
 }

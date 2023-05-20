@@ -34,7 +34,10 @@ export type GetMovieByIdResponse = {
             lastName: string
         }
         role: string
-        character: string
+        character: {
+            id: string
+            name: string
+        }
     }[]
     rates: {
         id: string

@@ -21,7 +21,10 @@ export type GetVideogameByIdResponse = {
             lastName: string
         }
         role: string
-        character: string
+        character: {
+            id: string
+            name: string
+        }
     }[]
     rating: number
     rates: {

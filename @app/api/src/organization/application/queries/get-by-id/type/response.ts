@@ -17,6 +17,7 @@ export type GetOrganizationByIdResponse = {
     }
     members: {
         id: string
+        name: string
         charge: string
     }[]
     firstApparition: string

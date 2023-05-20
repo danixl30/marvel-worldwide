@@ -6,6 +6,9 @@ import { Result } from 'src/core/application/result-handler/result.handler'
 import { HeroeRepository } from '../../repositories/heroe.repository'
 import { HeroeId } from 'src/heroe/domain/value-object/heroe.id'
 import { HeroeNotFoundError } from '../../errors/heroe.not.found'
+import { VillainRepository } from 'src/villain/application/repositories/villain.repository'
+import { VillainId } from 'src/villain/domain/value-object/villain.id'
+import { VillainNotFoundError } from 'src/villain/application/errors/villain.not.found'
 
 export class GetHeroeByIdQuery
     implements
@@ -15,13 +18,20 @@ export class GetHeroeByIdQuery
             ApplicationError
         >
 {
-    constructor(private readonly heroeRepository: HeroeRepository) {}
+    constructor(
+        private readonly heroeRepository: HeroeRepository,
+        private readonly villainRepository: VillainRepository,
+    ) {}
 
     async execute(
         data: GetHeroeByIdDTO,
     ): Promise<Result<GetHeroeByIdResponse, ApplicationError>> {
         const heroe = await this.heroeRepository.getById(new HeroeId(data.id))
         if (!heroe) return Result.error(new HeroeNotFoundError())
+        const villain = await this.villainRepository.getById(
+            new VillainId(heroe.archEnemy.value),
+        )
+        if (!villain) return Result.error(new VillainNotFoundError())
         return Result.success({
             id: data.id,
             person: {
@@ -40,7 +50,10 @@ export class GetHeroeByIdQuery
                 firstName: heroe.creator.firstName,
                 lastName: heroe.creator.lastName,
             },
-            archEnemy: heroe.archEnemy.value,
+            archEnemy: {
+                id: villain.id.value,
+                name: villain.name.value,
+            },
             objects: heroe.objects.map((e) => ({
                 id: e.id.value,
                 name: e.name.value,

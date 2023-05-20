@@ -4,6 +4,7 @@ export type GetCombatByIdResponse = {
     place: string
     characters: {
         id: string
+        name: string
         powers: string[]
         objects: string[]
     }[]
