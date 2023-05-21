@@ -9,6 +9,7 @@ import { SerieId } from '../value-objects/id'
 import { SerieSynopsis } from '../value-objects/synopsis'
 import { SerieTitle } from '../value-objects/title'
 import { SerieType } from '../value-objects/type'
+import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 
 export class SerieCreatedEvent extends DomainEvent {
     constructor(
@@ -21,9 +22,14 @@ export class SerieCreatedEvent extends DomainEvent {
         private _episodes: SerieEpisodes,
         private _channel: SerieChannel,
         private _basedOn: Comic,
+        private _organizations: OrganizationRef[] = [],
         private _actors: Actor[] = [],
     ) {
         super()
+    }
+
+    get organizations() {
+        return this._organizations
     }
 
     get id() {

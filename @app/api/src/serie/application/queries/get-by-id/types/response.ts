@@ -33,4 +33,9 @@ export type GetSerieByIdResponse = {
         calification: number
     }[]
     rating: number
+    organizations: {
+        id: string
+        name: string
+        participationType: string
+    }[]
 }

@@ -18,6 +18,7 @@ import { VideogameDeletedEvent } from './events/videogame.deleted'
 import { Rate } from 'src/movie/domain/entities/rate/rate'
 import { VideogameRateAddedEvent } from './events/videogame.rate.added'
 import { VideogameRateRemovedEvent } from './events/videogame.rate.removed'
+import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 
 export class Videogame extends AggregateRoot<VideogameId> {
     constructor(
@@ -28,6 +29,7 @@ export class Videogame extends AggregateRoot<VideogameId> {
         private _creator: VideogameCreator,
         private _type: VideogameType,
         private _basedOn: Comic,
+        private _organizations: OrganizationRef[] = [],
         private _platforms: VideogamePlatform[] = [],
         private _actors: Actor[] = [],
         private _rates: Rate[] = [],
@@ -42,10 +44,15 @@ export class Videogame extends AggregateRoot<VideogameId> {
                 this.creator,
                 this.type,
                 this.basedOn,
+                this.organizations,
                 this.platforms,
                 this.actors,
             ),
         )
+    }
+
+    get organizations() {
+        return this._organizations
     }
 
     get title() {
@@ -164,6 +171,18 @@ export class Videogame extends AggregateRoot<VideogameId> {
     removeRate(rate: Rate) {
         this._rates = this.rates.filter((e) => !e.equals(rate.id))
         this.publish(new VideogameRateRemovedEvent(this.id, rate))
+    }
+
+    addOrganization(organization: OrganizationRef) {
+        if (this.organizations.find((e) => e.equals(organization)))
+            throw new Error('Organization already exist')
+        this._organizations.push(organization)
+    }
+
+    removeOrganization(organization: OrganizationRef) {
+        this._organizations = this.organizations.filter(
+            (e) => !e.equals(organization),
+        )
     }
 
     delete() {

@@ -34,4 +34,8 @@ export type CreateMovieDTO = {
         role: string
         character: string
     }[]
+    organizations: {
+        id: string
+        participationType: string
+    }[]
 }

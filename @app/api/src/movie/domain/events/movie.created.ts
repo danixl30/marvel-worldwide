@@ -10,6 +10,7 @@ import { MovieTitle } from '../value-objects/title'
 import { MovieType } from '../value-objects/type'
 import { ProductionCost } from '../value-objects/production.cost'
 import { ReleaseDate } from '../value-objects/release.date'
+import { OrganizationRef } from '../value-objects/organization'
 
 export class MovieCreatedEvent extends DomainEvent {
     constructor(
@@ -23,9 +24,14 @@ export class MovieCreatedEvent extends DomainEvent {
         private _type: MovieType,
         private _cost: ProductionCost,
         private _basedOn: Comic,
+        private _organizations: OrganizationRef[] = [],
         private _actors: Actor[] = [],
     ) {
         super()
+    }
+
+    get organizations() {
+        return this._organizations
     }
 
     get id() {

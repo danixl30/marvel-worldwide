@@ -25,6 +25,7 @@ import { ReleaseDate } from 'src/videogame/domain/value-objects/release.date'
 import { VideogameCreator } from 'src/videogame/domain/value-objects/creator'
 import { VideogameType } from 'src/videogame/domain/value-objects/type'
 import { VideogamePlatform } from 'src/videogame/domain/value-objects/platform'
+import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 
 export class CreateVideogameCommand
     implements
@@ -82,6 +83,9 @@ export class CreateVideogameCommand
             new VideogameCreator(data.creator),
             new VideogameType(data.type),
             comic,
+            data.organizations.map(
+                (e) => new OrganizationRef(e.id, e.participationType),
+            ),
             data.platforms.map((e) => new VideogamePlatform(e)),
             actors,
         )

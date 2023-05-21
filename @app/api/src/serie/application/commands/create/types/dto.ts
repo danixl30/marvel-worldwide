@@ -23,4 +23,8 @@ export type CreateSerieDTO = {
         role: string
         character: string
     }[]
+    organizations: {
+        id: string
+        participationType: string
+    }[]
 }

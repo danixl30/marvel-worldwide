@@ -8,6 +8,7 @@ import { VideogamePlatform } from '../value-objects/platform'
 import { VideogameSynopsis } from '../value-objects/synopsis'
 import { VideogameTitle } from '../value-objects/title'
 import { VideogameType } from '../value-objects/type'
+import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 
 export class VideogameCreatedEvent extends DomainEvent {
     constructor(
@@ -18,10 +19,15 @@ export class VideogameCreatedEvent extends DomainEvent {
         private _creator: VideogameCreator,
         private _type: VideogameType,
         private _basedOn: Comic,
+        private _organizations: OrganizationRef[] = [],
         private _platforms: VideogamePlatform[] = [],
         private _actors: Actor[] = [],
     ) {
         super()
+    }
+
+    get organizations() {
+        return this._organizations
     }
 
     get id() {

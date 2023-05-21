@@ -27,6 +27,7 @@ import { MovieDuration } from 'src/movie/domain/value-objects/duration'
 import { MovieType } from 'src/movie/domain/value-objects/type'
 import { ProductionCost } from 'src/movie/domain/value-objects/production.cost'
 import { ComicNotFoundError } from '../../errors/comic.not.found'
+import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 
 export class CreateMovieCommand
     implements
@@ -89,6 +90,9 @@ export class CreateMovieCommand
             new MovieType(data.type),
             new ProductionCost(data.cost.cost, data.cost.earning),
             comic,
+            data.organizations.map(
+                (e) => new OrganizationRef(e.id, e.participationType),
+            ),
             actors,
         )
         await this.movieRepository.save(movie)

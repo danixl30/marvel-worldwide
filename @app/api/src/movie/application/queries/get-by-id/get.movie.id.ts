@@ -13,6 +13,9 @@ import { CivilId } from 'src/civil/domain/value-objects/id'
 import { HeroeId } from 'src/heroe/domain/value-object/heroe.id'
 import { VillainId } from 'src/villain/domain/value-object/villain.id'
 import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
+import { OrganizationRepository } from 'src/organization/application/repositories/organization.repository'
+import { OrganizationId } from 'src/organization/domain/value-objects/organization.id'
+import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 
 export class GetMovieByIdQuery
     implements
@@ -27,7 +30,19 @@ export class GetMovieByIdQuery
         private readonly heroeRepository: HeroeRepository,
         private readonly villainRepository: VillainRepository,
         private readonly civilRepository: CivilRepository,
+        private readonly organizationRepository: OrganizationRepository,
     ) {}
+
+    async getOrganization(organizationRef: OrganizationRef) {
+        const organization = await this.organizationRepository.getById(
+            new OrganizationId(organizationRef.value),
+        )
+        if (!organization) throw new Error('Organization not found')
+        return {
+            id: organization.id.value,
+            name: organization.name.value,
+        }
+    }
 
     async getHeroeVillainOrCivil(id: ActorCharacter) {
         const civil = await this.civilRepository.getById(new CivilId(id.value))
@@ -88,6 +103,11 @@ export class GetMovieByIdQuery
                 calification: e.calification.value,
             })),
             rating: movie.rating,
+            organizations: await movie.organizations.asyncMap(async (e) => ({
+                id: e.value,
+                participationType: e.participationType,
+                name: (await this.getOrganization(e)).name,
+            })),
         })
     }
 }

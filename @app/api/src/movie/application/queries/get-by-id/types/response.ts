@@ -44,4 +44,9 @@ export type GetMovieByIdResponse = {
         calification: number
     }[]
     rating: number
+    organizations: {
+        id: string
+        name: string
+        participationType: string
+    }[]
 }

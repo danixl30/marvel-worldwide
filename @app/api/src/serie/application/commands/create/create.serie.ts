@@ -26,6 +26,7 @@ import { SerieCreator } from 'src/serie/domain/value-objects/creator'
 import { SerieType } from 'src/serie/domain/value-objects/type'
 import { SerieEpisodes } from 'src/serie/domain/value-objects/episodes'
 import { SerieChannel } from 'src/serie/domain/value-objects/channel'
+import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 
 export class CerateSerieCommand
     implements
@@ -83,6 +84,9 @@ export class CerateSerieCommand
             new SerieEpisodes(data.episodes),
             new SerieChannel(data.channel),
             comic,
+            data.organizations.map(
+                (e) => new OrganizationRef(e.id, e.participationType),
+            ),
             actors,
         )
         await this.serieRepository.save(serie)

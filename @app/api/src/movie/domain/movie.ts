@@ -20,6 +20,7 @@ import { MovieDeletedEvent } from './events/movie.deleted'
 import { Rate } from './entities/rate/rate'
 import { MovieRateAddedEvent } from './events/movie.rate.added'
 import { MovieRateRemovedEvent } from './events/movie.rate.removed'
+import { OrganizationRef } from './value-objects/organization'
 
 export class Movie extends AggregateRoot<MovieId> {
     constructor(
@@ -33,6 +34,7 @@ export class Movie extends AggregateRoot<MovieId> {
         private _type: MovieType,
         private _cost: ProductionCost,
         private _basedOn: Comic,
+        private _organizations: OrganizationRef[] = [],
         private _actors: Actor[] = [],
         private _rates: Rate[] = [],
     ) {
@@ -49,9 +51,14 @@ export class Movie extends AggregateRoot<MovieId> {
                 this.type,
                 this.cost,
                 this.basedOn,
+                this.organizations,
                 this.actors,
             ),
         )
+    }
+
+    get organizations() {
+        return this._organizations
     }
 
     get title() {
@@ -180,6 +187,18 @@ export class Movie extends AggregateRoot<MovieId> {
     removeRate(rate: Rate) {
         this._rates = this.rates.filter((e) => !e.equals(rate.id))
         this.publish(new MovieRateRemovedEvent(this.id, rate))
+    }
+
+    addOrganization(organization: OrganizationRef) {
+        if (this.organizations.find((e) => e.equals(organization)))
+            throw new Error('Organization already exist')
+        this._organizations.push(organization)
+    }
+
+    removeOrganization(organization: OrganizationRef) {
+        this._organizations = this.organizations.filter(
+            (e) => !e.equals(organization),
+        )
     }
 
     delete() {

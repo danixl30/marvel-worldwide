@@ -19,6 +19,7 @@ import { SerieDeletedEvent } from './events/serie.deleted'
 import { Rate } from 'src/movie/domain/entities/rate/rate'
 import { SerieRateAddedEvent } from './events/serie.rate.added'
 import { SerieRateRemovedEvent } from './events/serie.rate.removed'
+import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 
 export class Serie extends AggregateRoot<SerieId> {
     constructor(
@@ -31,6 +32,7 @@ export class Serie extends AggregateRoot<SerieId> {
         private _episodes: SerieEpisodes,
         private _channel: SerieChannel,
         private _basedOn: Comic,
+        private _organizations: OrganizationRef[] = [],
         private _actors: Actor[] = [],
         private _rates: Rate[] = [],
     ) {
@@ -46,9 +48,14 @@ export class Serie extends AggregateRoot<SerieId> {
                 this.episodes,
                 this.channel,
                 this.basedOn,
+                this.organizations,
                 this.actors,
             ),
         )
+    }
+
+    get organizations() {
+        return this._organizations
     }
 
     get title() {
@@ -169,6 +176,18 @@ export class Serie extends AggregateRoot<SerieId> {
     removeRate(rate: Rate) {
         this._rates = this.rates.filter((e) => !e.equals(rate.id))
         this.publish(new SerieRateRemovedEvent(this.id, rate))
+    }
+
+    addOrganization(organization: OrganizationRef) {
+        if (this.organizations.find((e) => e.equals(organization)))
+            throw new Error('Organization already exist')
+        this._organizations.push(organization)
+    }
+
+    removeOrganization(organization: OrganizationRef) {
+        this._organizations = this.organizations.filter(
+            (e) => !e.equals(organization),
+        )
     }
 
     delete() {

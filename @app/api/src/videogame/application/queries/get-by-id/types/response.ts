@@ -31,4 +31,9 @@ export type GetVideogameByIdResponse = {
         id: string
         calification: number
     }[]
+    organizations: {
+        id: string
+        name: string
+        participationType: string
+    }[]
 }

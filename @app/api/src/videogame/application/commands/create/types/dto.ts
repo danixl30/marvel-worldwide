@@ -22,4 +22,8 @@ export type CreateVideogameDTO = {
         role: string
         character: string
     }[]
+    organizations: {
+        id: string
+        participationType: string
+    }[]
 }
