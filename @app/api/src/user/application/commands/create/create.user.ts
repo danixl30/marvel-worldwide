@@ -31,8 +31,12 @@ export class CreateUserCommand
             password: await this.crypto.encrypt(data.password),
             cardNumber: data.cardNumber,
             birthDate: data.birthDate,
-            expirationDate: new Date(),
-            type: data.type,
+            membreship: {
+                id: this.uuidGenerator.generate(),
+                initialDate: new Date(),
+                endDate: new Date(),
+                type: data.type,
+            },
             profiles: [],
         }
         await this.userRepository.save(user)
