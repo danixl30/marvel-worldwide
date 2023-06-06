@@ -1,7 +1,19 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
+import { Media } from './media.entity'
+import { Organization } from 'src/organization/infraestructure/models/postgres/organization.entity'
 
 @Entity()
 export class Appear {
+    @ManyToOne(() => Media)
+    @JoinColumn({
+        name: 'idMedia',
+    })
+    media: Media
+    @ManyToOne(() => Organization)
+    @JoinColumn({
+        name: 'idOrganization',
+    })
+    organization: Organization
     @PrimaryColumn({
         type: 'uuid',
     })

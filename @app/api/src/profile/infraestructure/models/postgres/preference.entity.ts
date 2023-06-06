@@ -8,12 +8,13 @@ export class Preference {
         type: 'uuid',
     })
     id: string
-    @Column({
-        type: 'uuid',
-    })
     @ManyToOne(() => Profile)
     @JoinTable({
         name: 'id',
+    })
+    profile: Profile
+    @Column({
+        type: 'uuid',
     })
     idProfile: string
     @Column({

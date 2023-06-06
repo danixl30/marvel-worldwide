@@ -1,18 +1,32 @@
-import { Column, Entity, JoinTable, ManyToOne, PrimaryColumn } from 'typeorm'
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    JoinTable,
+    ManyToOne,
+    PrimaryColumn,
+} from 'typeorm'
 import { Profile } from './profile.entity'
+import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
 
 @Entity()
 export class Calification {
+    @ManyToOne(() => Media)
+    @JoinColumn({
+        name: 'idMedia',
+    })
+    media: Media
     @PrimaryColumn({
         type: 'uuid',
     })
     idMemdia: string
-    @PrimaryColumn({
-        type: 'uuid',
-    })
     @ManyToOne(() => Profile)
     @JoinTable({
-        name: 'id',
+        name: 'idProfile',
+    })
+    profile: Profile
+    @PrimaryColumn({
+        type: 'uuid',
     })
     idProfile: string
     @Column({

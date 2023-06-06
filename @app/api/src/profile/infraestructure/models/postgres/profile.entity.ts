@@ -7,12 +7,13 @@ export class Profile {
         type: 'uuid',
     })
     id: string
+    @ManyToOne(() => User)
+    @JoinTable({
+        name: 'userId',
+    })
+    user: User
     @Column({
         type: 'uuid',
-    })
-    @ManyToOne((_t) => User)
-    @JoinTable({
-        name: 'id',
     })
     userId: string
     @Column({

@@ -8,12 +8,13 @@ export class Membership {
         type: 'uuid',
     })
     id: string
+    @ManyToOne(() => User)
+    @JoinTable({
+        name: 'userId',
+    })
+    user: User
     @Column({
         type: 'uuid',
-    })
-    @ManyToOne((_type) => User)
-    @JoinTable({
-        name: 'id',
     })
     userId: string
     @Column({

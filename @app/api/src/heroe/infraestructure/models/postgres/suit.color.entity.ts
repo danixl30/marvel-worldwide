@@ -3,12 +3,13 @@ import { Person } from './person.entity'
 
 @Entity()
 export class ColorSuit {
-    @PrimaryColumn({
-        type: 'uuid',
-    })
     @ManyToOne(() => Person)
     @JoinTable({
-        name: 'id',
+        name: 'idPerson',
+    })
+    person: Person
+    @PrimaryColumn({
+        type: 'uuid',
     })
     idPerson: string
     @PrimaryColumn({
