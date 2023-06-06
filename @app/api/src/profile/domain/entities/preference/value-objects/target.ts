@@ -1,5 +1,11 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
+export enum MediaType {
+    MOVIE = 'MOVIE',
+    SERIE = 'SERIE',
+    VIDEOGAME = 'VIDEOGAME',
+}
+
 export class PreferenceTarget implements ValueObject<PreferenceTarget> {
     constructor(
         private readonly _platform: string,

@@ -4,16 +4,8 @@ export type CreateVideogameDTO = {
     release: Date
     creator: string
     type: string
-    comicId?: string
     platforms: string[]
-    comic?: {
-        title: string
-        volumen: number
-        author: {
-            firstName: string
-            lastName: string
-        }
-    }
+    comic: string
     actors: {
         name: {
             firstName: string

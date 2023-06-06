@@ -82,12 +82,7 @@ export class GetSerieByIdQuery
             type: serie.type.value,
             episodes: serie.episodes.value,
             channel: serie.channel.value,
-            comic: {
-                id: serie.basedOn.id.value,
-                title: serie.basedOn.title.value,
-                volumen: serie.basedOn.volumen.value,
-                author: serie.basedOn.author,
-            },
+            comic: serie.basedOn.value,
             actors: await serie.actors.asyncMap(async (e) => ({
                 id: e.id.value,
                 name: e.name,

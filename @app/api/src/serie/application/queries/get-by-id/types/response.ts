@@ -7,15 +7,7 @@ export type GetSerieByIdResponse = {
     episodes: number
     type: string
     channel: string
-    comic: {
-        id: string
-        title: string
-        volumen: number
-        author: {
-            firstName: string
-            lastName: string
-        }
-    }
+    comic: string
     actors: {
         id: string
         name: {

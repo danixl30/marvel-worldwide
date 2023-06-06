@@ -6,11 +6,6 @@ import { SerieRepository } from '../../repositories/serie.repository'
 import { UUIDGenerator } from 'src/core/application/UUID/UUID.generator'
 import { EventHandler } from 'src/core/application/event-handler/event.handler'
 import { Result } from 'src/core/application/result-handler/result.handler'
-import { Comic } from 'src/movie/domain/entities/comic/comic'
-import { ComicId } from 'src/movie/domain/entities/comic/value-objects/id'
-import { ComicTitle } from 'src/movie/domain/entities/comic/value-objects/title'
-import { ComicAuthor } from 'src/movie/domain/entities/comic/value-objects/author'
-import { ComicVolumen } from 'src/movie/domain/entities/comic/value-objects/volumen'
 import { Actor } from 'src/movie/domain/entities/actor/actor'
 import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
 import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
@@ -27,6 +22,7 @@ import { SerieType } from 'src/serie/domain/value-objects/type'
 import { SerieEpisodes } from 'src/serie/domain/value-objects/episodes'
 import { SerieChannel } from 'src/serie/domain/value-objects/channel'
 import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
+import { Comic } from 'src/movie/domain/value-objects/comic'
 
 export class CerateSerieCommand
     implements
@@ -41,18 +37,6 @@ export class CerateSerieCommand
         private readonly uuidGenerator: UUIDGenerator,
         private readonly eventHandler: EventHandler,
     ) {}
-
-    private createComicByDTO(data: CreateSerieDTO): Comic {
-        return new Comic(
-            new ComicId(this.uuidGenerator.generate()),
-            new ComicTitle(data.comic!.title),
-            new ComicAuthor(
-                data.comic!.author.firstName,
-                data.comic!.author.lastName,
-            ),
-            new ComicVolumen(data.comic!.volumen),
-        )
-    }
 
     private createActorsByDTO(data: CreateSerieDTO) {
         return data.actors.map(
@@ -69,10 +53,6 @@ export class CerateSerieCommand
     async execute(
         data: CreateSerieDTO,
     ): Promise<Result<CreateSerieResponse, ApplicationError>> {
-        const comic = data.comicId
-            ? await this.serieRepository.getComicById(new ComicId(data.comicId))
-            : this.createComicByDTO(data)
-        if (!comic) return Result.error(new ComicNotFoundError())
         const actors = this.createActorsByDTO(data)
         const serie = new Serie(
             new SerieId(this.uuidGenerator.generate()),
@@ -83,7 +63,7 @@ export class CerateSerieCommand
             new SerieType(data.type),
             new SerieEpisodes(data.episodes),
             new SerieChannel(data.channel),
-            comic,
+            new Comic(data.comic),
             data.organizations.map(
                 (e) => new OrganizationRef(e.id, e.participationType),
             ),

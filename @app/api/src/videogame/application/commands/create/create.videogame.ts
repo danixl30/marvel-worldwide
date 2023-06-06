@@ -6,11 +6,6 @@ import { VideogameRepository } from '../../repositories/videogame.repository'
 import { UUIDGenerator } from 'src/core/application/UUID/UUID.generator'
 import { EventHandler } from 'src/core/application/event-handler/event.handler'
 import { Result } from 'src/core/application/result-handler/result.handler'
-import { Comic } from 'src/movie/domain/entities/comic/comic'
-import { ComicId } from 'src/movie/domain/entities/comic/value-objects/id'
-import { ComicTitle } from 'src/movie/domain/entities/comic/value-objects/title'
-import { ComicAuthor } from 'src/movie/domain/entities/comic/value-objects/author'
-import { ComicVolumen } from 'src/movie/domain/entities/comic/value-objects/volumen'
 import { Actor } from 'src/movie/domain/entities/actor/actor'
 import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
 import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
@@ -26,6 +21,7 @@ import { VideogameCreator } from 'src/videogame/domain/value-objects/creator'
 import { VideogameType } from 'src/videogame/domain/value-objects/type'
 import { VideogamePlatform } from 'src/videogame/domain/value-objects/platform'
 import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
+import { Comic } from 'src/movie/domain/value-objects/comic'
 
 export class CreateVideogameCommand
     implements
@@ -40,18 +36,6 @@ export class CreateVideogameCommand
         private readonly uuidGenerator: UUIDGenerator,
         private readonly eventHandler: EventHandler,
     ) {}
-
-    private createComicByDTO(data: CreateVideogameDTO): Comic {
-        return new Comic(
-            new ComicId(this.uuidGenerator.generate()),
-            new ComicTitle(data.comic!.title),
-            new ComicAuthor(
-                data.comic!.author.firstName,
-                data.comic!.author.lastName,
-            ),
-            new ComicVolumen(data.comic!.volumen),
-        )
-    }
 
     private createActorsByDTO(data: CreateVideogameDTO) {
         return data.actors.map(
@@ -68,12 +52,6 @@ export class CreateVideogameCommand
     async execute(
         data: CreateVideogameDTO,
     ): Promise<Result<CreateVideogameResponse, ApplicationError>> {
-        const comic = data.comicId
-            ? await this.vidogameRepository.getComicById(
-                  new ComicId(data.comicId),
-              )
-            : this.createComicByDTO(data)
-        if (!comic) return Result.error(new ComicNotFoundError())
         const actors = this.createActorsByDTO(data)
         const videogame = new Videogame(
             new VideogameId(this.uuidGenerator.generate()),
@@ -82,7 +60,7 @@ export class CreateVideogameCommand
             new ReleaseDate(data.release),
             new VideogameCreator(data.creator),
             new VideogameType(data.type),
-            comic,
+            new Comic(data.comic),
             data.organizations.map(
                 (e) => new OrganizationRef(e.id, e.participationType),
             ),

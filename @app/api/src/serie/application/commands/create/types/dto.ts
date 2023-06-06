@@ -6,15 +6,7 @@ export type CreateSerieDTO = {
     episodes: number
     type: string
     channel: string
-    comicId?: string
-    comic?: {
-        title: string
-        volumen: number
-        author: {
-            firstName: string
-            lastName: string
-        }
-    }
+    comic: string
     actors: {
         name: {
             firstName: string

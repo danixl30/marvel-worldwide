@@ -83,12 +83,7 @@ export class GetVideogameByIdQuery
             release: videogame.release.value,
             type: videogame.type.value,
             platforms: videogame.platforms.map((e) => e.value),
-            comic: {
-                id: videogame.basedOn.id.value,
-                title: videogame.basedOn.title.value,
-                volumen: videogame.basedOn.volumen.value,
-                author: videogame.basedOn.author,
-            },
+            comic: videogame.basedOn.value,
             actors: await videogame.actors.asyncMap(async (e) => ({
                 id: e.id.value,
                 name: e.name,

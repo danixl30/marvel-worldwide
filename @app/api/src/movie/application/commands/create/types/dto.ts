@@ -17,15 +17,7 @@ export type CreateMovieDTO = {
         firstName: string
         lastName: string
     }
-    comicId?: string
-    comic?: {
-        title: string
-        volumen: number
-        author: {
-            firstName: string
-            lastName: string
-        }
-    }
+    comic: string
     actors: {
         name: {
             firstName: string

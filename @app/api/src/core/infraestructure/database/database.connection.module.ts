@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common'
+import { PostgresConnectionModule } from './postgre/postgre.connection.module'
 
-@Module({})
+@Module({
+    imports: [PostgresConnectionModule],
+    exports: [PostgresConnectionModule],
+})
 export class DatabaseConnectionModule {}

@@ -6,15 +6,7 @@ export type GetVideogameByIdResponse = {
     creator: string
     type: string
     platforms: string[]
-    comic: {
-        id: string
-        title: string
-        volumen: number
-        author: {
-            firstName: string
-            lastName: string
-        }
-    }
+    comic: string
     actors: {
         name: {
             firstName: string

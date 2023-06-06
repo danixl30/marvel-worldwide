@@ -1,5 +1,4 @@
 import { Actor } from '../entities/actor/actor'
-import { Comic } from '../entities/comic/comic'
 import { DomainEvent } from 'src/core/domain/events/event'
 import { MovieCreator } from '../value-objects/creator'
 import { MovieDirector } from '../value-objects/director'
@@ -11,6 +10,7 @@ import { MovieType } from '../value-objects/type'
 import { ProductionCost } from '../value-objects/production.cost'
 import { ReleaseDate } from '../value-objects/release.date'
 import { OrganizationRef } from '../value-objects/organization'
+import { Comic } from '../value-objects/comic'
 
 export class MovieCreatedEvent extends DomainEvent {
     constructor(

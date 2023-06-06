@@ -1,6 +1,5 @@
 import { Actor } from 'src/movie/domain/entities/actor/actor'
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
-import { Comic } from 'src/movie/domain/entities/comic/comic'
 import { InvalidSerieException } from './exceptions/invalid.serie'
 import { ReleaseDate } from './value-objects/release.date'
 import { SerieChannel } from './value-objects/channel'
@@ -20,6 +19,7 @@ import { Rate } from 'src/movie/domain/entities/rate/rate'
 import { SerieRateAddedEvent } from './events/serie.rate.added'
 import { SerieRateRemovedEvent } from './events/serie.rate.removed'
 import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
+import { Comic } from 'src/movie/domain/value-objects/comic'
 
 export class Serie extends AggregateRoot<SerieId> {
     constructor(

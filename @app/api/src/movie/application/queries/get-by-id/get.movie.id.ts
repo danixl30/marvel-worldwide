@@ -86,12 +86,7 @@ export class GetMovieByIdQuery
             duration: movie.duration,
             type: movie.type.value,
             cost: movie.cost,
-            comic: {
-                id: movie.basedOn.id.value,
-                title: movie.basedOn.title.value,
-                volumen: movie.basedOn.volumen.value,
-                author: movie.basedOn.author,
-            },
+            comic: movie.basedOn.value,
             actors: await movie.actors.asyncMap(async (e) => ({
                 id: e.id.value,
                 name: e.name,

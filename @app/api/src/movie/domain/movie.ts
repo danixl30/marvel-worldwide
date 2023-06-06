@@ -1,6 +1,5 @@
 import { Actor } from './entities/actor/actor'
 import { AggregateRoot } from 'src/core/domain/aggregates/aggregate.root'
-import { Comic } from './entities/comic/comic'
 import { InvalidMovieException } from './exceptions/invalid.movie'
 import { MovieCreatedEvent } from './events/movie.created'
 import { MovieCreator } from './value-objects/creator'
@@ -21,6 +20,7 @@ import { Rate } from './entities/rate/rate'
 import { MovieRateAddedEvent } from './events/movie.rate.added'
 import { MovieRateRemovedEvent } from './events/movie.rate.removed'
 import { OrganizationRef } from './value-objects/organization'
+import { Comic } from './value-objects/comic'
 
 export class Movie extends AggregateRoot<MovieId> {
     constructor(

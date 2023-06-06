@@ -1,5 +1,4 @@
 import { Actor } from 'src/movie/domain/entities/actor/actor'
-import { Comic } from 'src/movie/domain/entities/comic/comic'
 import { DomainEvent } from 'src/core/domain/events/event'
 import { ReleaseDate } from '../value-objects/release.date'
 import { VideogameCreator } from '../value-objects/creator'
@@ -9,6 +8,7 @@ import { VideogameSynopsis } from '../value-objects/synopsis'
 import { VideogameTitle } from '../value-objects/title'
 import { VideogameType } from '../value-objects/type'
 import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
+import { Comic } from 'src/movie/domain/value-objects/comic'
 
 export class VideogameCreatedEvent extends DomainEvent {
     constructor(
