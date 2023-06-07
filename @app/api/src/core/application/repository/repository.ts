@@ -6,7 +6,7 @@ export interface Repository<
     I extends ValueObject<I>,
     T extends AggregateRoot<I>,
 > {
-    save(aggregate: T): Promise<T>
-    delete(aggregate: T): Promise<T>
+    save(aggregate: T): Promise<void>
+    delete(aggregate: T): Promise<void>
     getById(id: I): Promise<Optional<T>>
 }

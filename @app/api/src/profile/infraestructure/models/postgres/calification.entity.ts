@@ -19,7 +19,14 @@ export class Calification {
     @PrimaryColumn({
         type: 'uuid',
     })
-    idMemdia: string
+    @PrimaryColumn({
+        type: 'uuid',
+    })
+    id: string
+    @Column({
+        type: 'uuid',
+    })
+    idMedia: string
     @ManyToOne(() => Profile)
     @JoinTable({
         name: 'idProfile',
@@ -34,4 +41,8 @@ export class Calification {
         length: 1,
     })
     rating: number
+    @Column({
+        type: 'timestamp',
+    })
+    timestamp: Date
 }

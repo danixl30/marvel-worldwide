@@ -8,7 +8,7 @@ export enum MediaType {
 
 export class PreferenceTarget implements ValueObject<PreferenceTarget> {
     constructor(
-        private readonly _platform: string,
+        private readonly _platform: MediaType,
         private readonly _kind: string,
     ) {
         if (!this.platform || !this.kind)

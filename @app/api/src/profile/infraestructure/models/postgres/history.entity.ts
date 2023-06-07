@@ -17,6 +17,10 @@ export class History {
     @PrimaryColumn({
         type: 'uuid',
     })
+    id: string
+    @PrimaryColumn({
+        type: 'uuid',
+    })
     idProfile: string
     @PrimaryColumn({
         type: 'uuid',
@@ -29,9 +33,13 @@ export class History {
     @Column({
         type: 'timestamp',
     })
-    endDate: Date
+    endDate?: Date
     @Column({
         type: 'varchar',
     })
     device: string
+    @Column({
+        type: 'varchar',
+    })
+    mediaKind: string
 }
