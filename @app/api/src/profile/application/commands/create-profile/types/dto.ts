@@ -1,4 +1,4 @@
-import {MediaType} from "src/profile/domain/entities/preference/value-objects/target"
+import { MediaType } from 'src/profile/domain/entities/preference/value-objects/target'
 
 export type CreateProfileDTO = {
     email: string
