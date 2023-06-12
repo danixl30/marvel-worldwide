@@ -14,10 +14,7 @@ export type GetMovieByIdResponse = {
         cost: number
         earning: number
     }
-    director: {
-        firstName: string
-        lastName: string
-    }
+    directorName: string
     comic: string
     actors: {
         id: string

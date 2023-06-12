@@ -8,6 +8,7 @@ import { MaritialStatuses } from 'src/heroe/domain/entities/person/value-objects
 export type CreateVillainDTO = {
     person?: {
         name: string
+        phrase: string
         lastName: string
         nationalities: string[]
         occupations: string[]
@@ -29,4 +30,5 @@ export type CreateVillainDTO = {
     enemies: string[]
     enemieGroups: string[]
     objetive: string
+    logo: string
 }

@@ -39,6 +39,7 @@ export class GetVillainByIdQuery
             id: data.id,
             person: {
                 id: villain.person.id.value,
+                phrase: villain.person.phrase.value,
                 name: villain.person.name.firstName,
                 lastName: villain.person.name.lastName,
                 gender: villain.person.gender.value,
@@ -48,6 +49,7 @@ export class GetVillainByIdQuery
                 occupations: villain.person.occupations.map((e) => e.value),
                 nationalities: villain.person.nationalites.map((e) => e.value),
             },
+            logo: villain.logo.value,
             name: villain.name.value,
             objetive: villain.objetive.value,
             enemies: heroes.map((e) => ({

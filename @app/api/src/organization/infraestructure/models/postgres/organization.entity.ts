@@ -1,7 +1,13 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
+import { Headquarter } from './headquarter.entity'
 
 @Entity()
 export class Organization {
+    @ManyToOne(() => Headquarter)
+    @JoinColumn({
+        name: 'headquarterId',
+    })
+    headquarter: Headquarter
     @PrimaryColumn({
         type: 'uuid',
     })
@@ -30,4 +36,8 @@ export class Organization {
         type: 'varchar',
     })
     firstApparition: string
+    @Column({
+        type: 'uuid',
+    })
+    headquarterId: string
 }

@@ -1,6 +1,8 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm'
+import { Check, Column, Entity, PrimaryColumn } from 'typeorm'
 
 @Entity()
+@Check('"email" ~* \'^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$\'')
+@Check('"cardNumber" ~* \'^\\d{16}$\'')
 export class User {
     @PrimaryColumn({
         type: 'uuid',
@@ -20,8 +22,7 @@ export class User {
     })
     dob: Date
     @Column({
-        type: 'int',
-        length: 8,
+        type: 'varchar',
     })
-    cardNumber: number
+    cardNumber: string
 }

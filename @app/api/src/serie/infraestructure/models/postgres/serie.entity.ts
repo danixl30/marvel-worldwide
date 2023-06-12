@@ -1,7 +1,8 @@
 import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
-import { Column, Entity } from 'typeorm'
+import { Check, Column, Entity } from 'typeorm'
 
 @Entity()
+@Check('"episodes" > 0')
 export class Serie extends Media {
     @Column({
         type: 'integer',

@@ -11,7 +11,6 @@ import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
 import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
 import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
 import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
-import { ComicNotFoundError } from 'src/movie/application/errors/comic.not.found'
 import { Videogame } from 'src/videogame/domain/videogame'
 import { VideogameId } from 'src/videogame/domain/value-objects/id'
 import { VideogameTitle } from 'src/videogame/domain/value-objects/title'
@@ -43,7 +42,7 @@ export class CreateVideogameCommand
                 new Actor(
                     new ActorId(this.uuidGenerator.generate()),
                     new ActorName(e.name.firstName, e.name.lastName),
-                    new ActorCharacter(e.character),
+                    new ActorCharacter(e.character.id, e.character.kind),
                     new ActorRole(e.role),
                 ),
         )

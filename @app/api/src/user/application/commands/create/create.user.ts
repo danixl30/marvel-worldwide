@@ -8,6 +8,7 @@ import { Crypto } from 'src/core/application/crypto/crypto'
 import { Result } from 'src/core/application/result-handler/result.handler'
 import { regExpPassword } from 'src/utils/reg-exps/password'
 import { User } from 'src/user/model/user'
+import { regExpCardNumber } from 'src/utils/reg-exps/cardNumber'
 
 export class CreateUserCommand
     implements
@@ -23,7 +24,11 @@ export class CreateUserCommand
         data: CreateUserDTO,
     ): Promise<Result<CreateUserResponse, ApplicationError>> {
         const possibleUser = await this.userRepository.getByEmail(data.email)
-        if (possibleUser || !regExpPassword.test(data.password))
+        if (
+            possibleUser ||
+            !regExpPassword.test(data.password) ||
+            !regExpCardNumber.test(data.cardNumber)
+        )
             throw new Error('Error in create')
         const user: User = {
             id: this.uuidGenerator.generate(),

@@ -30,20 +30,20 @@ export class GetOrganizationByIdQuery
     ) {}
 
     async getHeroeVillainOrCivil(id: MemberId) {
-        const civil = await this.civilRepository.getById(new CivilId(id.value))
+        const civil = await this.civilRepository.getById(new CivilId(id.id))
         if (civil)
             return {
                 id: civil.id.value,
                 name: civil.person.name.value,
             }
-        const heroe = await this.heroeRepository.getById(new HeroeId(id.value))
+        const heroe = await this.heroeRepository.getById(new HeroeId(id.id))
         if (heroe)
             return {
                 id: heroe.id.value,
                 name: heroe.name.value,
             }
         const villain = await this.villainRepository.getById(
-            new VillainId(id.value),
+            new VillainId(id.id),
         )
         if (villain)
             return {
@@ -77,7 +77,7 @@ export class GetOrganizationByIdQuery
             creationPlace: organization.creationPlace.value,
             objetive: organization.objetive.value,
             founder: organization.founder.value,
-            leader: organization.leader.value,
+            leader: organization.leader.id,
             members: await organization.members.asyncMap(async (e) => ({
                 id: e.id.value,
                 name: (await this.getHeroeVillainOrCivil(e.id)).name,

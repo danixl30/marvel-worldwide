@@ -19,7 +19,7 @@ export type User = {
     email: string
     password: string
     birthDate: Date
-    cardNumber: number
+    cardNumber: string
     membreship: Membreship
     profiles: ProfileId[]
 }

@@ -5,7 +5,9 @@ import { Response } from '../../../application/http/job/response'
 import { abortControllerBuilder } from './abort-builder/abort-controller-builder'
 import axios from 'axios'
 
-export const useAxiosHttp = (baseURL: string): HttpHandler => {
+export const useAxiosHttp = (
+    baseURL = 'http://localhost:4000/api',
+): HttpHandler => {
     const core = axios.create({
         baseURL,
     })

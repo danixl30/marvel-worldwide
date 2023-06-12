@@ -13,7 +13,10 @@ export type CreateSerieDTO = {
             lastName: string
         }
         role: string
-        character: string
+        character: {
+            id: string
+            kind: string
+        }
     }[]
     organizations: {
         id: string

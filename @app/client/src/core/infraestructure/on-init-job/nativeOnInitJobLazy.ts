@@ -3,8 +3,7 @@ import {
     OnInitJobLazy,
     OnTask,
 } from '../../application/on-init-job/lazy/on-init-job-lazy'
-import { ArgumentTypes } from '@mono/types-utils'
-import { Optional } from '@mono/types-utils'
+import { ArgumentTypes, Optional } from '@mono/types-utils'
 import { StateFactory } from '../../application/state/state-factory'
 
 export const nativeOnInitJobLazy =
@@ -18,7 +17,7 @@ export const nativeOnInitJobLazy =
         const errorState = stateFactory<Optional<Error>>(null)
 
         const doJob = async (...args: ArgumentTypes<U>) => {
-            if (loadingState.state) throw new Error('Is in job')
+            if (loadingState.state.value) throw new Error('Is in job')
             dataState.setState(null)
             errorState.setState(null)
             loadingState.setState(true)

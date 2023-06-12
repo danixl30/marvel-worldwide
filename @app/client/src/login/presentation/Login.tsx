@@ -15,12 +15,30 @@ import { createInputManager } from '../../core/infraestructure/input-manager/use
 import { useToastToastify } from '../../core/infraestructure/toast/toastify/toastify'
 import { useRefStateFactory } from '../../core/infraestructure/state/useRefStateHandler'
 import { ChangeEvent } from 'react'
+import { nativeOnInitJobLazy } from '../../core/infraestructure/on-init-job/nativeOnInitJobLazy'
+import { LoginService } from '../../user/application/services/login'
+import { useAxiosHttp } from '../../core/infraestructure/http/axios/useAxiosHttpHandler'
+import { useCookieSession } from '../../core/infraestructure/session/cookie/session-cookie'
+import { cancelHandler } from '../../core/infraestructure/http/cancel-handler/cancelHandler'
+import { useRefValueProvider } from '../../core/infraestructure/value-provider/useRefValueProvider'
+import { useEffectOnInit } from '../../core/infraestructure/on-init/useEffectOnInit'
+import { useRouterDomNavigation } from '../../core/infraestructure/router/router-dom/react-router-dom-navigation'
+import { userHttpRepository } from '../../user/infraestructure/repositories/user.http.repository'
 
 export default function LoginPage() {
     const stateFactory = useRefStateFactory()
     const { emailInput, passwordInput, isSubmitable, submit } = loginPageLogic(
         createInputManager(stateFactory),
         useToastToastify(),
+        useRouterDomNavigation(),
+        LoginService(
+            userHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+        ),
+        nativeOnInitJobLazy(stateFactory),
     )
 
     const onChangeEmail = (e: ChangeEvent<FormElement>) => {

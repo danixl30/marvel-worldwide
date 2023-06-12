@@ -45,20 +45,20 @@ export class GetMovieByIdQuery
     }
 
     async getHeroeVillainOrCivil(id: ActorCharacter) {
-        const civil = await this.civilRepository.getById(new CivilId(id.value))
+        const civil = await this.civilRepository.getById(new CivilId(id.id))
         if (civil)
             return {
                 id: civil.id.value,
                 name: civil.person.name.value,
             }
-        const heroe = await this.heroeRepository.getById(new HeroeId(id.value))
+        const heroe = await this.heroeRepository.getById(new HeroeId(id.id))
         if (heroe)
             return {
                 id: heroe.id.value,
                 name: heroe.name.value,
             }
         const villain = await this.villainRepository.getById(
-            new VillainId(id.value),
+            new VillainId(id.id),
         )
         if (villain)
             return {
@@ -79,10 +79,7 @@ export class GetMovieByIdQuery
             synopsis: movie.synopsis.value,
             creator: movie.creator.value,
             release: movie.release.value,
-            director: {
-                firstName: movie.director.firstName,
-                lastName: movie.director.lastName,
-            },
+            directorName: movie.director.value,
             duration: movie.duration,
             type: movie.type.value,
             cost: movie.cost,

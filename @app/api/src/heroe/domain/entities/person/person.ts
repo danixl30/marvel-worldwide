@@ -7,12 +7,14 @@ import { PersonId } from './value-objects/id'
 import { PersonName } from './value-objects/name'
 import { PersonNationality } from './value-objects/nationality'
 import { PersonOccupation } from './value-objects/occupation'
+import { Phrase } from './value-objects/phrase'
 
 export class Person extends Entity<PersonId> {
     constructor(
         id: PersonId,
         private _name: PersonName,
         private _gender: PersonGender,
+        private _phrase: Phrase,
         private _maritialStatus: MaritialStatus,
         private _hair: PersonHair,
         private _eye: PersonEye,
@@ -28,6 +30,10 @@ export class Person extends Entity<PersonId> {
 
     get gender() {
         return this._gender
+    }
+
+    get phrase() {
+        return this._phrase
     }
 
     get maritialStatus() {
@@ -56,6 +62,10 @@ export class Person extends Entity<PersonId> {
 
     changeGender(gender: PersonGender) {
         this._gender = gender
+    }
+
+    changePhrase(phrase: Phrase) {
+        this._phrase = phrase
     }
 
     changeMaritialStatus(status: MaritialStatus) {

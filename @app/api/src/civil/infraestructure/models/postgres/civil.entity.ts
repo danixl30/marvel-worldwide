@@ -17,10 +17,12 @@ export class Civil extends Character {
     villain?: Villain
     @Column({
         type: 'uuid',
+        nullable: true,
     })
     idHeroe: string
     @Column({
         type: 'uuid',
+        nullable: true,
     })
     idVillain: string
 }

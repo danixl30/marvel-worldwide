@@ -31,9 +31,11 @@ import { PowerType } from 'src/heroe/domain/entities/power/value-objects/power.t
 import { Heroe } from 'src/heroe/domain/heroe'
 import { HeroeId } from 'src/heroe/domain/value-object/heroe.id'
 import { HeroeName } from 'src/heroe/domain/value-object/name'
-import { HeroePhrase } from 'src/heroe/domain/value-object/phrase'
 import { HeroeCreator } from 'src/heroe/domain/value-object/creator'
 import { ArchEnemy } from 'src/heroe/domain/value-object/arch.enemy'
+import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
+import { SuitColor } from 'src/heroe/domain/value-object/suit.color'
+import { Logo } from 'src/heroe/domain/value-object/logo'
 
 export class CreateHeroeCommand
     implements
@@ -54,6 +56,7 @@ export class CreateHeroeCommand
             new PersonId(this.uuidGenerator.generate()),
             new PersonName(dto.person!.name, dto.person!.lastName),
             new PersonGender(dto.person!.gender),
+            new Phrase(dto.person!.phrase),
             new MaritialStatus(dto.person!.maritialStatus),
             new PersonHair(dto.person!.hairColor),
             new PersonEye(dto.person!.eyesColor),
@@ -114,9 +117,10 @@ export class CreateHeroeCommand
             new HeroeId(this.uuidGenerator.generate()),
             new HeroeName(data.name),
             person,
-            new HeroePhrase(data.phrase),
+            new Logo(data.logo),
             new HeroeCreator(data.creator.firstName, data.creator.lastName),
             new ArchEnemy(data.archEnemy),
+            data.colors.map((e) => new SuitColor(e)),
             [...powersDb, ...powersPrimitive],
             [...objectsDb, ...objectsPrimitive],
         )

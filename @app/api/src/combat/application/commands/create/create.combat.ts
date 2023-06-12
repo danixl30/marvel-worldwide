@@ -39,7 +39,7 @@ export class CreateCombatCommand
             data.characters.map(
                 (e) =>
                     new Character(
-                        new CharacterId(e.id),
+                        new CharacterId(e.id, e.kind),
                         e.objects.map((object) => new ObjectId(object)),
                         e.powers.map((power) => new PowerId(power)),
                     ),

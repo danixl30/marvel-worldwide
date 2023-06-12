@@ -1,7 +1,9 @@
-import { Column, Entity } from 'typeorm'
+import { Check, Column, Entity } from 'typeorm'
 import { Media } from './media.entity'
 
 @Entity()
+@Check('"productionCost" > 0')
+@Check('"earning" > 0')
 export class Movie extends Media {
     @Column({
         type: 'varchar',
@@ -17,17 +19,14 @@ export class Movie extends Media {
     earning: number
     @Column({
         type: 'integer',
-        length: 2,
     })
     durationH: number
     @Column({
         type: 'integer',
-        length: 2,
     })
     durationM: number
     @Column({
         type: 'integer',
-        length: 2,
     })
     durationS: number
     @Column({

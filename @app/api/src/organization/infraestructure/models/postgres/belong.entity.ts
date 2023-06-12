@@ -1,27 +1,39 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 import { Organization } from './organization.entity'
-import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
+import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
+import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
 
 @Entity()
 export class Belong {
+    @ManyToOne(() => Heroe)
+    @JoinColumn({
+        name: 'idHeroe',
+    })
+    heroe?: Heroe
+    @Column({
+        type: 'uuid',
+        nullable: true,
+    })
+    idHeroe?: string
+    @ManyToOne(() => Villain)
+    @JoinColumn({
+        name: 'idVillain',
+    })
+    villain?: Villain
+    @Column({
+        type: 'uuid',
+        nullable: true,
+    })
+    idVillain?: string
     @ManyToOne(() => Organization)
     @JoinColumn({
         name: 'idOrganization',
     })
     organization: Organization
-    @ManyToOne(() => Character)
-    @JoinColumn({
-        name: 'idCharacter',
-    })
-    character: Character
     @PrimaryColumn({
         type: 'uuid',
     })
     idOrganization: string
-    @PrimaryColumn({
-        type: 'uuid',
-    })
-    idCharacter: string
     @Column({
         type: 'varchar',
     })

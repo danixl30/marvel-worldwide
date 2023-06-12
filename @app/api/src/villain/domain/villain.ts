@@ -27,6 +27,8 @@ import { ObjectKind } from 'src/heroe/domain/entities/object/value-objects/objec
 import { ObjectMaterial } from 'src/heroe/domain/entities/object/value-objects/object.material'
 import { ObjectCreator } from 'src/heroe/domain/entities/object/value-objects/object.creator'
 import { VillainDeletedEvent } from './events/villain.deleted'
+import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
+import { Logo } from 'src/heroe/domain/value-object/logo'
 
 export class Villain extends AggregateRoot<VillainId> {
     constructor(
@@ -34,6 +36,7 @@ export class Villain extends AggregateRoot<VillainId> {
         private _name: VillainName,
         private _person: Person,
         private _objective: VillainObjetive,
+        private _logo: Logo,
         private _enemies: Enemy[] = [],
         private _enemieGroups: EnemyGroup[] = [],
         private _powers: Power[] = [],
@@ -46,6 +49,7 @@ export class Villain extends AggregateRoot<VillainId> {
                 this.name,
                 this.person,
                 this.objetive,
+                this.logo,
                 this.enemies,
                 this.enemieGroups,
                 this.powers,
@@ -64,6 +68,10 @@ export class Villain extends AggregateRoot<VillainId> {
 
     get objetive() {
         return this._objective
+    }
+
+    get logo() {
+        return this._logo
     }
 
     get enemies() {
@@ -106,6 +114,10 @@ export class Villain extends AggregateRoot<VillainId> {
         this.person.changeName(name)
     }
 
+    changePhrase(phrase: Phrase) {
+        this.person.changePhrase(phrase)
+    }
+
     changeGender(gender: PersonGender) {
         this.person.changeGender(gender)
     }
@@ -116,6 +128,10 @@ export class Villain extends AggregateRoot<VillainId> {
 
     changeHair(hair: PersonHair) {
         this.person.changeHair(hair)
+    }
+
+    changeLogo(logo: Logo) {
+        this._logo = logo
     }
 
     changeEyes(eyes: PersonEye) {

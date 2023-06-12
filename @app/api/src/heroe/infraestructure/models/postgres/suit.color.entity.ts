@@ -1,17 +1,17 @@
 import { Entity, JoinTable, ManyToOne, PrimaryColumn } from 'typeorm'
-import { Person } from './person.entity'
+import { Heroe } from './heroe.entity'
 
 @Entity()
 export class ColorSuit {
-    @ManyToOne(() => Person)
+    @ManyToOne(() => Heroe)
     @JoinTable({
         name: 'idPerson',
     })
-    person: Person
+    heroe: Heroe
     @PrimaryColumn({
         type: 'uuid',
     })
-    idPerson: string
+    idHeroe: string
     @PrimaryColumn({
         type: 'varchar',
     })

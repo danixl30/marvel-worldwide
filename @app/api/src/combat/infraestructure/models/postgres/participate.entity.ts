@@ -1,15 +1,21 @@
-import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
+import { Entity, JoinColumn, ManyToOne, PrimaryColumn, Column } from 'typeorm'
 import { Combat } from './combat.entity'
 import { Power } from 'src/heroe/infraestructure/models/postgres/power.entity'
+import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
+import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
 
 @Entity()
 export class Participate {
-    @ManyToOne(() => Character)
+    @ManyToOne(() => Villain)
     @JoinColumn({
-        name: 'idCharacter',
+        name: 'idVillain',
     })
-    character: Character
+    villain?: Villain
+    @ManyToOne(() => Heroe)
+    @JoinColumn({
+        name: 'idHeroe',
+    })
+    heroe?: Heroe
     @ManyToOne(() => Combat)
     @JoinColumn({
         name: 'idCombat',
@@ -20,10 +26,16 @@ export class Participate {
         name: 'idPower',
     })
     power: Power
-    @PrimaryColumn({
+    @Column({
         type: 'uuid',
+        nullable: true,
     })
-    idCharacter: string
+    idVillain?: string
+    @Column({
+        type: 'uuid',
+        nullable: true,
+    })
+    idHeroe?: string
     @PrimaryColumn({
         type: 'uuid',
     })

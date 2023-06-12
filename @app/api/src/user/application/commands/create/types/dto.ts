@@ -4,6 +4,6 @@ export type CreateUserDTO = {
     email: string
     password: string
     type: UserTypes
-    cardNumber: number
+    cardNumber: string
     birthDate: Date
 }

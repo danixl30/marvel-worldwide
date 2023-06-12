@@ -21,7 +21,6 @@ import { MovieDirector } from 'src/movie/domain/value-objects/director'
 import { MovieDuration } from 'src/movie/domain/value-objects/duration'
 import { MovieType } from 'src/movie/domain/value-objects/type'
 import { ProductionCost } from 'src/movie/domain/value-objects/production.cost'
-import { ComicNotFoundError } from '../../errors/comic.not.found'
 import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 import { Comic } from 'src/movie/domain/value-objects/comic'
 
@@ -45,7 +44,7 @@ export class CreateMovieCommand
                 new Actor(
                     new ActorId(this.uuidGenerator.generate()),
                     new ActorName(e.name.firstName, e.name.lastName),
-                    new ActorCharacter(e.character),
+                    new ActorCharacter(e.character.id, e.character.kind),
                     new ActorRole(e.role),
                 ),
         )
@@ -61,7 +60,7 @@ export class CreateMovieCommand
             new MovieSynopsis(data.synopsis),
             new ReleaseDate(data.release),
             new MovieCreator(data.creator),
-            new MovieDirector(data.director.firstName, data.director.lastName),
+            new MovieDirector(data.directorName),
             new MovieDuration(
                 data.duration.hours,
                 data.duration.minutes,

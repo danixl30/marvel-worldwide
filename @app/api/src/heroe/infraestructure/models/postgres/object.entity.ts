@@ -22,4 +22,8 @@ export class ObjectItem {
         type: 'varchar',
     })
     material: string
+    @Column({
+        type: 'varchar',
+    })
+    creator: string
 }

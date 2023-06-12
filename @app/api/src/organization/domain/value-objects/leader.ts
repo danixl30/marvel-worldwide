@@ -2,8 +2,8 @@ import { ValueObject } from 'src/core/domain/value-objects/value.object'
 import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class OrganizationLeader implements ValueObject<OrganizationLeader> {
-    constructor(private readonly _id: string) {
-        if (!regExpUUID.test(this.id))
+    constructor(private readonly _id: string, private readonly _kind: string) {
+        if (!regExpUUID.test(this.id) || _kind)
             throw new Error('Invalid organization leader')
     }
 
@@ -15,7 +15,11 @@ export class OrganizationLeader implements ValueObject<OrganizationLeader> {
         return this._id
     }
 
+    get kind() {
+        return this._kind
+    }
+
     equals(other: OrganizationLeader): boolean {
-        return other.id === this.id
+        return other.id === this.id && other.kind === this.kind
     }
 }

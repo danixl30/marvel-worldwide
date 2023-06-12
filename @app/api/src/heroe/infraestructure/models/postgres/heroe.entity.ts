@@ -19,6 +19,7 @@ export class Heroe extends Character {
     logo: string
     @Column({
         type: 'uuid',
+        nullable: true,
     })
     idArchEnemy: string
 }

@@ -1,7 +1,7 @@
 import { ApplicationService } from 'src/core/application/service/application.service'
 import { GetMovies2WResponse } from './types/response'
 import { ApplicationError } from 'src/core/application/error/application.error'
-import { Result } from 'src/core/application/result-handler/result.handler.js'
+import { Result } from 'src/core/application/result-handler/result.handler'
 import { MovieRepository } from '../../repositories/movie.repository.js'
 
 export class GetMovies2WQuery

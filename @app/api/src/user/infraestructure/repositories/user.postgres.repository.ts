@@ -6,6 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Membership as MemberDB } from '../models/postgres/membership.entity'
 import { Injectable } from '@nestjs/common'
+import { Profile as ProfileDB } from 'src/profile/infraestructure/models/postgres/profile.entity'
+import { ProfileId } from 'src/profile/domain/value-objects/profile.id'
 
 @Injectable()
 export class UserPostgresRepository implements UserRepository {
@@ -13,42 +15,42 @@ export class UserPostgresRepository implements UserRepository {
         @InjectRepository(UserDB) private readonly userDb: Repository<UserDB>,
         @InjectRepository(MemberDB)
         private readonly membershipDb: Repository<MemberDB>,
+        @InjectRepository(ProfileDB)
+        private readonly profileDB: Repository<ProfileDB>,
     ) {}
     async save(user: User): Promise<void> {
-        const possibleUser = await this.userDb.findOneBy({
-            id: user.id,
-        })
-        if (!possibleUser) {
+        await this.userDb.upsert(
             this.userDb.create({
                 id: user.id,
                 password: user.password,
                 dob: user.birthDate,
                 email: user.email,
                 cardNumber: user.cardNumber,
-            })
-            this.membershipDb.create({
-                ...user.membreship,
-            })
-            return
-        }
-        possibleUser.cardNumber = user.cardNumber
-        possibleUser.email = user.email
-        possibleUser.password = user.password
-        possibleUser.dob = user.birthDate
-        this.userDb.update(
-            {
-                id: user.id,
-            },
-            possibleUser,
+            }),
+            ['id'],
         )
-        const membership = await this.membershipDb.findOneBy({
-            userId: user.id,
-        })
-        if (membership?.id === user.membreship.id) return
         await this.membershipDb.delete({
             userId: user.id,
         })
-        this.membershipDb.create(user.membreship)
+        await this.membershipDb.insert(
+            this.membershipDb.create({
+                ...user.membreship,
+                userId: user.id,
+                description: '',
+            }),
+        )
+        if (user.profiles) {
+            await user.profiles.asyncForEach((profile) =>
+                this.profileDB.update(
+                    {
+                        id: profile.value,
+                    },
+                    {
+                        userId: user.id,
+                    },
+                ),
+            )
+        }
     }
 
     async delete(id: string): Promise<void> {
@@ -68,7 +70,10 @@ export class UserPostgresRepository implements UserRepository {
         const memberships = await this.membershipDb.findOneBy({
             userId: id,
         })
-        if (!memberships) throw new Error('membership not found')
+        if (!memberships) return null
+        const profiles = await this.profileDB.findBy({
+            userId: userFound.id,
+        })
         return {
             id,
             email: userFound.email,
@@ -78,7 +83,7 @@ export class UserPostgresRepository implements UserRepository {
             membreship: {
                 ...memberships,
             },
-            profiles: [],
+            profiles: profiles.map((e) => new ProfileId(e.id)),
         }
     }
 
@@ -90,7 +95,10 @@ export class UserPostgresRepository implements UserRepository {
         const memberships = await this.membershipDb.findOneBy({
             userId: userFound.id,
         })
-        if (!memberships) throw new Error('membership not found')
+        if (!memberships) return null
+        const profiles = await this.profileDB.findBy({
+            userId: userFound.id,
+        })
         return {
             id: userFound.id,
             email: userFound.email,
@@ -100,7 +108,7 @@ export class UserPostgresRepository implements UserRepository {
             membreship: {
                 ...memberships,
             },
-            profiles: [],
+            profiles: profiles.map((e) => new ProfileId(e.id)),
         }
     }
 }

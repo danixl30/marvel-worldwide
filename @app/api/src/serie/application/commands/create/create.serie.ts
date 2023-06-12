@@ -11,7 +11,6 @@ import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
 import { ActorName } from 'src/movie/domain/entities/actor/value-objects/actor.name'
 import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
 import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
-import { ComicNotFoundError } from 'src/movie/application/errors/comic.not.found'
 import { Serie } from 'src/serie/domain/serie'
 import { SerieId } from 'src/serie/domain/value-objects/id'
 import { SerieTitle } from 'src/serie/domain/value-objects/title'
@@ -44,7 +43,7 @@ export class CerateSerieCommand
                 new Actor(
                     new ActorId(this.uuidGenerator.generate()),
                     new ActorName(e.name.firstName, e.name.lastName),
-                    new ActorCharacter(e.character),
+                    new ActorCharacter(e.character.id, e.character.kind),
                     new ActorRole(e.role),
                 ),
         )

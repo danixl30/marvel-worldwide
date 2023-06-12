@@ -9,6 +9,7 @@ export type GetVillainByIdResponse = {
     id: string
     person: {
         id: string
+        phrase: string
         name: string
         lastName: string
         nationalities: string[]
@@ -27,4 +28,5 @@ export type GetVillainByIdResponse = {
     }[]
     enemieGroups: string[]
     objetive: string
+    logo: string
 }

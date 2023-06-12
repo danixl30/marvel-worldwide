@@ -26,7 +26,7 @@ export class GetTop5ContentPremiumVIPQuery
         private readonly videogameRepository: VideogameRepository,
     ) {}
 
-    async getDetailByKind(target: HistoryTarget) {
+    private async getDetailByKind(target: HistoryTarget) {
         const kindRecord = {
             movie: () =>
                 this.movieRepository.getById(new MovieId(target.postId)),

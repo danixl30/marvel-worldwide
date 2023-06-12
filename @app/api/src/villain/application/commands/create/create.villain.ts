@@ -38,6 +38,8 @@ import { VillainName } from 'src/villain/domain/value-object/name'
 import { VillainObjetive } from 'src/villain/domain/value-object/objetive'
 import { Enemy } from 'src/villain/domain/value-object/heroe.enemy'
 import { EnemyGroup } from 'src/villain/domain/value-object/heroe.group.enemy'
+import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
+import { Logo } from 'src/heroe/domain/value-object/logo'
 
 export class CreateVillainCommand
     implements
@@ -58,6 +60,7 @@ export class CreateVillainCommand
             new PersonId(this.uuidGenerator.generate()),
             new PersonName(dto.person!.name, dto.person!.lastName),
             new PersonGender(dto.person!.gender),
+            new Phrase(dto.person!.phrase),
             new MaritialStatus(dto.person!.maritialStatus),
             new PersonHair(dto.person!.hairColor),
             new PersonEye(dto.person!.eyesColor),
@@ -119,6 +122,7 @@ export class CreateVillainCommand
             new VillainName(data.name),
             person,
             new VillainObjetive(data.objetive),
+            new Logo(data.logo),
             data.enemies.map((e) => new Enemy(e)),
             data.enemieGroups.map((e) => new EnemyGroup(e)),
             [...powersDb, ...powersPrimitive],

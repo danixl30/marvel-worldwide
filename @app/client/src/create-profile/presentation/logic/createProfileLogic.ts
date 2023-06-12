@@ -1,12 +1,21 @@
+import { CHOOSE_PROFILE } from '../../../choose-profile/presentation/page/page'
 import { InputManager } from '../../../core/application/input-manager'
+import { OnInitJobLazy } from '../../../core/application/on-init-job/lazy/on-init-job-lazy'
+import { NavigationManager } from '../../../core/application/router/router.manager'
 import { StateFactory } from '../../../core/application/state/state-factory'
 import { ToastProvider } from '../../../core/application/toast/toast'
+import { Alerts } from '../../../core/application/toast/types/alerts'
+import { createProfileService } from '../../../profile/application/services/create.profile'
+import { MediaType } from '../../../profile/application/services/dto/create.profile'
 import { emailRegExp } from '../../../utils/reg-exps/email'
 
 export const createProfileLogic = (
     stateFactory: StateFactory,
     inputManagerFactory: InputManager,
     toastProvider: ToastProvider,
+    onInitJobLazy: OnInitJobLazy,
+    createProfile: ReturnType<typeof createProfileService>,
+    navigation: NavigationManager,
 ) => {
     const language = stateFactory('')
     const preference1 = stateFactory('')
@@ -15,6 +24,40 @@ export const createProfileLogic = (
     const subPreference1 = stateFactory('')
     const subPreference2 = stateFactory('')
     const subPreference3 = stateFactory('')
+
+    const createProfileTask = onInitJobLazy(
+        () =>
+            createProfile.execute({
+                email: emailInput.value.value,
+                language: language.state.value,
+                preferences: [
+                    {
+                        kind: subPreference1.state.value,
+                        platform: preference1.state.value as MediaType,
+                    },
+                    {
+                        kind: subPreference2.state.value,
+                        platform: preference2.state.value as MediaType,
+                    },
+                    {
+                        kind: subPreference3.state.value,
+                        platform: preference3.state.value as MediaType,
+                    },
+                ],
+            }),
+        () => {
+            const pending = toastProvider.pending('Procesing')
+            return {
+                success: () => {
+                    pending('Profile created', Alerts.SUCCESS)
+                    navigation.goTo(CHOOSE_PROFILE)
+                },
+                error: () => {
+                    pending('Error during creating profile', Alerts.ERROR)
+                },
+            }
+        },
+    )
 
     const emailInput = inputManagerFactory(
         '',
@@ -61,13 +104,15 @@ export const createProfileLogic = (
         preference3.state.value &&
         subPreference3.state.value &&
         subPreference2.state.value &&
-        subPreference1.state.value
+        subPreference1.state.value &&
+        language.state.value
 
     const submit = async () => {
         if (!isSubmitable()) {
             toastProvider.warning('Invalid values...')
             return
         }
+        await createProfileTask.do().catch((e) => console.log(e))
     }
 
     return {

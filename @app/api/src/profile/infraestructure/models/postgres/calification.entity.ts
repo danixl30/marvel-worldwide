@@ -1,4 +1,5 @@
 import {
+    Check,
     Column,
     Entity,
     JoinColumn,
@@ -7,26 +8,48 @@ import {
     PrimaryColumn,
 } from 'typeorm'
 import { Profile } from './profile.entity'
-import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
+import { Movie } from 'src/movie/infraestructure/models/postgres/movie.entity'
+import { Serie } from 'src/serie/infraestructure/models/postgres/serie.entity'
+import { Videogame } from 'src/videogame/infraestructure/models/postgres/videogame.entity'
 
 @Entity()
+@Check('"rating" > 0')
+@Check('"rating" < 6')
 export class Calification {
-    @ManyToOne(() => Media)
+    @ManyToOne(() => Movie)
     @JoinColumn({
-        name: 'idMedia',
+        name: 'idMovie',
     })
-    media: Media
-    @PrimaryColumn({
+    movie?: Movie
+    @Column({
         type: 'uuid',
+        nullable: true,
     })
+    idMovie?: string
+    @ManyToOne(() => Serie)
+    @JoinColumn({
+        name: 'idSerie',
+    })
+    serie?: Serie
+    @Column({
+        type: 'uuid',
+        nullable: true,
+    })
+    idSerie?: string
+    @ManyToOne(() => Videogame)
+    @JoinColumn({
+        name: 'idVideogame',
+    })
+    videogame?: Videogame
+    @Column({
+        type: 'uuid',
+        nullable: true,
+    })
+    idVideogame?: string
     @PrimaryColumn({
         type: 'uuid',
     })
     id: string
-    @Column({
-        type: 'uuid',
-    })
-    idMedia: string
     @ManyToOne(() => Profile)
     @JoinTable({
         name: 'idProfile',
@@ -38,7 +61,6 @@ export class Calification {
     idProfile: string
     @Column({
         type: 'int',
-        length: 1,
     })
     rating: number
     @Column({

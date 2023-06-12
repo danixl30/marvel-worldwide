@@ -3,6 +3,7 @@ export type CreateCombatDTO = {
     place: string
     characters: {
         id: string
+        kind: string
         powers: string[]
         objects: string[]
     }[]

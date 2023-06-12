@@ -7,13 +7,15 @@ import { Power } from 'src/heroe/domain/entities/power/power'
 import { VillainId } from '../value-object/villain.id'
 import { VillainName } from '../value-object/name'
 import { VillainObjetive } from '../value-object/objetive'
+import { Logo } from 'src/heroe/domain/value-object/logo'
 
 export class VillainCreatedEvent extends DomainEvent {
     constructor(
         private _id: VillainId,
         private _name: VillainName,
         private _person: Person,
-        private _phrase: VillainObjetive,
+        private _objective: VillainObjetive,
+        private _logo: Logo,
         private _enemies: Enemy[] = [],
         private _enemieGroups: EnemyGroup[] = [],
         private _powers: Power[] = [],
@@ -34,8 +36,12 @@ export class VillainCreatedEvent extends DomainEvent {
         return this._person
     }
 
-    get phrase() {
-        return this._phrase
+    get objetive() {
+        return this._objective
+    }
+
+    get logo() {
+        return this._logo
     }
 
     get enemies() {

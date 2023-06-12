@@ -15,6 +15,15 @@ import { registerPageLogic } from '../logic/registerPageLogic'
 import { createInputManager } from '../../../core/infraestructure/input-manager/useInputManager'
 import { useToastToastify } from '../../../core/infraestructure/toast/toastify/toastify'
 import { ChangeEvent } from 'react'
+import { useRouterDomNavigation } from '../../../core/infraestructure/router/router-dom/react-router-dom-navigation'
+import { CreateUserService } from '../../../user/application/services/create.user'
+import { userHttpRepository } from '../../../user/infraestructure/repositories/user.http.repository'
+import { useAxiosHttp } from '../../../core/infraestructure/http/axios/useAxiosHttpHandler'
+import { useCookieSession } from '../../../core/infraestructure/session/cookie/session-cookie'
+import { cancelHandler } from '../../../core/infraestructure/http/cancel-handler/cancelHandler'
+import { useRefValueProvider } from '../../../core/infraestructure/value-provider/useRefValueProvider'
+import { useEffectOnInit } from '../../../core/infraestructure/on-init/useEffectOnInit'
+import { nativeOnInitJobLazy } from '../../../core/infraestructure/on-init-job/nativeOnInitJobLazy'
 
 export default function RegisterPage() {
     const stateFactory = useRefStateFactory()
@@ -31,6 +40,15 @@ export default function RegisterPage() {
         stateFactory,
         createInputManager(stateFactory),
         useToastToastify(),
+        useRouterDomNavigation(),
+        CreateUserService(
+            userHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+        ),
+        nativeOnInitJobLazy(stateFactory),
     )
 
     const onChangeEmail = (e: ChangeEvent<FormElement>) => {

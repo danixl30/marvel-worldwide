@@ -24,7 +24,7 @@ export class GetHeroesByCriteriaQuery
             heroes.map((e) => ({
                 id: e.id.value,
                 name: e.name.value,
-                phrase: e.phrase.value,
+                logo: e.logo.value,
             })),
         )
     }

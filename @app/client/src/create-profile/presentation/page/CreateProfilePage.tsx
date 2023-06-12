@@ -16,6 +16,16 @@ import { createProfileLogic } from '../logic/createProfileLogic'
 import { createInputManager } from '../../../core/infraestructure/input-manager/useInputManager'
 import { useToastToastify } from '../../../core/infraestructure/toast/toastify/toastify'
 import { ChangeEvent } from 'react'
+import { MediaType } from '../../../profile/application/services/dto/create.profile'
+import { nativeOnInitJobLazy } from '../../../core/infraestructure/on-init-job/nativeOnInitJobLazy'
+import { createProfileService } from '../../../profile/application/services/create.profile'
+import { profileHttpRepository } from '../../../profile/infraestructure/repositories/profile.http.repository'
+import { useAxiosHttp } from '../../../core/infraestructure/http/axios/useAxiosHttpHandler'
+import { useCookieSession } from '../../../core/infraestructure/session/cookie/session-cookie'
+import { cancelHandler } from '../../../core/infraestructure/http/cancel-handler/cancelHandler'
+import { useRefValueProvider } from '../../../core/infraestructure/value-provider/useRefValueProvider'
+import { useEffectOnInit } from '../../../core/infraestructure/on-init/useEffectOnInit'
+import { useRouterDomNavigation } from '../../../core/infraestructure/router/router-dom/react-router-dom-navigation'
 
 const languages = [
     'espanol',
@@ -53,6 +63,15 @@ export default function CreateProfilePage() {
         stateFactory,
         createInputManager(stateFactory),
         useToastToastify(),
+        nativeOnInitJobLazy(stateFactory),
+        createProfileService(
+            profileHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+        ),
+        useRouterDomNavigation(),
     )
 
     const onChangeEmail = (e: ChangeEvent<FormElement>) => {
@@ -128,13 +147,15 @@ export default function CreateProfilePage() {
                                         selectionMode="single"
                                         selectedKeys={[preference1.value]}
                                     >
-                                        <Dropdown.Item key="movie">
+                                        <Dropdown.Item key={MediaType.MOVIE}>
                                             Movie
                                         </Dropdown.Item>
-                                        <Dropdown.Item key="serie">
+                                        <Dropdown.Item key={MediaType.SERIE}>
                                             Serie
                                         </Dropdown.Item>
-                                        <Dropdown.Item key="Videogame">
+                                        <Dropdown.Item
+                                            key={MediaType.VIDEOGAME}
+                                        >
                                             Videogame
                                         </Dropdown.Item>
                                     </Dropdown.Menu>
@@ -164,13 +185,15 @@ export default function CreateProfilePage() {
                                         selectionMode="single"
                                         selectedKeys={[preference2.value]}
                                     >
-                                        <Dropdown.Item key="movie">
+                                        <Dropdown.Item key={MediaType.MOVIE}>
                                             Movie
                                         </Dropdown.Item>
-                                        <Dropdown.Item key="serie">
+                                        <Dropdown.Item key={MediaType.SERIE}>
                                             Serie
                                         </Dropdown.Item>
-                                        <Dropdown.Item key="Videogame">
+                                        <Dropdown.Item
+                                            key={MediaType.VIDEOGAME}
+                                        >
                                             Videogame
                                         </Dropdown.Item>
                                     </Dropdown.Menu>
@@ -200,13 +223,15 @@ export default function CreateProfilePage() {
                                         selectionMode="single"
                                         selectedKeys={[preference3.value]}
                                     >
-                                        <Dropdown.Item key="movie">
+                                        <Dropdown.Item key={MediaType.MOVIE}>
                                             Movie
                                         </Dropdown.Item>
-                                        <Dropdown.Item key="serie">
+                                        <Dropdown.Item key={MediaType.SERIE}>
                                             Serie
                                         </Dropdown.Item>
-                                        <Dropdown.Item key="Videogame">
+                                        <Dropdown.Item
+                                            key={MediaType.VIDEOGAME}
+                                        >
                                             Videogame
                                         </Dropdown.Item>
                                     </Dropdown.Menu>

@@ -1,14 +1,41 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 import { Profile } from './profile.entity'
-import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
+import { Movie } from 'src/movie/infraestructure/models/postgres/movie.entity'
+import { Serie } from 'src/serie/infraestructure/models/postgres/serie.entity'
+import { Videogame } from 'src/videogame/infraestructure/models/postgres/videogame.entity'
 
 @Entity()
 export class History {
-    @ManyToOne(() => Media)
+    @ManyToOne(() => Movie)
     @JoinColumn({
-        name: 'idMedia',
+        name: 'idMovie',
     })
-    media: Media
+    movie?: Movie
+    @Column({
+        type: 'uuid',
+        nullable: true,
+    })
+    idMovie?: string
+    @ManyToOne(() => Serie)
+    @JoinColumn({
+        name: 'idSerie',
+    })
+    serie?: Serie
+    @Column({
+        type: 'uuid',
+        nullable: true,
+    })
+    idSerie?: string
+    @ManyToOne(() => Videogame)
+    @JoinColumn({
+        name: 'idVideogame',
+    })
+    videogame?: Videogame
+    @Column({
+        type: 'uuid',
+        nullable: true,
+    })
+    idVideogame?: string
     @ManyToOne(() => Profile)
     @JoinColumn({
         name: 'idProfile',
@@ -22,10 +49,6 @@ export class History {
         type: 'uuid',
     })
     idProfile: string
-    @PrimaryColumn({
-        type: 'uuid',
-    })
-    idMedia: string
     @Column({
         type: 'timestamp',
     })

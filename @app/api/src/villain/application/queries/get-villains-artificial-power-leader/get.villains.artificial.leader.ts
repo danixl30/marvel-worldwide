@@ -39,6 +39,7 @@ export class GetVillainsThatHaveArtificialPowersAndLeaderQuery
             heroesFiltered.map((e) => ({
                 id: e.id.value,
                 name: e.name.value,
+                logo: e.logo.value,
             })),
         )
     }

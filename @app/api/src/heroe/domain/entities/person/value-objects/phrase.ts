@@ -1,6 +1,6 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
-export class HeroePhrase implements ValueObject<HeroePhrase> {
+export class Phrase implements ValueObject<Phrase> {
     constructor(private readonly phrase: string) {
         if (!phrase) throw new Error('Inavlid phrase')
     }
@@ -9,7 +9,7 @@ export class HeroePhrase implements ValueObject<HeroePhrase> {
         return this.phrase
     }
 
-    equals(other: HeroePhrase): boolean {
+    equals(other: Phrase): boolean {
         return other.phrase === this.phrase
     }
 }

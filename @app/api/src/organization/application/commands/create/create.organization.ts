@@ -53,7 +53,11 @@ export class CreateOrganizationCommand
 
     private createMembersByDTO(dto: CreateOrganizationDTO): Member[] {
         return dto.members.map(
-            (e) => new Member(new MemberId(e.id), new MemberCharge(e.charge)),
+            (e) =>
+                new Member(
+                    new MemberId(e.id, e.kind),
+                    new MemberCharge(e.charge),
+                ),
         )
     }
 
@@ -72,7 +76,7 @@ export class CreateOrganizationCommand
             new OrganizationName(data.name),
             new OrganizationObjetive(data.objetive),
             new Slogan(data.slogan),
-            new OrganizationLeader(data.leader),
+            new OrganizationLeader(data.leader.id, data.leader.kind),
             headquarter,
             new OrganizationFounder(data.founder),
             new CreationPlace(data.creationPlace),

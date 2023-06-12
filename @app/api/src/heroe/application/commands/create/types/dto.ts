@@ -18,6 +18,7 @@ export type PowerDTO = {
 export type CreateHeroeDTO = {
     person?: {
         name: string
+        phrase: string
         lastName: string
         nationalities: string[]
         occupations: string[]
@@ -38,4 +39,6 @@ export type CreateHeroeDTO = {
     }
     archEnemy: string
     phrase: string
+    colors: string[]
+    logo: string
 }

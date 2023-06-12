@@ -4,6 +4,7 @@ import { MaritialStatuses } from 'src/heroe/domain/entities/person/value-objects
 export type CreateCivilDTO = {
     person?: {
         name: string
+        phrase: string
         lastName: string
         nationalities: string[]
         occupations: string[]

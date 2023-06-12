@@ -12,7 +12,10 @@ export type CreateVideogameDTO = {
             lastName: string
         }
         role: string
-        character: string
+        character: {
+            id: string
+            kind: string
+        }
     }[]
     organizations: {
         id: string

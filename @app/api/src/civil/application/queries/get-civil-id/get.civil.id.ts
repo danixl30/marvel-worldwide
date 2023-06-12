@@ -27,6 +27,7 @@ export class GetCivilByIdQuery
             id: data.id,
             person: {
                 name: civil.person.name.firstName,
+                phrase: civil.person.phrase.value,
                 lastName: civil.person.name.lastName,
                 gender: civil.person.gender.value,
                 maritialStatus: civil.person.maritialStatus.value,

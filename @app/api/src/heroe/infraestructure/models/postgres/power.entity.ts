@@ -1,4 +1,3 @@
-import { PowerType } from 'src/heroe/domain/entities/power/value-objects/power.type'
 import { Column, Entity, PrimaryColumn } from 'typeorm'
 
 @Entity()
@@ -16,8 +15,8 @@ export class Power {
     })
     description: string
     @Column({
-        type: 'enum',
-        enum: PowerType,
+        type: 'varchar',
+        enum: ['artificial', 'natural', 'inherited'],
     })
-    type: PowerType
+    type: string
 }

@@ -1,6 +1,9 @@
 export type CreateOrganizationDTO = {
     name: string
-    leader: string
+    leader: {
+        id: string
+        kind: string
+    }
     objetive: string
     slogan: string
     founder: string
@@ -16,6 +19,7 @@ export type CreateOrganizationDTO = {
     }
     members: {
         id: string
+        kind: string
         charge: string
     }[]
     firstApparition: string

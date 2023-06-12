@@ -13,10 +13,7 @@ export type CreateMovieDTO = {
         cost: number
         earning: number
     }
-    director: {
-        firstName: string
-        lastName: string
-    }
+    directorName: string
     comic: string
     actors: {
         name: {
@@ -24,7 +21,10 @@ export type CreateMovieDTO = {
             lastName: string
         }
         role: string
-        character: string
+        character: {
+            id: string
+            kind: string
+        }
     }[]
     organizations: {
         id: string

@@ -1,23 +1,33 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
-import { Character } from './character.entity'
+import { Entity, JoinColumn, ManyToOne, PrimaryColumn, Column } from 'typeorm'
 import { Power } from './power.entity'
+import { Heroe } from './heroe.entity'
+import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
 
 @Entity()
 export class Own {
-    @ManyToOne(() => Character)
+    @ManyToOne(() => Heroe)
     @JoinColumn({
-        name: 'idCharacter',
+        name: 'idHeroe',
     })
-    character: Character
+    heroe?: Heroe
+    @Column({
+        type: 'uuid',
+    })
+    idHeroe?: string
+    @ManyToOne(() => Villain)
+    @JoinColumn({
+        name: 'idVillain',
+    })
+    villain?: Villain
+    @Column({
+        type: 'uuid',
+    })
+    idVillain?: string
     @ManyToOne(() => Power)
     @JoinColumn({
         name: 'idPower',
     })
     power: Power
-    @PrimaryColumn({
-        type: 'uuid',
-    })
-    idCharacter: string
     @PrimaryColumn({
         type: 'uuid',
     })

@@ -19,6 +19,7 @@ import { PersonEye } from 'src/heroe/domain/entities/person/value-objects/eyes'
 import { PersonNationality } from 'src/heroe/domain/entities/person/value-objects/nationality'
 import { PersonOccupation } from 'src/heroe/domain/entities/person/value-objects/occupation'
 import { PersonNotFoundError } from '../../exceptions/person.not.found'
+import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
 
 export class CreateCivilCommand
     implements
@@ -39,6 +40,7 @@ export class CreateCivilCommand
             new PersonId(this.uuidGenerator.generate()),
             new PersonName(dto.person!.name, dto.person!.lastName),
             new PersonGender(dto.person!.gender),
+            new Phrase(dto.person!.phrase),
             new MaritialStatus(dto.person!.maritialStatus),
             new PersonHair(dto.person!.hairColor),
             new PersonEye(dto.person!.eyesColor),

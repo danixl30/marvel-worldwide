@@ -9,6 +9,7 @@ export type GetHeroeByIdResponse = {
     id: string
     person: {
         name: string
+        phrase: string
         lastName: string
         nationalities: string[]
         occupations: string[]
@@ -17,6 +18,7 @@ export type GetHeroeByIdResponse = {
         maritialStatus: MaritialStatuses
         gender: Genders
     }
+    logo: string
     objects: ({ id: string } & ObjectDTO)[]
     powers: ({ id: string } & PowerDTO)[]
     name: string
@@ -28,5 +30,5 @@ export type GetHeroeByIdResponse = {
         id: string
         name: string
     }
-    phrase: string
+    colors: string[]
 }

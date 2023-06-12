@@ -12,6 +12,7 @@ import { PersonName } from 'src/heroe/domain/entities/person/value-objects/name'
 import { PersonNationality } from 'src/heroe/domain/entities/person/value-objects/nationality'
 import { PersonOccupation } from 'src/heroe/domain/entities/person/value-objects/occupation'
 import { CivilDeletedEvent } from './events/civil.deleted'
+import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
 
 export class Civil extends AggregateRoot<CivilId> {
     constructor(
@@ -53,6 +54,10 @@ export class Civil extends AggregateRoot<CivilId> {
 
     changeEyes(eyes: PersonEye) {
         this.person.changeEyes(eyes)
+    }
+
+    changePhrase(phrase: Phrase) {
+        this.person.changePhrase(phrase)
     }
 
     addOccupation(occupation: PersonOccupation) {

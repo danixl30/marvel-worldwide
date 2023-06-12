@@ -4,7 +4,6 @@ import { HeroeCreatedEvent } from './events/heroe.created'
 import { HeroeCreator } from './value-object/creator'
 import { HeroeId } from './value-object/heroe.id'
 import { HeroeName } from './value-object/name'
-import { HeroePhrase } from './value-object/phrase'
 import { InvalidHeroeException } from './exceptions/invalid.heroe'
 import { ObjectItem } from './entities/object/object'
 import { Person } from './entities/person/person'
@@ -27,15 +26,19 @@ import { ObjectKind } from './entities/object/value-objects/object.kind'
 import { ObjectMaterial } from './entities/object/value-objects/object.material'
 import { ObjectCreator } from './entities/object/value-objects/object.creator'
 import { HeroeDeletedEvent } from './events/heroe.deleted'
+import { Logo } from './value-object/logo'
+import { SuitColor } from './value-object/suit.color'
+import { Phrase } from './entities/person/value-objects/phrase'
 
 export class Heroe extends AggregateRoot<HeroeId> {
     constructor(
         id: HeroeId,
         private _name: HeroeName,
         private _person: Person,
-        private _phrase: HeroePhrase,
+        private _logo: Logo,
         private _creator: HeroeCreator,
         private _archEnemy: ArchEnemy,
+        private _colors: SuitColor[] = [],
         private _powers: Power[] = [],
         private _objects: ObjectItem[] = [],
     ) {
@@ -45,9 +48,10 @@ export class Heroe extends AggregateRoot<HeroeId> {
                 id,
                 this.name,
                 this.person,
-                this.phrase,
+                this.logo,
                 this.creator,
                 this.archEnemy,
+                this.colors,
                 this.powers,
                 this.objects,
             ),
@@ -62,8 +66,12 @@ export class Heroe extends AggregateRoot<HeroeId> {
         return this._person
     }
 
-    get phrase() {
-        return this._phrase
+    get logo() {
+        return this._logo
+    }
+
+    get colors() {
+        return this._colors
     }
 
     get creator() {
@@ -86,8 +94,8 @@ export class Heroe extends AggregateRoot<HeroeId> {
         this._name = name
     }
 
-    changePhrase(phrase: HeroePhrase) {
-        this._phrase = phrase
+    changeLogo(logo: Logo) {
+        this._logo = logo
     }
 
     changeCreator(creator: HeroeCreator) {
@@ -100,6 +108,10 @@ export class Heroe extends AggregateRoot<HeroeId> {
 
     changePersonName(name: PersonName) {
         this.person.changeName(name)
+    }
+
+    changePhrase(phrase: Phrase) {
+        this.person.changePhrase(phrase)
     }
 
     changeGender(gender: PersonGender) {
@@ -144,6 +156,16 @@ export class Heroe extends AggregateRoot<HeroeId> {
         const power = this.powers.find((e) => e.id.equals(id))
         if (!power) throw new Error('Power not found')
         power.changeName(name)
+    }
+
+    addColor(color: SuitColor) {
+        if (this.colors.find((e) => e.equals(color)))
+            throw new Error('Color already exist')
+        this._colors.push(color)
+    }
+
+    removeColor(color: SuitColor) {
+        this._colors = this.colors.filter((e) => !e.equals(color))
     }
 
     changePowerDescription(id: PowerId, description: PowerDescription) {
@@ -211,7 +233,7 @@ export class Heroe extends AggregateRoot<HeroeId> {
             !this.id ||
             !this.name ||
             !this.person ||
-            !this.phrase ||
+            !this.logo ||
             !this.creator ||
             !this.powers ||
             !this.objects ||

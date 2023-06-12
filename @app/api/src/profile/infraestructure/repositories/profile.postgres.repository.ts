@@ -24,6 +24,8 @@ import { RateKind } from 'src/profile/domain/entities/rate/value-objects/rate.ki
 import { RateCalification } from 'src/profile/domain/entities/rate/value-objects/rate.calification'
 import { RateTimestamp } from 'src/profile/domain/entities/rate/value-objects/rate.timestamp'
 import { Injectable } from '@nestjs/common'
+import { Membership } from 'src/user/infraestructure/models/postgres/membership.entity'
+import { UserTypes } from 'src/user/model/user'
 
 @Injectable()
 export class ProfilePostgresRepository implements ProfileRepository {
@@ -36,56 +38,64 @@ export class ProfilePostgresRepository implements ProfileRepository {
         private readonly historyDB: Repository<HistoryDB>,
         @InjectRepository(Calification)
         private readonly calificationDB: Repository<Calification>,
+        @InjectRepository(Membership)
+        private readonly membershipDB: Repository<Membership>,
     ) {}
     async save(aggregate: Profile): Promise<void> {
-        const possibleProfile = await this.profileDB.findOneBy({
-            id: aggregate.id.value,
-        })
-        if (!possibleProfile) {
+        this.profileDB.upsert(
             this.profileDB.create({
                 id: aggregate.id.value,
                 email: aggregate.email.value,
                 language: aggregate.language.value,
-            })
-            aggregate.preferences.map((preference) =>
-                this.preferenceDB.create({
-                    id: preference.id.value,
-                    typeMedia: preference.target.platform,
-                    subPreference: preference.target.kind,
-                }),
-            )
-            return
-        }
-        possibleProfile.email = aggregate.email.value
-        possibleProfile.language = aggregate.language.value
-        await aggregate.preferences.asyncMap((preference) =>
-            this.preferenceDB.update(
-                {
-                    id: preference.id.value,
-                },
-                {
-                    typeMedia: preference.target.platform,
-                    subPreference: preference.target.kind,
-                },
-            ),
+            }),
+            ['id'],
         )
-        await this.historyDB.save(
-            aggregate.history.map((e) => ({
-                id: e.id.value,
-                endDate: e.end?.value,
-                initDate: e.timestamp.value,
-                idProfile: aggregate.id.value,
-                idMedia: e.target.postId,
-                mediaKind: e.target.kind,
-                device: '',
-            })),
+        await this.historyDB.delete({
+            idProfile: aggregate.id.value,
+        })
+        await this.calificationDB.delete({
+            idProfile: aggregate.id.value,
+        })
+        await this.preferenceDB.delete({
+            idProfile: aggregate.id.value,
+        })
+        await aggregate.history.asyncMap((e) =>
+            this.historyDB.insert(
+                this.historyDB.create({
+                    id: e.id.value,
+                    endDate: e.end?.value,
+                    initDate: e.timestamp.value,
+                    idProfile: aggregate.id.value,
+                    idMovie:
+                        e.target.kind === 'movie' ? e.target.postId : undefined,
+                    idSerie:
+                        e.target.kind === 'serie' ? e.target.postId : undefined,
+                    idVideogame:
+                        e.target.kind === 'videogame'
+                            ? e.target.postId
+                            : undefined,
+                    mediaKind: e.target.kind,
+                    device: '',
+                }),
+            ),
         )
         await this.calificationDB.save(
             aggregate.rates.map((e) => ({
                 id: e.id.value,
                 rating: e.calification.value,
-                idMedia: e.kind.value,
+                idMovie: e.kind.value === 'movie' ? e.id.value : undefined,
+                idSerie: e.kind.value === 'serie' ? e.id.value : undefined,
+                idVideogame:
+                    e.kind.value === 'videogame' ? e.id.value : undefined,
                 timestamp: e.timestamp.value,
+            })),
+        )
+        await this.preferenceDB.save(
+            aggregate.preferences.map((e) => ({
+                id: e.id.value,
+                idProfile: aggregate.id.value,
+                typeMedia: e.target.platform,
+                subPreference: e.target.kind,
             })),
         )
     }
@@ -134,7 +144,10 @@ export class ProfilePostgresRepository implements ProfileRepository {
                 (e) =>
                     new History(
                         new HistoryId(e.id),
-                        new HistoryTarget(e.idMedia, e.mediaKind),
+                        new HistoryTarget(
+                            e.idMovie || e.idSerie || e.idVideogame || '',
+                            e.mediaKind,
+                        ),
                         new HistoryTimestamp(e.initDate),
                         e.endDate ? new HistoryEnd(e.endDate) : undefined,
                     ),
@@ -143,7 +156,9 @@ export class ProfilePostgresRepository implements ProfileRepository {
                 (e) =>
                     new Rate(
                         new RateId(e.id),
-                        new RateKind(e.idMedia),
+                        new RateKind(
+                            e.idMovie || e.idSerie || e.idVideogame || '',
+                        ),
                         new RateCalification(e.rating),
                         new RateTimestamp(e.timestamp),
                     ),
@@ -164,7 +179,10 @@ export class ProfilePostgresRepository implements ProfileRepository {
             (e) =>
                 new History(
                     new HistoryId(e.id),
-                    new HistoryTarget(e.idMedia, e.mediaKind),
+                    new HistoryTarget(
+                        e.idMovie || e.idSerie || e.idVideogame || '',
+                        e.mediaKind,
+                    ),
                     new HistoryTimestamp(e.initDate),
                     e.endDate ? new HistoryEnd(e.endDate) : undefined,
                 ),
@@ -182,7 +200,10 @@ export class ProfilePostgresRepository implements ProfileRepository {
             (e) =>
                 new History(
                     new HistoryId(e.id),
-                    new HistoryTarget(e.idMedia, e.mediaKind),
+                    new HistoryTarget(
+                        e.idMovie || e.idSerie || e.idVideogame || '',
+                        e.mediaKind,
+                    ),
                     new HistoryTimestamp(e.initDate),
                     e.endDate ? new HistoryEnd(e.endDate) : undefined,
                 ),
@@ -190,6 +211,38 @@ export class ProfilePostgresRepository implements ProfileRepository {
     }
 
     async getTop5ContentPrimiumVIP(): Promise<{ target: HistoryTarget }[]> {
-        return []
+        const membershipVIPPremium = await this.membershipDB
+            .createQueryBuilder()
+            .orWhere({
+                type: UserTypes.VIP,
+            })
+            .orWhere({
+                type: UserTypes.PREMIUM,
+            })
+            .getMany()
+        const profiles = await this.profileDB
+            .createQueryBuilder()
+            .orWhere(
+                membershipVIPPremium.map((e) => ({
+                    userId: e.userId,
+                })),
+            )
+            .getMany()
+        const histories = await this.historyDB
+            .createQueryBuilder()
+            .limit(5)
+            .orderBy('endDate', 'ASC')
+            .orWhere(
+                profiles.map((e) => ({
+                    idProfile: e.id,
+                })),
+            )
+            .getMany()
+        return histories.map((e) => ({
+            target: new HistoryTarget(
+                e.idMovie || e.idSerie || e.idVideogame || '',
+                e.mediaKind,
+            ),
+        }))
     }
 }

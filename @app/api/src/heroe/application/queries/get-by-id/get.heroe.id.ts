@@ -36,6 +36,7 @@ export class GetHeroeByIdQuery
             id: data.id,
             person: {
                 name: heroe.person.name.firstName,
+                phrase: heroe.person.phrase.value,
                 lastName: heroe.person.name.lastName,
                 gender: heroe.person.gender.value,
                 maritialStatus: heroe.person.maritialStatus.value,
@@ -45,7 +46,6 @@ export class GetHeroeByIdQuery
                 nationalities: heroe.person.nationalites.map((e) => e.value),
             },
             name: heroe.name.value,
-            phrase: heroe.phrase.value,
             creator: {
                 firstName: heroe.creator.firstName,
                 lastName: heroe.creator.lastName,
@@ -68,6 +68,8 @@ export class GetHeroeByIdQuery
                 description: e.description.value,
                 type: e.type.value,
             })),
+            logo: heroe.logo.value,
+            colors: heroe.colors.map((e) => e.value),
         })
     }
 }

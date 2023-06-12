@@ -21,4 +21,12 @@ export abstract class Media {
         type: 'varchar',
     })
     title: string
+    @Column({
+        type: 'varchar',
+    })
+    synopsis: string
+    @Column({
+        type: 'varchar',
+    })
+    comic: string
 }

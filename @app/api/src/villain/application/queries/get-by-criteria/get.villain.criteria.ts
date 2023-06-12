@@ -25,6 +25,7 @@ export class GetVillainsByCriteriaQuery
                 id: e.id.value,
                 name: e.name.value,
                 objetive: e.objetive.value,
+                logo: e.logo.value,
             })),
         )
     }
