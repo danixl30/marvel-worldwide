@@ -1,10 +1,19 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryColumn,
+    PrimaryGeneratedColumn,
+} from 'typeorm'
 import { Organization } from './organization.entity'
 import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
 import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
 
 @Entity()
 export class Belong {
+    @PrimaryGeneratedColumn()
+    id: number
     @ManyToOne(() => Heroe)
     @JoinColumn({
         name: 'idHeroe',
@@ -30,7 +39,7 @@ export class Belong {
         name: 'idOrganization',
     })
     organization: Organization
-    @PrimaryColumn({
+    @Column({
         type: 'uuid',
     })
     idOrganization: string

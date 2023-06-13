@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm'
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm'
+import { Own } from './own.entity'
 
 @Entity()
 export class Power {
@@ -19,4 +20,6 @@ export class Power {
         enum: ['artificial', 'natural', 'inherited'],
     })
     type: string
+    @OneToMany(() => Own, (own) => own.idPower)
+    own: Own[]
 }

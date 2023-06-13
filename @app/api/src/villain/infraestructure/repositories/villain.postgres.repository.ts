@@ -208,17 +208,13 @@ export class VillainPostgresRepository implements VillainRepository {
         if (!villain) return null
         const person = await this.getPersonById(new PersonId(villain.personId))
         if (!person) throw new Error('Person not found')
-        const powersSql = this.ownDB
-            .createQueryBuilder()
-            .innerJoinAndSelect(PowerDB, 'power', 'power.id = Own.idPower')
-            .where('Own.idVillain = :idVi', {
-                idVi: id.value,
+        const objects = await this.useDB
+            .createQueryBuilder('use')
+            .innerJoinAndSelect('use.objectItem', 'object')
+            .where('use.idVillain = :idVi', {
+                idVi: villain.id,
             })
-            .getSql()
-        console.log(powersSql)
-        const objects = await this.useDB.findBy({
-            idVillain: id.value,
-        })
+            .getMany()
         const antagonists = await this.antagonistDB.findBy({
             idVillain: villain.id,
         })
@@ -226,10 +222,10 @@ export class VillainPostgresRepository implements VillainRepository {
             idVillain: villain.id,
         })
         const powers = await this.ownDB
-            .createQueryBuilder()
-            .innerJoinAndSelect(PowerDB, 'power', 'power.id = Own.idPower')
-            .where('Own.idVillain = :idVi', {
-                idVi: id.value,
+            .createQueryBuilder('own')
+            .innerJoinAndSelect('own.power', 'power')
+            .where('own.idVillain = :idVi', {
+                idVi: villain.id,
             })
             .getMany()
         return new Villain(
@@ -297,18 +293,26 @@ export class VillainPostgresRepository implements VillainRepository {
                 new PersonId(villain.personId),
             )
             if (!person) throw new Error('Person not found')
-            const powers = await this.ownDB.findBy({
-                idVillain: villain.id,
-            })
-            const objects = await this.useDB.findBy({
-                idVillain: villain.id,
-            })
+            const objects = await this.useDB
+                .createQueryBuilder('use')
+                .innerJoinAndSelect('use.objectItem', 'object')
+                .where('use.idVillain = :idVi', {
+                    idVi: villain.id,
+                })
+                .getMany()
             const antagonists = await this.antagonistDB.findBy({
                 idVillain: villain.id,
             })
             const enemyGroups = await this.antagonistGroupDB.findBy({
                 idVillain: villain.id,
             })
+            const powers = await this.ownDB
+                .createQueryBuilder('own')
+                .innerJoinAndSelect('own.power', 'power')
+                .where('own.idVillain = :idVi', {
+                    idVi: villain.id,
+                })
+                .getMany()
             return new Villain(
                 new VillainId(villain.id),
                 new VillainName(villain.name),
@@ -420,18 +424,26 @@ export class VillainPostgresRepository implements VillainRepository {
                 new PersonId(villain.personId),
             )
             if (!person) throw new Error('Person not found')
-            const powers = await this.ownDB.findBy({
-                idVillain: villain.id,
-            })
-            const objects = await this.useDB.findBy({
-                idVillain: villain.id,
-            })
+            const objects = await this.useDB
+                .createQueryBuilder('use')
+                .innerJoinAndSelect('use.objectItem', 'object')
+                .where('use.idVillain = :idVi', {
+                    idVi: villain.id,
+                })
+                .getMany()
             const antagonists = await this.antagonistDB.findBy({
                 idVillain: villain.id,
             })
             const enemyGroups = await this.antagonistGroupDB.findBy({
                 idVillain: villain.id,
             })
+            const powers = await this.ownDB
+                .createQueryBuilder('own')
+                .innerJoinAndSelect('own.power', 'power')
+                .where('own.idVillain = :idVi', {
+                    idVi: villain.id,
+                })
+                .getMany()
             return new Villain(
                 new VillainId(villain.id),
                 new VillainName(villain.name),

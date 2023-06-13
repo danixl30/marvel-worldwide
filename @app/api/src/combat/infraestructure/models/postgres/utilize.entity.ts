@@ -1,4 +1,11 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn, Column } from 'typeorm'
+import {
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryColumn,
+    Column,
+    PrimaryGeneratedColumn,
+} from 'typeorm'
 import { Combat } from './combat.entity'
 import { ObjectItem } from 'src/heroe/infraestructure/models/postgres/object.entity'
 import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
@@ -6,6 +13,8 @@ import { Villain } from 'src/villain/infraestructure/models/postgres/villain.ent
 
 @Entity()
 export class Utilize {
+    @PrimaryGeneratedColumn()
+    id: number
     @ManyToOne(() => Heroe)
     @JoinColumn({
         name: 'idHeroe',
@@ -36,11 +45,11 @@ export class Utilize {
         name: 'idObject',
     })
     objectItem: ObjectItem
-    @PrimaryColumn({
+    @Column({
         type: 'uuid',
     })
     idCombat: string
-    @PrimaryColumn({
+    @Column({
         type: 'uuid',
     })
     idObject: string

@@ -67,11 +67,11 @@ export class Represent {
         type: 'varchar',
     })
     type: string
-    @PrimaryColumn({
+    @Column({
         type: 'varchar',
     })
     firstName: string
-    @PrimaryColumn({
+    @Column({
         type: 'varchar',
     })
     lastName: string

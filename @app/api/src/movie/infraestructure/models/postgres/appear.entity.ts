@@ -1,4 +1,10 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+} from 'typeorm'
 import { Organization } from 'src/organization/infraestructure/models/postgres/organization.entity'
 import { Movie } from './movie.entity'
 import { Serie } from 'src/serie/infraestructure/models/postgres/serie.entity'
@@ -6,6 +12,8 @@ import { Videogame } from 'src/videogame/infraestructure/models/postgres/videoga
 
 @Entity()
 export class Appear {
+    @PrimaryGeneratedColumn()
+    id: number
     @ManyToOne(() => Movie)
     @JoinColumn({
         name: 'idMovie',
@@ -41,7 +49,7 @@ export class Appear {
         name: 'idOrganization',
     })
     organization: Organization
-    @PrimaryColumn({
+    @Column({
         type: 'uuid',
     })
     idOrganization: string

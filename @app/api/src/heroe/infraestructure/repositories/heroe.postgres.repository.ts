@@ -128,6 +128,7 @@ export class HeroePostgresRepository implements HeroeRepository {
                 idArchEnemy: aggregate.archEnemy.value,
                 name: aggregate.name.value,
                 logo: aggregate.logo.value,
+                personId: aggregate.person.id.value,
             }),
             ['id'],
         )
@@ -188,21 +189,29 @@ export class HeroePostgresRepository implements HeroeRepository {
         if (!heroe) return null
         const person = await this.getPersonById(new PersonId(heroe.personId))
         if (!person) throw new Error('Person not found')
-        const powers = await this.ownDB.findBy({
-            idHeroe: id.value,
-        })
-        const objects = await this.useDB.findBy({
-            idHeroe: id.value,
-        })
         const colors = await this.colorDB.findBy({
             idHeroe: id.value,
         })
+        const objects = await this.useDB
+            .createQueryBuilder('use')
+            .innerJoinAndSelect('use.objectItem', 'object')
+            .where('use.idHeroe = :idHe', {
+                idHe: heroe.id,
+            })
+            .getMany()
+        const powers = await this.ownDB
+            .createQueryBuilder('own')
+            .innerJoinAndSelect('own.power', 'power')
+            .where('own.idHeroe = :idHe', {
+                idHe: heroe.id,
+            })
+            .getMany()
         return new Heroe(
             id,
             new HeroeName(heroe.name),
             person,
             new Logo(heroe.logo),
-            new HeroeCreator('', ''),
+            new HeroeCreator('creator', 'creator'),
             new ArchEnemy(heroe.idArchEnemy),
             colors.map((e) => new SuitColor(e.color)),
             powers.map(
@@ -258,15 +267,23 @@ export class HeroePostgresRepository implements HeroeRepository {
                 new PersonId(heroe.personId),
             )
             if (!person) throw new Error('Person not found')
-            const powers = await this.ownDB.findBy({
-                idHeroe: heroe.id,
-            })
-            const objects = await this.useDB.findBy({
-                idHeroe: heroe.id,
-            })
             const colors = await this.colorDB.findBy({
                 idHeroe: heroe.id,
             })
+            const objects = await this.useDB
+                .createQueryBuilder('use')
+                .innerJoinAndSelect('use.objectItem', 'object')
+                .where('use.idHeroe = :idHe', {
+                    idHe: heroe.id,
+                })
+                .getMany()
+            const powers = await this.ownDB
+                .createQueryBuilder('own')
+                .innerJoinAndSelect('own.power', 'power')
+                .where('own.idHeroe = :idHe', {
+                    idHe: heroe.id,
+                })
+                .getMany()
             return new Heroe(
                 new HeroeId(heroe.id),
                 new HeroeName(heroe.name),
@@ -381,15 +398,23 @@ export class HeroePostgresRepository implements HeroeRepository {
                 new PersonId(heroe.personId),
             )
             if (!person) throw new Error('Person not found')
-            const powers = await this.ownDB.findBy({
-                idHeroe: heroe.id,
-            })
-            const objects = await this.useDB.findBy({
-                idHeroe: heroe.id,
-            })
             const colors = await this.colorDB.findBy({
                 idHeroe: heroe.id,
             })
+            const objects = await this.useDB
+                .createQueryBuilder('use')
+                .innerJoinAndSelect('use.objectItem', 'object')
+                .where('use.idHeroe = :idHe', {
+                    idHe: heroe.id,
+                })
+                .getMany()
+            const powers = await this.ownDB
+                .createQueryBuilder('own')
+                .innerJoinAndSelect('own.power', 'power')
+                .where('own.idHeroe = :idHe', {
+                    idHe: heroe.id,
+                })
+                .getMany()
             return new Heroe(
                 new HeroeId(heroe.id),
                 new HeroeName(heroe.name),
