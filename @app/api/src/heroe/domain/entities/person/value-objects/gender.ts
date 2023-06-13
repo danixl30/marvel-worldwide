@@ -8,9 +8,7 @@ export enum Genders {
 }
 
 export class PersonGender implements ValueObject<PersonGender> {
-    constructor(private readonly gender: Genders) {
-        if (!Genders[gender]) throw new Error('Invalid gender')
-    }
+    constructor(private readonly gender: Genders) {}
 
     get value() {
         return this.gender

@@ -82,6 +82,7 @@ export class HeroePostgresRepository implements HeroeRepository {
                 description: object.description.value,
                 creator: object.creator.value,
                 material: object.material.value,
+                type: object.kind.value,
             })),
             ['id'],
         )
@@ -95,6 +96,7 @@ export class HeroePostgresRepository implements HeroeRepository {
                 hairColor: aggregate.person.hair.value,
                 maritialState: aggregate.person.maritialStatus.value,
                 phrase: aggregate.person.phrase.value,
+                firstApparition: new Date(),
             }),
             ['id'],
         )

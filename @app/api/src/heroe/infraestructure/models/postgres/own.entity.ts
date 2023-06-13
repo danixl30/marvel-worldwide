@@ -12,6 +12,7 @@ export class Own {
     heroe?: Heroe
     @Column({
         type: 'uuid',
+        nullable: true,
     })
     idHeroe?: string
     @ManyToOne(() => Villain)

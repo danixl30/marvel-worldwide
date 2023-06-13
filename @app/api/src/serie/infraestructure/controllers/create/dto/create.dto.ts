@@ -9,7 +9,6 @@ export class CreateSerieDTO {
     @IsString()
     synopsis: string
     @ApiProperty()
-    @IsDate()
     release: Date
     @ApiProperty()
     @IsString()

@@ -8,10 +8,7 @@ export enum MaritialStatuses {
 }
 
 export class MaritialStatus implements ValueObject<MaritialStatus> {
-    constructor(private readonly status: MaritialStatuses) {
-        if (!MaritialStatuses[status])
-            throw new Error('Invalid maritial status')
-    }
+    constructor(private readonly status: MaritialStatuses) {}
 
     get value() {
         return this.status

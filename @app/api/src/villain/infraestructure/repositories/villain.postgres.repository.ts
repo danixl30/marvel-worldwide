@@ -12,7 +12,7 @@ import { PowerType } from 'src/heroe/domain/entities/power/value-objects/power.t
 import { VillainRepository } from 'src/villain/application/repositories/villain.repository'
 import { VillainId } from 'src/villain/domain/value-object/villain.id'
 import { Villain } from 'src/villain/domain/villain'
-import { Repository } from 'typeorm'
+import { DataSource, Repository } from 'typeorm'
 import { Villain as VillainDB } from '../models/postgres/villain.entity'
 import { Person as PersonDB } from 'src/heroe/infraestructure/models/postgres/person.entity'
 import { Power as PowerDB } from 'src/heroe/infraestructure/models/postgres/power.entity'
@@ -67,6 +67,7 @@ export class VillainPostgresRepository implements VillainRepository {
         private readonly antagonistDB: Repository<Antagonist>,
         @InjectRepository(AntagonistGroup)
         private readonly antagonistGroupDB: Repository<AntagonistGroup>,
+        private dataSource: DataSource,
     ) {}
 
     async save(aggregate: Villain): Promise<void> {
@@ -86,6 +87,7 @@ export class VillainPostgresRepository implements VillainRepository {
                 description: object.description.value,
                 creator: object.creator.value,
                 material: object.material.value,
+                type: object.kind.value,
             })),
             ['id'],
         )
@@ -99,6 +101,7 @@ export class VillainPostgresRepository implements VillainRepository {
                 hairColor: aggregate.person.hair.value,
                 maritialState: aggregate.person.maritialStatus.value,
                 phrase: aggregate.person.phrase.value,
+                firstApparition: new Date(),
             }),
             ['id'],
         )
@@ -130,6 +133,7 @@ export class VillainPostgresRepository implements VillainRepository {
                 name: aggregate.name.value,
                 logo: aggregate.logo.value,
                 objetive: aggregate.objetive.value,
+                personId: aggregate.person.id.value,
             }),
             ['id'],
         )
@@ -204,9 +208,14 @@ export class VillainPostgresRepository implements VillainRepository {
         if (!villain) return null
         const person = await this.getPersonById(new PersonId(villain.personId))
         if (!person) throw new Error('Person not found')
-        const powers = await this.ownDB.findBy({
-            idVillain: id.value,
-        })
+        const powersSql = this.ownDB
+            .createQueryBuilder()
+            .innerJoinAndSelect(PowerDB, 'power', 'power.id = Own.idPower')
+            .where('Own.idVillain = :idVi', {
+                idVi: id.value,
+            })
+            .getSql()
+        console.log(powersSql)
         const objects = await this.useDB.findBy({
             idVillain: id.value,
         })
@@ -216,6 +225,13 @@ export class VillainPostgresRepository implements VillainRepository {
         const enemyGroups = await this.antagonistGroupDB.findBy({
             idVillain: villain.id,
         })
+        const powers = await this.ownDB
+            .createQueryBuilder()
+            .innerJoinAndSelect(PowerDB, 'power', 'power.id = Own.idPower')
+            .where('Own.idVillain = :idVi', {
+                idVi: id.value,
+            })
+            .getMany()
         return new Villain(
             id,
             new VillainName(villain.name),

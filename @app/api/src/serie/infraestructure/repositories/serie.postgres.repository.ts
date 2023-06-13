@@ -48,6 +48,7 @@ export class SeriePostgresRepository implements SerieRepository {
                 channel: aggregate.channel.value,
                 episodes: aggregate.episodes.value,
                 creator: aggregate.creator.value,
+                productor: aggregate.creator.value,
             }),
             ['id'],
         )

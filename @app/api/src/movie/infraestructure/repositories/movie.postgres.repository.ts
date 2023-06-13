@@ -57,6 +57,7 @@ export class MoviePostgresRepository implements MovieRepository {
                 productor: aggregate.creator.value,
                 type: aggregate.type.value,
                 comic: aggregate.basedOn.value,
+                creator: aggregate.creator.value,
             }),
             ['id'],
         )

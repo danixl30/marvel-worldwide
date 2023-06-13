@@ -82,7 +82,7 @@ export class Movie extends AggregateRoot<MovieId> {
     }
 
     get rating() {
-        if (this.rates.isEmpty()) return 0
+        if (this.rates.isEmpty()) return 1
         return (
             this.rates.reduce((acc, e) => acc + e.calification.value, 0) /
             this.rates.length
@@ -217,8 +217,7 @@ export class Movie extends AggregateRoot<MovieId> {
             !this.type ||
             !this.actors ||
             !this.basedOn ||
-            !this.creator ||
-            !this.rating
+            !this.creator
         ) {
             throw new InvalidMovieException()
         }

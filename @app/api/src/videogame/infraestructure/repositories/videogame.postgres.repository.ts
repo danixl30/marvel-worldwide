@@ -50,6 +50,8 @@ export class VideogamePostgresRepository implements VideogameRepository {
                 type: aggregate.type.value,
                 comic: aggregate.basedOn.value,
                 creator: aggregate.creator.value,
+                productor: aggregate.creator.value,
+                company: aggregate.creator.value,
             }),
             ['id'],
         )

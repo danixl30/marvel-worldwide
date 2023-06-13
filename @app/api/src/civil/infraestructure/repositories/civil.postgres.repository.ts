@@ -45,6 +45,7 @@ export class CivilPostgresRepository implements CivilRepository {
                 hairColor: aggregate.person.hair.value,
                 maritialState: aggregate.person.maritialStatus.value,
                 phrase: aggregate.person.phrase.value,
+                firstApparition: new Date(),
             }),
             ['id'],
         )

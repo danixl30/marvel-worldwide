@@ -79,7 +79,7 @@ export class Serie extends AggregateRoot<SerieId> {
     }
 
     get rating() {
-        if (this.rates.isEmpty()) return 0
+        if (this.rates.isEmpty()) return 1
         return (
             this.rates.reduce((acc, e) => acc + e.calification.value, 0) /
             this.rates.length
@@ -203,7 +203,6 @@ export class Serie extends AggregateRoot<SerieId> {
             !this.synopsis ||
             !this.release ||
             !this.basedOn ||
-            !this.rating ||
             !this.channel ||
             !this.creator
         )

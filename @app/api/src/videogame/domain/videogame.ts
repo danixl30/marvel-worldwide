@@ -76,7 +76,7 @@ export class Videogame extends AggregateRoot<VideogameId> {
     }
 
     get rating() {
-        if (this.rates.isEmpty()) return 0
+        if (this.rates.isEmpty()) return 1
         return (
             this.rates.reduce((acc, e) => acc + e.calification.value, 0) /
             this.rates.length
@@ -196,7 +196,6 @@ export class Videogame extends AggregateRoot<VideogameId> {
             !this.synopsis ||
             !this.basedOn ||
             !this.release ||
-            !this.rating ||
             !this.creator ||
             !this.type ||
             !this.platforms ||

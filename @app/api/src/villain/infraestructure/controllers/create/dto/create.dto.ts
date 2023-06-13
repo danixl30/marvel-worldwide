@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString, IsUUID } from 'class-validator'
+import { IsOptional, IsString, IsUUID } from 'class-validator'
 import {
     ObjectDTO,
     PowerDTO,
@@ -21,6 +21,7 @@ export class CreateVillainDTO {
         gender: Genders
     }
     @ApiProperty()
+    @IsOptional()
     @IsUUID()
     personId?: string
     @ApiProperty()

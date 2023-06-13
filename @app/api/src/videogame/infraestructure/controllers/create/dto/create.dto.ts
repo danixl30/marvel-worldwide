@@ -18,7 +18,6 @@ export class CreateVideogameDTO {
     @IsString()
     type: string
     @ApiProperty()
-    @IsString()
     platforms: string[]
     @ApiProperty()
     @IsString()

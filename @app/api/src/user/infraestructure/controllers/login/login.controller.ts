@@ -24,11 +24,16 @@ export class LoginController
     @Post('login')
     @HttpCode(200)
     async execute(@Body() data: LoginDTO): Promise<LoginResponse> {
-        const resp = await new Login(
-            this.userRepository,
-            this.crypto,
-            this.tokenFactory.create<TokenPayload>(),
-        ).execute(data)
-        return resp.unwrap()
+        try {
+            const resp = await new Login(
+                this.userRepository,
+                this.crypto,
+                this.tokenFactory.create<TokenPayload>(),
+            ).execute(data)
+            return resp.unwrap()
+        } catch (e) {
+            console.log(e)
+            throw e
+        }
     }
 }
