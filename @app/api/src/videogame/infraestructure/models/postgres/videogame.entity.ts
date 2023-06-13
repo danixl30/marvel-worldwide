@@ -1,8 +1,17 @@
 import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 
 @Entity()
-export class Videogame extends Media {
+export class Videogame {
+    @ManyToOne(() => Media)
+    @JoinColumn({
+        name: 'id',
+    })
+    media: Media
+    @PrimaryColumn({
+        type: 'uuid',
+    })
+    id: string
     @Column({
         type: 'varchar',
     })

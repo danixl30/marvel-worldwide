@@ -9,37 +9,25 @@ import {
 import { Organization } from './organization.entity'
 import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
 import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
+import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
 
 @Entity()
 export class Belong {
-    @PrimaryGeneratedColumn()
-    id: number
-    @ManyToOne(() => Heroe)
+    @ManyToOne(() => Character)
     @JoinColumn({
-        name: 'idHeroe',
+        name: 'idCharacter',
     })
-    heroe?: Heroe
-    @Column({
+    character: Character
+    @PrimaryColumn({
         type: 'uuid',
-        nullable: true,
     })
-    idHeroe?: string
-    @ManyToOne(() => Villain)
-    @JoinColumn({
-        name: 'idVillain',
-    })
-    villain?: Villain
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVillain?: string
+    idCharacter: string
     @ManyToOne(() => Organization)
     @JoinColumn({
         name: 'idOrganization',
     })
     organization: Organization
-    @Column({
+    @PrimaryColumn({
         type: 'uuid',
     })
     idOrganization: string

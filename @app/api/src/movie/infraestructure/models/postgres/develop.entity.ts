@@ -14,38 +14,15 @@ import { Videogame } from 'src/videogame/infraestructure/models/postgres/videoga
 
 @Entity()
 export class Develop {
-    @PrimaryGeneratedColumn()
-    id: number
-    @ManyToOne(() => Movie)
+    @ManyToOne(() => Media)
     @JoinColumn({
-        name: 'idMovie',
+        name: 'idMedia',
     })
-    movie?: Movie
-    @Column({
+    media: Media
+    @PrimaryColumn({
         type: 'uuid',
-        nullable: true,
     })
-    idMovie?: string
-    @ManyToOne(() => Serie)
-    @JoinColumn({
-        name: 'idSerie',
-    })
-    serie?: Serie
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idSerie?: string
-    @ManyToOne(() => Videogame)
-    @JoinColumn({
-        name: 'idVideogame',
-    })
-    videogame?: Videogame
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVideogame?: string
+    idMedia: string
     @Column({
         type: 'varchar',
     })

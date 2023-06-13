@@ -11,41 +11,21 @@ import { Profile } from './profile.entity'
 import { Movie } from 'src/movie/infraestructure/models/postgres/movie.entity'
 import { Serie } from 'src/serie/infraestructure/models/postgres/serie.entity'
 import { Videogame } from 'src/videogame/infraestructure/models/postgres/videogame.entity'
+import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
 
 @Entity()
 @Check('"rating" > 0')
 @Check('"rating" < 6')
 export class Calification {
-    @ManyToOne(() => Movie)
+    @ManyToOne(() => Media)
     @JoinColumn({
-        name: 'idMovie',
+        name: 'idMedia',
     })
-    movie?: Movie
-    @Column({
+    media: Media
+    @PrimaryColumn({
         type: 'uuid',
-        nullable: true,
     })
-    idMovie?: string
-    @ManyToOne(() => Serie)
-    @JoinColumn({
-        name: 'idSerie',
-    })
-    serie?: Serie
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idSerie?: string
-    @ManyToOne(() => Videogame)
-    @JoinColumn({
-        name: 'idVideogame',
-    })
-    videogame?: Videogame
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVideogame?: string
+    idMedia: string
     @PrimaryColumn({
         type: 'uuid',
     })

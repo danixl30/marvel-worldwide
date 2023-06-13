@@ -42,19 +42,17 @@ export class CombatPostgresRepository implements CombatRepository {
                 this.participateDB.insert(
                     this.participateDB.create({
                         idPower: power.value,
-                        idVillain:
-                            e.id.kind === 'villain' ? e.id.id : undefined,
-                        idHeroe: e.id.kind === 'heroe' ? e.id.id : undefined,
+                        idCharacter: e.id.id,
+                        idCombat: aggregate.id.value,
                     }),
                 ),
             )
             await e.objects.asyncForEach((object) =>
                 this.utilizeDB.insert(
                     this.utilizeDB.create({
-                        idVillain:
-                            e.id.kind === 'villain' ? e.id.id : undefined,
-                        idHeroe: e.id.kind === 'heroe' ? e.id.id : undefined,
+                        idCharacter: e.id.id,
                         idObject: object.value,
+                        idCombat: aggregate.id.value,
                     }),
                 ),
             )

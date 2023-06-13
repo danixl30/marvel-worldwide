@@ -66,14 +66,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
                     endDate: e.end?.value,
                     initDate: e.timestamp.value,
                     idProfile: aggregate.id.value,
-                    idMovie:
-                        e.target.kind === 'movie' ? e.target.postId : undefined,
-                    idSerie:
-                        e.target.kind === 'serie' ? e.target.postId : undefined,
-                    idVideogame:
-                        e.target.kind === 'videogame'
-                            ? e.target.postId
-                            : undefined,
+                    idMedia: e.target.postId,
                     mediaKind: e.target.kind,
                     device: '',
                 }),
@@ -83,10 +76,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
             aggregate.rates.map((e) => ({
                 id: e.id.value,
                 rating: e.calification.value,
-                idMovie: e.kind.value === 'movie' ? e.id.value : undefined,
-                idSerie: e.kind.value === 'serie' ? e.id.value : undefined,
-                idVideogame:
-                    e.kind.value === 'videogame' ? e.id.value : undefined,
+                idMedia: e.id.value,
                 timestamp: e.timestamp.value,
             })),
         )
@@ -144,10 +134,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
                 (e) =>
                     new History(
                         new HistoryId(e.id),
-                        new HistoryTarget(
-                            e.idMovie || e.idSerie || e.idVideogame || '',
-                            e.mediaKind,
-                        ),
+                        new HistoryTarget(e.idMedia, e.mediaKind),
                         new HistoryTimestamp(e.initDate),
                         e.endDate ? new HistoryEnd(e.endDate) : undefined,
                     ),
@@ -156,9 +143,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
                 (e) =>
                     new Rate(
                         new RateId(e.id),
-                        new RateKind(
-                            e.idMovie || e.idSerie || e.idVideogame || '',
-                        ),
+                        new RateKind(e.idMedia),
                         new RateCalification(e.rating),
                         new RateTimestamp(e.timestamp),
                     ),
@@ -179,10 +164,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
             (e) =>
                 new History(
                     new HistoryId(e.id),
-                    new HistoryTarget(
-                        e.idMovie || e.idSerie || e.idVideogame || '',
-                        e.mediaKind,
-                    ),
+                    new HistoryTarget(e.idMedia, e.mediaKind),
                     new HistoryTimestamp(e.initDate),
                     e.endDate ? new HistoryEnd(e.endDate) : undefined,
                 ),
@@ -200,10 +182,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
             (e) =>
                 new History(
                     new HistoryId(e.id),
-                    new HistoryTarget(
-                        e.idMovie || e.idSerie || e.idVideogame || '',
-                        e.mediaKind,
-                    ),
+                    new HistoryTarget(e.idMedia, e.mediaKind),
                     new HistoryTimestamp(e.initDate),
                     e.endDate ? new HistoryEnd(e.endDate) : undefined,
                 ),
@@ -239,10 +218,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
             )
             .getMany()
         return histories.map((e) => ({
-            target: new HistoryTarget(
-                e.idMovie || e.idSerie || e.idVideogame || '',
-                e.mediaKind,
-            ),
+            target: new HistoryTarget(e.idMedia, e.mediaKind),
         }))
     }
 }

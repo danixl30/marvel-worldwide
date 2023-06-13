@@ -1,28 +1,26 @@
 import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
 import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
 import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 
 @Entity()
-export class Civil extends Character {
-    @ManyToOne(() => Heroe)
+export class Civil {
+    @ManyToOne(() => Character)
     @JoinColumn({
-        name: 'idHeroe',
+        name: 'id',
     })
-    heroe?: Heroe
-    @ManyToOne(() => Villain)
+    character: Character
+    @PrimaryColumn({
+        type: 'uuid',
+    })
+    id: string
+    @ManyToOne(() => Character)
     @JoinColumn({
-        name: 'idVillain',
+        name: 'idRelation',
     })
-    villain?: Villain
-    @Column({
+    relation: Character
+    @PrimaryColumn({
         type: 'uuid',
-        nullable: true,
     })
-    idHeroe: string
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVillain: string
+    idRelation: string
 }

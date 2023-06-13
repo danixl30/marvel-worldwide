@@ -3,53 +3,32 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    PrimaryColumn,
     PrimaryGeneratedColumn,
 } from 'typeorm'
 import { Organization } from 'src/organization/infraestructure/models/postgres/organization.entity'
 import { Movie } from './movie.entity'
 import { Serie } from 'src/serie/infraestructure/models/postgres/serie.entity'
 import { Videogame } from 'src/videogame/infraestructure/models/postgres/videogame.entity'
+import { Media } from './media.entity'
 
 @Entity()
 export class Appear {
-    @PrimaryGeneratedColumn()
-    id: number
-    @ManyToOne(() => Movie)
+    @ManyToOne(() => Media)
     @JoinColumn({
-        name: 'idMovie',
+        name: 'idMedia',
     })
-    movie?: Movie
-    @Column({
+    media: Media
+    @PrimaryColumn({
         type: 'uuid',
-        nullable: true,
     })
-    idMovie?: string
-    @ManyToOne(() => Serie)
-    @JoinColumn({
-        name: 'idSerie',
-    })
-    serie?: Serie
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idSerie?: string
-    @ManyToOne(() => Videogame)
-    @JoinColumn({
-        name: 'idVideogame',
-    })
-    videogame?: Videogame
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVideogame?: string
+    idMedia: string
     @ManyToOne(() => Organization)
     @JoinColumn({
         name: 'idOrganization',
     })
     organization: Organization
-    @Column({
+    @PrimaryColumn({
         type: 'uuid',
     })
     idOrganization: string

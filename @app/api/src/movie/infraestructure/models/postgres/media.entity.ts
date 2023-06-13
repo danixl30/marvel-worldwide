@@ -1,6 +1,7 @@
-import { Column, PrimaryColumn } from 'typeorm'
+import { Column, Entity, PrimaryColumn } from 'typeorm'
 
-export abstract class Media {
+@Entity()
+export class Media {
     @PrimaryColumn({
         type: 'uuid',
     })
@@ -29,4 +30,9 @@ export abstract class Media {
         type: 'varchar',
     })
     comic: string
+    @Column({
+        type: 'enum',
+        enum: ['movie', 'serie', 'videogame'],
+    })
+    kind: string
 }

@@ -9,37 +9,25 @@ import {
 import { ObjectItem } from './object.entity'
 import { Heroe } from './heroe.entity'
 import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
+import { Character } from './character.entity'
 
 @Entity()
 export class Use {
-    @PrimaryGeneratedColumn()
-    id: number
-    @ManyToOne(() => Heroe)
+    @ManyToOne(() => Character)
     @JoinColumn({
-        name: 'idHeroe',
+        name: 'idCharacter',
     })
-    heroe?: Heroe
-    @Column({
+    character: Character
+    @PrimaryColumn({
         type: 'uuid',
-        nullable: true,
     })
-    idHeroe?: string
-    @ManyToOne(() => Villain)
-    @JoinColumn({
-        name: 'idVillain',
-    })
-    villain?: Villain
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVillain?: string
+    idCharacter: string
     @ManyToOne(() => ObjectItem)
     @JoinColumn({
         name: 'idObject',
     })
     objectItem: ObjectItem
-    @Column({
+    @PrimaryColumn({
         type: 'uuid',
     })
     idObject: string

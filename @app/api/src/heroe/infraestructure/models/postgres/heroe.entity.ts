@@ -3,7 +3,16 @@ import { Character } from './character.entity'
 import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
 
 @Entity()
-export class Heroe extends Character {
+export class Heroe {
+    @ManyToOne(() => Character)
+    @JoinColumn({
+        name: 'id',
+    })
+    character: Character
+    @PrimaryColumn({
+        type: 'uuid',
+    })
+    id: string
     @ManyToOne(() => Villain)
     @JoinColumn({
         name: 'idArchEnemy',

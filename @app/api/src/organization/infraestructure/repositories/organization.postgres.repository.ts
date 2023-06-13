@@ -66,16 +66,9 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
         this.leadDB.upsert(
             this.leadDB.create({
                 idOrganization: aggregate.id.value,
-                idHeroe:
-                    aggregate.leader.kind === 'heroe'
-                        ? aggregate.leader.id
-                        : undefined,
-                idVillain:
-                    aggregate.leader.kind === 'villain'
-                        ? aggregate.leader.id
-                        : undefined,
+                idCharacter: aggregate.leader.id,
             }),
-            ['idOrganization', 'idCharcter'],
+            ['idOrganization', 'idCharacter'],
         )
         await this.belengDB.delete({
             idOrganization: aggregate.id.value,
@@ -84,8 +77,7 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
             this.belengDB.insert(
                 this.belengDB.create({
                     idOrganization: aggregate.id.value,
-                    idHeroe: e.id.kind === 'heroe' ? e.id.id : undefined,
-                    idVillain: e.id.kind === 'villain' ? e.id.id : undefined,
+                    idCharacter: e.id.id,
                     charge: e.charge.value,
                 }),
             ),
@@ -109,12 +101,20 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
             id: id.value,
         })
         if (!organization) return null
-        const leads = await this.leadDB.findOneBy({
-            idOrganization: id.value,
-        })
-        const belong = await this.belengDB.findBy({
-            idOrganization: id.value,
-        })
+        const leads = await this.leadDB
+            .createQueryBuilder('lead')
+            .innerJoinAndSelect('lead.character', 'character')
+            .where('lead.idOrganization = :id', {
+                id: organization.id,
+            })
+            .getOne()
+        const belong = await this.belengDB
+            .createQueryBuilder('belong')
+            .innerJoinAndSelect('belong.character', 'character')
+            .where('belong.idOrganization = :id', {
+                id: organization.id,
+            })
+            .getMany()
         const headquarter = await this.headquarterDB.findOneBy({
             id: organization.headquarterId,
         })
@@ -124,10 +124,7 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
             new OrganizationName(organization.name),
             new OrganizationObjetive(organization.objetive),
             new Slogan(organization.slogan),
-            new OrganizationLeader(
-                (leads!.idHeroe || leads!.idVillain)!,
-                leads?.idHeroe ? 'heroe' : 'villain',
-            ),
+            new OrganizationLeader(leads!.idCharacter, leads!.character.kind),
             new Headquarter(
                 new HeadquarterId(headquarter.id),
                 new HeadquarterName(headquarter.name),
@@ -139,10 +136,7 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
             belong.map(
                 (e) =>
                     new Member(
-                        new MemberId(
-                            (e.idHeroe || e.idVillain)!,
-                            e.idHeroe ? 'heroe' : 'villain',
-                        ),
+                        new MemberId(e.idCharacter, e.character.kind),
                         new MemberCharge(e.charge),
                     ),
             ),
@@ -154,7 +148,7 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
         criteria: SearchByCriteriaDTO,
     ): Promise<Organization[]> {
         const organizations = await this.organizationDB
-            .createQueryBuilder()
+            .createQueryBuilder('organization')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
@@ -165,12 +159,20 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
             })
             .getMany()
         return organizations.asyncMap(async (organization) => {
-            const leads = await this.leadDB.findOneBy({
-                idOrganization: organization.id,
-            })
-            const belong = await this.belengDB.findBy({
-                idOrganization: organization.id,
-            })
+            const leads = await this.leadDB
+                .createQueryBuilder('lead')
+                .innerJoinAndSelect('lead.character', 'character')
+                .where('lead.idOrganization = :id', {
+                    id: organization.id,
+                })
+                .getOne()
+            const belong = await this.belengDB
+                .createQueryBuilder('belong')
+                .innerJoinAndSelect('belong.character', 'character')
+                .where('belong.idOrganization = :id', {
+                    id: organization.id,
+                })
+                .getMany()
             const headquarter = await this.headquarterDB.findOneBy({
                 id: organization.headquarterId,
             })
@@ -182,8 +184,8 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
                 new OrganizationObjetive(organization.objetive),
                 new Slogan(organization.slogan),
                 new OrganizationLeader(
-                    (leads!.idHeroe || leads!.idVillain)!,
-                    leads?.idHeroe ? 'heroe' : 'villain',
+                    leads!.idCharacter,
+                    leads!.character.kind,
                 ),
                 new Headquarter(
                     new HeadquarterId(headquarter.id),
@@ -196,10 +198,7 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
                 belong.map(
                     (e) =>
                         new Member(
-                            new MemberId(
-                                (e.idHeroe || e.idVillain)!,
-                                e.idHeroe ? 'heroe' : 'villain',
-                            ),
+                            new MemberId(e.idCharacter, e.character.kind),
                             new MemberCharge(e.charge),
                         ),
                 ),
@@ -242,14 +241,11 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
         id: HeroeId | VillainId,
     ): Promise<boolean> {
         const data = await this.leadDB
-            .createQueryBuilder()
-            .orWhere({
-                idHeroe: id.value,
+            .createQueryBuilder('lead')
+            .where('lead.idCharacter = :id', {
+                id: id.value,
             })
-            .orWhere({
-                idVillain: id.value,
-            })
-            .getMany()
-        return Boolean(data[0])
+            .getOne()
+        return Boolean(data)
     }
 }

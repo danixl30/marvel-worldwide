@@ -42,6 +42,7 @@ import { Logo } from 'src/heroe/domain/value-object/logo'
 import { SuitColor } from 'src/heroe/domain/value-object/suit.color'
 import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
 import { Injectable } from '@nestjs/common'
+import { Character } from '../models/postgres/character.entity'
 
 @Injectable()
 export class HeroePostgresRepository implements HeroeRepository {
@@ -64,6 +65,8 @@ export class HeroePostgresRepository implements HeroeRepository {
         private readonly colorDB: Repository<ColorSuit>,
         @InjectRepository(Own)
         private readonly ownDB: Repository<Own>,
+        @InjectRepository(Character)
+        private readonly characterDB: Repository<Character>,
     ) {}
     async save(aggregate: Heroe): Promise<void> {
         await this.powerDB.upsert(
@@ -122,21 +125,28 @@ export class HeroePostgresRepository implements HeroeRepository {
                 }),
             ),
         )
+        await this.characterDB.upsert(
+            this.characterDB.create({
+                id: aggregate.id.value,
+                personId: aggregate.person.id.value,
+                kind: 'heroe',
+            }),
+            ['id'],
+        )
         await this.heroeDB.upsert(
             this.heroeDB.create({
                 id: aggregate.id.value,
                 idArchEnemy: aggregate.archEnemy.value,
                 name: aggregate.name.value,
                 logo: aggregate.logo.value,
-                personId: aggregate.person.id.value,
             }),
             ['id'],
         )
         await this.ownDB.delete({
-            idHeroe: aggregate.id.value,
+            idCharacter: aggregate.id.value,
         })
         await this.useDB.delete({
-            idHeroe: aggregate.id.value,
+            idCharacter: aggregate.id.value,
         })
         await this.colorDB.delete({
             idHeroe: aggregate.id.value,
@@ -145,14 +155,14 @@ export class HeroePostgresRepository implements HeroeRepository {
             this.ownDB.insert(
                 this.ownDB.create({
                     idPower: power.id.value,
-                    idHeroe: aggregate.id.value,
+                    idCharacter: aggregate.id.value,
                 }),
             ),
         )
         await aggregate.objects.asyncMap((object) =>
             this.useDB.insert(
                 this.useDB.create({
-                    idHeroe: aggregate.id.value,
+                    idCharacter: aggregate.id.value,
                     idObject: object.id.value,
                 }),
             ),
@@ -172,10 +182,10 @@ export class HeroePostgresRepository implements HeroeRepository {
             id: aggregate.id.value,
         })
         await this.ownDB.delete({
-            idHeroe: aggregate.id.value,
+            idCharacter: aggregate.id.value,
         })
         await this.useDB.delete({
-            idHeroe: aggregate.id.value,
+            idCharacter: aggregate.id.value,
         })
         await this.colorDB.delete({
             idHeroe: aggregate.id.value,
@@ -183,11 +193,17 @@ export class HeroePostgresRepository implements HeroeRepository {
     }
 
     async getById(id: HeroeId): Promise<Optional<Heroe>> {
-        const heroe = await this.heroeDB.findOneBy({
-            id: id.value,
-        })
+        const heroe = await this.heroeDB
+            .createQueryBuilder('heroe')
+            .innerJoinAndSelect('heroe.character', 'character')
+            .where('heroe.id = :id', {
+                id: id.value,
+            })
+            .getOne()
         if (!heroe) return null
-        const person = await this.getPersonById(new PersonId(heroe.personId))
+        const person = await this.getPersonById(
+            new PersonId(heroe.character.personId),
+        )
         if (!person) throw new Error('Person not found')
         const colors = await this.colorDB.findBy({
             idHeroe: id.value,
@@ -195,14 +211,14 @@ export class HeroePostgresRepository implements HeroeRepository {
         const objects = await this.useDB
             .createQueryBuilder('use')
             .innerJoinAndSelect('use.objectItem', 'object')
-            .where('use.idHeroe = :idHe', {
+            .where('use.idCharacter = :idHe', {
                 idHe: heroe.id,
             })
             .getMany()
         const powers = await this.ownDB
             .createQueryBuilder('own')
             .innerJoinAndSelect('own.power', 'power')
-            .where('own.idHeroe = :idHe', {
+            .where('own.idCharacter = :idHe', {
                 idHe: heroe.id,
             })
             .getMany()
@@ -253,6 +269,7 @@ export class HeroePostgresRepository implements HeroeRepository {
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Heroe[]> {
         const heroes = await this.heroeDB
             .createQueryBuilder()
+            .innerJoinAndSelect('heroe.character', 'character')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
@@ -264,7 +281,7 @@ export class HeroePostgresRepository implements HeroeRepository {
             .getMany()
         return heroes.asyncMap(async (heroe) => {
             const person = await this.getPersonById(
-                new PersonId(heroe.personId),
+                new PersonId(heroe.character.personId),
             )
             if (!person) throw new Error('Person not found')
             const colors = await this.colorDB.findBy({
@@ -273,14 +290,14 @@ export class HeroePostgresRepository implements HeroeRepository {
             const objects = await this.useDB
                 .createQueryBuilder('use')
                 .innerJoinAndSelect('use.objectItem', 'object')
-                .where('use.idHeroe = :idHe', {
+                .where('use.idCharacter = :idHe', {
                     idHe: heroe.id,
                 })
                 .getMany()
             const powers = await this.ownDB
                 .createQueryBuilder('own')
                 .innerJoinAndSelect('own.power', 'power')
-                .where('own.idHeroe = :idHe', {
+                .where('own.idCharacter = :idHe', {
                     idHe: heroe.id,
                 })
                 .getMany()
@@ -332,7 +349,23 @@ export class HeroePostgresRepository implements HeroeRepository {
     }
 
     async getTop5MoreUsedObjects(): Promise<ObjectItem[]> {
-        return []
+        const objects = await this.objectDB
+            .createQueryBuilder('object')
+            .where(
+                'object.id IN (SELECT t."use_idObject" from (SELECT "use"."idObject" AS "use_idObject", COUNT("use"."idObject") AS "count_object", COUNT("use"."idCharacter") AS "count_char" FROM "use" "use" GROUP BY "use"."idObject" ORDER BY count_object DESC LIMIT 5) AS t)',
+            )
+            .getMany()
+        return objects.map(
+            (e) =>
+                new ObjectItem(
+                    new ObjectId(e.id),
+                    new ObjectName(e.name),
+                    new ObjectDescription(e.description),
+                    new ObjectKind(e.type),
+                    new ObjectMaterial(e.material),
+                    new ObjectCreator(e.creator),
+                ),
+        )
     }
 
     async getPersonById(id: PersonId): Promise<Optional<Person>> {
@@ -387,6 +420,7 @@ export class HeroePostgresRepository implements HeroeRepository {
         const heroes = await this.heroeDB
             .createQueryBuilder()
             .limit(5)
+            .innerJoinAndSelect('heroe.character', 'character')
             .innerJoinAndSelect(Own, 'own', 'own.idCharcter = Heroe.id')
             .innerJoinAndSelect(PowerDB, 'power', 'power.id = own.idPower')
             .where('power.type = :type', {
@@ -395,7 +429,7 @@ export class HeroePostgresRepository implements HeroeRepository {
             .getMany()
         return heroes.asyncMap(async (heroe) => {
             const person = await this.getPersonById(
-                new PersonId(heroe.personId),
+                new PersonId(heroe.character.personId),
             )
             if (!person) throw new Error('Person not found')
             const colors = await this.colorDB.findBy({
@@ -404,14 +438,14 @@ export class HeroePostgresRepository implements HeroeRepository {
             const objects = await this.useDB
                 .createQueryBuilder('use')
                 .innerJoinAndSelect('use.objectItem', 'object')
-                .where('use.idHeroe = :idHe', {
+                .where('use.idCharacter = :idHe', {
                     idHe: heroe.id,
                 })
                 .getMany()
             const powers = await this.ownDB
                 .createQueryBuilder('own')
                 .innerJoinAndSelect('own.power', 'power')
-                .where('own.idHeroe = :idHe', {
+                .where('own.idCharacter = :idHe', {
                     idHe: heroe.id,
                 })
                 .getMany()

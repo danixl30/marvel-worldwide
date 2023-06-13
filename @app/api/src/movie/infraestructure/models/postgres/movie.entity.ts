@@ -1,10 +1,26 @@
-import { Check, Column, Entity } from 'typeorm'
+import {
+    Check,
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryColumn,
+} from 'typeorm'
 import { Media } from './media.entity'
 
 @Entity()
 @Check('"productionCost" > 0')
 @Check('"earning" > 0')
-export class Movie extends Media {
+export class Movie {
+    @ManyToOne(() => Media)
+    @JoinColumn({
+        name: 'id',
+    })
+    media: Media
+    @PrimaryColumn({
+        type: 'uuid',
+    })
+    id: string
     @Column({
         type: 'varchar',
     })

@@ -25,6 +25,7 @@ import { Comic } from 'src/movie/domain/value-objects/comic'
 import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 import { VideogamePlatform } from 'src/videogame/domain/value-objects/platform'
 import { Injectable } from '@nestjs/common'
+import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
 
 @Injectable()
 export class VideogamePostgresRepository implements VideogameRepository {
@@ -39,30 +40,39 @@ export class VideogamePostgresRepository implements VideogameRepository {
         private readonly developDB: Repository<Develop>,
         @InjectRepository(Represent)
         private readonly representDB: Repository<Represent>,
+        @InjectRepository(Media)
+        private readonly mediaDB: Repository<Media>,
     ) {}
     async save(aggregate: Videogame): Promise<void> {
-        await this.videogameDB.upsert(
-            this.videogameDB.create({
+        await this.mediaDB.upsert(
+            this.mediaDB.create({
                 id: aggregate.id.value,
                 title: aggregate.title.value,
                 synopsis: aggregate.synopsis.value,
                 release: aggregate.release.value,
-                type: aggregate.type.value,
                 comic: aggregate.basedOn.value,
                 creator: aggregate.creator.value,
                 productor: aggregate.creator.value,
+                kind: 'serie',
+            }),
+            ['id'],
+        )
+        await this.videogameDB.upsert(
+            this.videogameDB.create({
+                id: aggregate.id.value,
+                type: aggregate.type.value,
                 company: aggregate.creator.value,
             }),
             ['id'],
         )
         await this.developDB.delete({
-            idVideogame: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.representDB.delete({
-            idVideogame: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.appearDB.delete({
-            idVideogame: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.platformDB.delete({
             idVideogame: aggregate.id.value,
@@ -79,24 +89,18 @@ export class VideogamePostgresRepository implements VideogameRepository {
             this.representDB.insert(
                 this.representDB.create({
                     id: actor.id.value,
-                    idVillain:
-                        actor.character.kind === 'villain'
-                            ? actor.character.id
-                            : undefined,
-                    idHeroe:
-                        actor.character.kind === 'heroe'
-                            ? actor.character.id
-                            : undefined,
-
+                    idCharacter: actor.character.id,
+                    idMedia: aggregate.id.value,
                     type: actor.role.value,
-                    idVideogame: aggregate.id.value,
+                    firstName: actor.name.firstName,
+                    lastName: actor.name.lastName,
                 }),
             ),
         )
         await aggregate.organizations.asyncForEach(async (organization) =>
             this.appearDB.insert(
                 this.appearDB.create({
-                    idVideogame: aggregate.id.value,
+                    idMedia: aggregate.id.value,
                     idOrganization: organization.value,
                     type: '',
                 }),
@@ -108,14 +112,17 @@ export class VideogamePostgresRepository implements VideogameRepository {
         await this.videogameDB.delete({
             id: aggregate.id.value,
         })
+        await this.mediaDB.delete({
+            id: aggregate.id.value,
+        })
         await this.developDB.delete({
-            idVideogame: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.representDB.delete({
-            idVideogame: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.appearDB.delete({
-            idVideogame: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.platformDB.delete({
             idVideogame: aggregate.id.value,
@@ -123,27 +130,35 @@ export class VideogamePostgresRepository implements VideogameRepository {
     }
 
     async getById(id: VideogameId): Promise<Optional<Videogame>> {
-        const videogame = await this.videogameDB.findOneBy({
-            id: id.value,
-        })
+        const videogame = await this.videogameDB
+            .createQueryBuilder('videogame')
+            .innerJoinAndSelect('videogame.media', 'media')
+            .where('videogame.id = :id', {
+                id: id.value,
+            })
+            .getOne()
         if (!videogame) return null
-        const actors = await this.representDB.findBy({
-            idVideogame: id.value,
-        })
+        const actors = await this.representDB
+            .createQueryBuilder('actor')
+            .innerJoinAndSelect('actor.character', 'character')
+            .where('actor.idMedia = :id', {
+                id: id.value,
+            })
+            .getMany()
         const appear = await this.appearDB.findBy({
-            idVideogame: id.value,
+            idMedia: id.value,
         })
         const platforms = await this.platformDB.findBy({
             idVideogame: videogame.id,
         })
         return new Videogame(
-            id,
-            new VideogameTitle(videogame.title),
-            new VideogameSynopsis(videogame.synopsis),
-            new ReleaseDate(videogame.release),
-            new VideogameCreator(videogame.creator),
+            new VideogameId(videogame.id),
+            new VideogameTitle(videogame.media.title),
+            new VideogameSynopsis(videogame.media.synopsis),
+            new ReleaseDate(videogame.media.release),
+            new VideogameCreator(videogame.media.creator),
             new VideogameType(videogame.type),
-            new Comic(videogame.comic),
+            new Comic(videogame.media.comic),
             appear.map((e) => new OrganizationRef(e.idOrganization, e.type)),
             platforms.map((e) => new VideogamePlatform(e.name)),
             actors.map(
@@ -151,11 +166,7 @@ export class VideogamePostgresRepository implements VideogameRepository {
                     new Actor(
                         new ActorId(e.id),
                         new ActorName(e.firstName, e.lastName),
-                        new ActorCharacter(
-                            e.idHeroe || e.idVillain || '',
-                            e.idHeroe ? 'heroe' : 'villain',
-                        ),
-
+                        new ActorCharacter(e.idCharacter, e.character.kind),
                         new ActorRole(e.type),
                     ),
             ),
@@ -165,29 +176,34 @@ export class VideogamePostgresRepository implements VideogameRepository {
     async getAtLeast2WeeksNearRelease(): Promise<Videogame[]> {
         const videogames = await this.videogameDB
             .createQueryBuilder()
+            .innerJoinAndSelect('videogame.media', 'media')
             .andWhere({
                 release: 'BETWEEN (NOW() - INTERVAL 14 DAY) AND NOW()',
             })
             .orderBy('release', 'DESC')
             .getMany()
         return videogames.asyncMap(async (videogame) => {
-            const actors = await this.representDB.findBy({
-                idVideogame: videogame.id,
-            })
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: videogame.id,
+                })
+                .getMany()
             const appear = await this.appearDB.findBy({
-                idVideogame: videogame.id,
+                idMedia: videogame.id,
             })
             const platforms = await this.platformDB.findBy({
                 idVideogame: videogame.id,
             })
             return new Videogame(
                 new VideogameId(videogame.id),
-                new VideogameTitle(videogame.title),
-                new VideogameSynopsis(videogame.synopsis),
-                new ReleaseDate(videogame.release),
-                new VideogameCreator(videogame.creator),
+                new VideogameTitle(videogame.media.title),
+                new VideogameSynopsis(videogame.media.synopsis),
+                new ReleaseDate(videogame.media.release),
+                new VideogameCreator(videogame.media.creator),
                 new VideogameType(videogame.type),
-                new Comic(videogame.comic),
+                new Comic(videogame.media.comic),
                 appear.map(
                     (e) => new OrganizationRef(e.idOrganization, e.type),
                 ),
@@ -197,10 +213,7 @@ export class VideogamePostgresRepository implements VideogameRepository {
                         new Actor(
                             new ActorId(e.id),
                             new ActorName(e.firstName, e.lastName),
-                            new ActorCharacter(
-                                e.idHeroe || e.idVillain || '',
-                                e.idHeroe ? 'heroe' : 'villain',
-                            ),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
                             new ActorRole(e.type),
                         ),
                 ),
@@ -215,6 +228,7 @@ export class VideogamePostgresRepository implements VideogameRepository {
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Videogame[]> {
         const videogames = await this.videogameDB
             .createQueryBuilder()
+            .innerJoinAndSelect('videogame.media', 'media')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
@@ -225,23 +239,27 @@ export class VideogamePostgresRepository implements VideogameRepository {
             })
             .getMany()
         return videogames.asyncMap(async (videogame) => {
-            const actors = await this.representDB.findBy({
-                idVideogame: videogame.id,
-            })
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: videogame.id,
+                })
+                .getMany()
             const appear = await this.appearDB.findBy({
-                idVideogame: videogame.id,
+                idMedia: videogame.id,
             })
             const platforms = await this.platformDB.findBy({
                 idVideogame: videogame.id,
             })
             return new Videogame(
                 new VideogameId(videogame.id),
-                new VideogameTitle(videogame.title),
-                new VideogameSynopsis(videogame.synopsis),
-                new ReleaseDate(videogame.release),
-                new VideogameCreator(videogame.creator),
+                new VideogameTitle(videogame.media.title),
+                new VideogameSynopsis(videogame.media.synopsis),
+                new ReleaseDate(videogame.media.release),
+                new VideogameCreator(videogame.media.creator),
                 new VideogameType(videogame.type),
-                new Comic(videogame.comic),
+                new Comic(videogame.media.comic),
                 appear.map(
                     (e) => new OrganizationRef(e.idOrganization, e.type),
                 ),
@@ -251,10 +269,7 @@ export class VideogamePostgresRepository implements VideogameRepository {
                         new Actor(
                             new ActorId(e.id),
                             new ActorName(e.firstName, e.lastName),
-                            new ActorCharacter(
-                                e.idHeroe || e.idVillain || '',
-                                e.idHeroe ? 'heroe' : 'villain',
-                            ),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
                             new ActorRole(e.type),
                         ),
                 ),
@@ -263,19 +278,6 @@ export class VideogamePostgresRepository implements VideogameRepository {
     }
 
     async getActorByName(name: ActorName): Promise<Optional<Actor>> {
-        const participation = await this.representDB.findOneByOrFail({
-            firstName: name.firstName,
-            lastName: name.lastName,
-        })
-        const actor = participation
-        return new Actor(
-            new ActorId(actor.id),
-            new ActorName(actor.firstName, actor.lastName),
-            new ActorCharacter(
-                actor.idHeroe || actor.idVillain || '',
-                actor.idHeroe ? 'heroe' : 'villain',
-            ),
-            new ActorRole(participation.type),
-        )
+        return null
     }
 }

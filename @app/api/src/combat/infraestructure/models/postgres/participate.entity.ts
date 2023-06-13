@@ -10,21 +10,19 @@ import { Combat } from './combat.entity'
 import { Power } from 'src/heroe/infraestructure/models/postgres/power.entity'
 import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
 import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
+import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
 
 @Entity()
 export class Participate {
-    @PrimaryGeneratedColumn()
-    id: number
-    @ManyToOne(() => Villain)
+    @ManyToOne(() => Character)
     @JoinColumn({
-        name: 'idVillain',
+        name: 'idCharacter',
     })
-    villain?: Villain
-    @ManyToOne(() => Heroe)
-    @JoinColumn({
-        name: 'idHeroe',
+    character: Character
+    @PrimaryColumn({
+        type: 'uuid',
     })
-    heroe?: Heroe
+    idCharacter: string
     @ManyToOne(() => Combat)
     @JoinColumn({
         name: 'idCombat',
@@ -35,21 +33,11 @@ export class Participate {
         name: 'idPower',
     })
     power: Power
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVillain?: string
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idHeroe?: string
-    @Column({
+    @PrimaryColumn({
         type: 'uuid',
     })
     idCombat: string
-    @Column({
+    @PrimaryColumn({
         type: 'uuid',
     })
     idPower: string

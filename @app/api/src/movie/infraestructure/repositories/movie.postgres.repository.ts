@@ -26,6 +26,7 @@ import { ActorId } from 'src/movie/domain/entities/actor/value-objects/actor.id'
 import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/actor.character'
 import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
 import { Injectable } from '@nestjs/common'
+import { Media } from '../models/postgres/media.entity'
 
 @Injectable()
 export class MoviePostgresRepository implements MovieRepository {
@@ -38,15 +39,27 @@ export class MoviePostgresRepository implements MovieRepository {
         private readonly developDB: Repository<Develop>,
         @InjectRepository(Represent)
         private readonly representDB: Repository<Represent>,
+        @InjectRepository(Media)
+        private readonly mediaDB: Repository<Media>,
     ) {}
 
     async save(aggregate: Movie): Promise<void> {
-        await this.movieDB.upsert(
-            this.movieDB.create({
+        await this.mediaDB.upsert(
+            this.mediaDB.create({
                 id: aggregate.id.value,
                 title: aggregate.title.value,
                 synopsis: aggregate.synopsis.value,
                 release: aggregate.release.value,
+                comic: aggregate.basedOn.value,
+                creator: aggregate.creator.value,
+                productor: aggregate.creator.value,
+                kind: 'movie',
+            }),
+            ['id'],
+        )
+        await this.movieDB.upsert(
+            this.movieDB.create({
+                id: aggregate.id.value,
                 director: aggregate.director.value,
                 durationH: aggregate.duration.hours,
                 durationM: aggregate.duration.minutes,
@@ -54,43 +67,35 @@ export class MoviePostgresRepository implements MovieRepository {
                 distribuitor: aggregate.creator.value,
                 productionCost: aggregate.cost.cost,
                 earning: aggregate.cost.earning,
-                productor: aggregate.creator.value,
                 type: aggregate.type.value,
-                comic: aggregate.basedOn.value,
-                creator: aggregate.creator.value,
             }),
             ['id'],
         )
         await this.developDB.delete({
-            idMovie: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.representDB.delete({
-            idMovie: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.appearDB.delete({
-            idMovie: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await aggregate.actors.asyncForEach(async (actor) =>
             this.representDB.insert(
                 this.representDB.create({
                     id: actor.id.value,
-                    idVillain:
-                        actor.character.kind === 'villain'
-                            ? actor.character.id
-                            : undefined,
-                    idHeroe:
-                        actor.character.kind === 'heroe'
-                            ? actor.character.id
-                            : undefined,
+                    idCharacter: actor.character.id,
                     type: actor.role.value,
-                    idMovie: aggregate.id.value,
+                    idMedia: aggregate.id.value,
+                    firstName: actor.name.firstName,
+                    lastName: actor.name.lastName,
                 }),
             ),
         )
         await aggregate.organizations.asyncForEach(async (organization) =>
             this.appearDB.insert(
                 this.appearDB.create({
-                    idMovie: aggregate.id.value,
+                    idMedia: aggregate.id.value,
                     idOrganization: organization.value,
                     type: '',
                 }),
@@ -100,36 +105,47 @@ export class MoviePostgresRepository implements MovieRepository {
 
     async delete(aggregate: Movie): Promise<void> {
         await this.developDB.delete({
-            idMovie: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.representDB.delete({
-            idMovie: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.appearDB.delete({
-            idMovie: aggregate.id.value,
+            idMedia: aggregate.id.value,
         })
         await this.movieDB.delete({
+            id: aggregate.id.value,
+        })
+        await this.mediaDB.delete({
             id: aggregate.id.value,
         })
     }
 
     async getById(id: MovieId): Promise<Optional<Movie>> {
-        const actors = await this.representDB.findBy({
-            idMovie: id.value,
-        })
+        const actors = await this.representDB
+            .createQueryBuilder('actor')
+            .innerJoinAndSelect('actor.character', 'character')
+            .where('actor.idMedia = :id', {
+                id: id.value,
+            })
+            .getMany()
         const appear = await this.appearDB.findBy({
-            idMovie: id.value,
+            idMedia: id.value,
         })
-        const movie = await this.movieDB.findOneBy({
-            id: id.value,
-        })
+        const movie = await this.movieDB
+            .createQueryBuilder('movie')
+            .innerJoinAndSelect('movie.media', 'media')
+            .where('movie.id = :id', {
+                id: id.value,
+            })
+            .getOne()
         if (!movie) return null
         return new Movie(
             new MovieId(movie.id),
-            new MovieTitle(movie.title),
-            new MovieSynopsis(movie.synopsis),
-            new ReleaseDate(movie.release),
-            new MovieCreator(movie.creator),
+            new MovieTitle(movie.media.title),
+            new MovieSynopsis(movie.media.synopsis),
+            new ReleaseDate(movie.media.release),
+            new MovieCreator(movie.media.creator),
             new MovieDirector(movie.director),
             new MovieDuration(
                 movie.durationH,
@@ -138,17 +154,14 @@ export class MoviePostgresRepository implements MovieRepository {
             ),
             new MovieType(movie.type),
             new ProductionCost(movie.productionCost, movie.earning),
-            new Comic(movie.comic),
+            new Comic(movie.media.comic),
             appear.map((e) => new OrganizationRef(e.idOrganization, e.type)),
             actors.map(
                 (e) =>
                     new Actor(
                         new ActorId(e.id),
                         new ActorName(e.firstName, e.lastName),
-                        new ActorCharacter(
-                            e.idHeroe || e.idVillain || '',
-                            e.idHeroe ? 'heroe' : 'villain',
-                        ),
+                        new ActorCharacter(e.idCharacter, e.character.kind),
                         new ActorRole(e.type),
                     ),
             ),
@@ -158,6 +171,7 @@ export class MoviePostgresRepository implements MovieRepository {
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Movie[]> {
         const movies = await this.movieDB
             .createQueryBuilder()
+            .innerJoinAndSelect('movie.media', 'media')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
@@ -169,18 +183,22 @@ export class MoviePostgresRepository implements MovieRepository {
             .getMany()
 
         return movies.asyncMap(async (movie) => {
-            const actors = await this.representDB.findBy({
-                idMovie: movie.id,
-            })
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: movie.id,
+                })
+                .getMany()
             const appear = await this.appearDB.findBy({
-                idMovie: movie.id,
+                idMedia: movie.id,
             })
             return new Movie(
                 new MovieId(movie.id),
-                new MovieTitle(movie.title),
-                new MovieSynopsis(movie.synopsis),
-                new ReleaseDate(movie.release),
-                new MovieCreator(movie.creator),
+                new MovieTitle(movie.media.title),
+                new MovieSynopsis(movie.media.synopsis),
+                new ReleaseDate(movie.media.release),
+                new MovieCreator(movie.media.creator),
                 new MovieDirector(movie.director),
                 new MovieDuration(
                     movie.durationH,
@@ -189,7 +207,7 @@ export class MoviePostgresRepository implements MovieRepository {
                 ),
                 new MovieType(movie.type),
                 new ProductionCost(movie.productionCost, movie.earning),
-                new Comic(movie.comic),
+                new Comic(movie.media.comic),
                 appear.map(
                     (e) => new OrganizationRef(e.idOrganization, e.type),
                 ),
@@ -198,10 +216,7 @@ export class MoviePostgresRepository implements MovieRepository {
                         new Actor(
                             new ActorId(e.id),
                             new ActorName(e.firstName, e.lastName),
-                            new ActorCharacter(
-                                e.idHeroe || e.idVillain || '',
-                                e.idHeroe ? 'heroe' : 'villain',
-                            ),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
                             new ActorRole(e.type),
                         ),
                 ),
@@ -212,24 +227,29 @@ export class MoviePostgresRepository implements MovieRepository {
     async getAtLeast2WeeksNearRelease(): Promise<Movie[]> {
         const movies = await this.movieDB
             .createQueryBuilder()
+            .innerJoinAndSelect('movie.media', 'media')
             .andWhere({
                 release: 'BETWEEN (NOW() - INTERVAL 14 DAY) AND NOW()',
             })
             .orderBy('release', 'DESC')
             .getMany()
         return movies.asyncMap(async (movie) => {
-            const actors = await this.representDB.findBy({
-                idMovie: movie.id,
-            })
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: movie.id,
+                })
+                .getMany()
             const appear = await this.appearDB.findBy({
-                idMovie: movie.id,
+                idMedia: movie.id,
             })
             return new Movie(
                 new MovieId(movie.id),
-                new MovieTitle(movie.title),
-                new MovieSynopsis(movie.synopsis),
-                new ReleaseDate(movie.release),
-                new MovieCreator(movie.creator),
+                new MovieTitle(movie.media.title),
+                new MovieSynopsis(movie.media.synopsis),
+                new ReleaseDate(movie.media.release),
+                new MovieCreator(movie.media.creator),
                 new MovieDirector(movie.director),
                 new MovieDuration(
                     movie.durationH,
@@ -238,7 +258,7 @@ export class MoviePostgresRepository implements MovieRepository {
                 ),
                 new MovieType(movie.type),
                 new ProductionCost(movie.productionCost, movie.earning),
-                new Comic(movie.comic),
+                new Comic(movie.media.comic),
                 appear.map(
                     (e) => new OrganizationRef(e.idOrganization, e.type),
                 ),
@@ -247,10 +267,7 @@ export class MoviePostgresRepository implements MovieRepository {
                         new Actor(
                             new ActorId(e.id),
                             new ActorName(e.firstName, e.lastName),
-                            new ActorCharacter(
-                                e.idHeroe || e.idVillain || '',
-                                e.idHeroe ? 'heroe' : 'villain',
-                            ),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
                             new ActorRole(e.type),
                         ),
                 ),
@@ -261,24 +278,29 @@ export class MoviePostgresRepository implements MovieRepository {
     async getByType(type: MovieType): Promise<Movie[]> {
         const movies = await this.movieDB
             .createQueryBuilder()
+            .innerJoinAndSelect('movie.media', 'media')
             .andWhere({
                 type: type.value,
             })
             .getMany()
 
         return movies.asyncMap(async (movie) => {
-            const actors = await this.representDB.findBy({
-                idMovie: movie.id,
-            })
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: movie.id,
+                })
+                .getMany()
             const appear = await this.appearDB.findBy({
-                idMovie: movie.id,
+                idMedia: movie.id,
             })
             return new Movie(
                 new MovieId(movie.id),
-                new MovieTitle(movie.title),
-                new MovieSynopsis(movie.synopsis),
-                new ReleaseDate(movie.release),
-                new MovieCreator(movie.creator),
+                new MovieTitle(movie.media.title),
+                new MovieSynopsis(movie.media.synopsis),
+                new ReleaseDate(movie.media.release),
+                new MovieCreator(movie.media.creator),
                 new MovieDirector(movie.director),
                 new MovieDuration(
                     movie.durationH,
@@ -287,7 +309,7 @@ export class MoviePostgresRepository implements MovieRepository {
                 ),
                 new MovieType(movie.type),
                 new ProductionCost(movie.productionCost, movie.earning),
-                new Comic(movie.comic),
+                new Comic(movie.media.comic),
                 appear.map(
                     (e) => new OrganizationRef(e.idOrganization, e.type),
                 ),
@@ -296,10 +318,7 @@ export class MoviePostgresRepository implements MovieRepository {
                         new Actor(
                             new ActorId(e.id),
                             new ActorName(e.firstName, e.lastName),
-                            new ActorCharacter(
-                                e.idHeroe || e.idVillain || '',
-                                e.idHeroe ? 'heroe' : 'villain',
-                            ),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
                             new ActorRole(e.type),
                         ),
                 ),
@@ -312,19 +331,6 @@ export class MoviePostgresRepository implements MovieRepository {
     }
 
     async getActorByName(name: ActorName): Promise<Optional<Actor>> {
-        const participation = await this.representDB.findOneByOrFail({
-            firstName: name.firstName,
-            lastName: name.lastName,
-        })
-        const actor = participation
-        return new Actor(
-            new ActorId(actor.id),
-            new ActorName(actor.firstName, actor.lastName),
-            new ActorCharacter(
-                actor.idHeroe || actor.idVillain || '',
-                actor.idHeroe ? 'heroe' : 'villain',
-            ),
-            new ActorRole(participation.type),
-        )
+        return null
     }
 }

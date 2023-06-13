@@ -43,6 +43,7 @@ import { EnemyGroup } from 'src/villain/domain/value-object/heroe.group.enemy'
 import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
 import { Logo } from 'src/heroe/domain/value-object/logo'
 import { Injectable } from '@nestjs/common'
+import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
 
 @Injectable()
 export class VillainPostgresRepository implements VillainRepository {
@@ -67,7 +68,8 @@ export class VillainPostgresRepository implements VillainRepository {
         private readonly antagonistDB: Repository<Antagonist>,
         @InjectRepository(AntagonistGroup)
         private readonly antagonistGroupDB: Repository<AntagonistGroup>,
-        private dataSource: DataSource,
+        @InjectRepository(Character)
+        private readonly characterDB: Repository<Character>,
     ) {}
 
     async save(aggregate: Villain): Promise<void> {
@@ -127,21 +129,29 @@ export class VillainPostgresRepository implements VillainRepository {
                 }),
             ),
         )
+        await this.characterDB.upsert(
+            this.characterDB.create({
+                id: aggregate.id.value,
+                personId: aggregate.person.id.value,
+                kind: 'villain',
+            }),
+            ['id'],
+        )
+
         await this.villainDB.upsert(
             this.villainDB.create({
                 id: aggregate.id.value,
                 name: aggregate.name.value,
                 logo: aggregate.logo.value,
                 objetive: aggregate.objetive.value,
-                personId: aggregate.person.id.value,
             }),
             ['id'],
         )
         await this.ownDB.delete({
-            idVillain: aggregate.id.value,
+            idCharacter: aggregate.id.value,
         })
         await this.useDB.delete({
-            idVillain: aggregate.id.value,
+            idCharacter: aggregate.id.value,
         })
         await this.antagonistDB.delete({
             idVillain: aggregate.id.value,
@@ -152,7 +162,7 @@ export class VillainPostgresRepository implements VillainRepository {
         await aggregate.powers.asyncForEach((power) =>
             this.ownDB.insert(
                 this.ownDB.create({
-                    idVillain: aggregate.id.value,
+                    idCharacter: aggregate.id.value,
                     idPower: power.id.value,
                 }),
             ),
@@ -160,7 +170,7 @@ export class VillainPostgresRepository implements VillainRepository {
         await aggregate.objects.asyncForEach((object) =>
             this.useDB.insert(
                 this.useDB.create({
-                    idVillain: aggregate.id.value,
+                    idCharacter: aggregate.id.value,
                     idObject: object.id.value,
                 }),
             ),
@@ -187,11 +197,14 @@ export class VillainPostgresRepository implements VillainRepository {
         await this.villainDB.delete({
             id: aggregate.id.value,
         })
+        await this.characterDB.delete({
+            id: aggregate.id.value,
+        })
         await this.ownDB.delete({
-            idVillain: aggregate.id.value,
+            idCharacter: aggregate.id.value,
         })
         await this.useDB.delete({
-            idVillain: aggregate.id.value,
+            idCharacter: aggregate.id.value,
         })
         await this.antagonistDB.delete({
             idVillain: aggregate.id.value,
@@ -202,16 +215,22 @@ export class VillainPostgresRepository implements VillainRepository {
     }
 
     async getById(id: VillainId): Promise<Optional<Villain>> {
-        const villain = await this.villainDB.findOneBy({
-            id: id.value,
-        })
+        const villain = await this.villainDB
+            .createQueryBuilder('villain')
+            .innerJoinAndSelect('villain.character', 'character')
+            .where('villain.id = :id', {
+                id: id.value,
+            })
+            .getOne()
         if (!villain) return null
-        const person = await this.getPersonById(new PersonId(villain.personId))
+        const person = await this.getPersonById(
+            new PersonId(villain.character.personId),
+        )
         if (!person) throw new Error('Person not found')
         const objects = await this.useDB
             .createQueryBuilder('use')
             .innerJoinAndSelect('use.objectItem', 'object')
-            .where('use.idVillain = :idVi', {
+            .where('use.idCharacter = :idVi', {
                 idVi: villain.id,
             })
             .getMany()
@@ -224,7 +243,7 @@ export class VillainPostgresRepository implements VillainRepository {
         const powers = await this.ownDB
             .createQueryBuilder('own')
             .innerJoinAndSelect('own.power', 'power')
-            .where('own.idVillain = :idVi', {
+            .where('own.idCharacter = :idVi', {
                 idVi: villain.id,
             })
             .getMany()
@@ -279,6 +298,7 @@ export class VillainPostgresRepository implements VillainRepository {
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Villain[]> {
         const villains = await this.villainDB
             .createQueryBuilder()
+            .innerJoinAndSelect('villain.character', 'character')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
@@ -290,7 +310,7 @@ export class VillainPostgresRepository implements VillainRepository {
             .getMany()
         return villains.asyncMap(async (villain) => {
             const person = await this.getPersonById(
-                new PersonId(villain.personId),
+                new PersonId(villain.character.personId),
             )
             if (!person) throw new Error('Person not found')
             const objects = await this.useDB
@@ -412,6 +432,7 @@ export class VillainPostgresRepository implements VillainRepository {
     async getVillainsByPowerType(type: PowerType): Promise<Villain[]> {
         const villains = await this.villainDB
             .createQueryBuilder()
+            .innerJoinAndSelect('villain.character', 'character')
             .limit(5)
             .innerJoinAndSelect(Own, 'own', 'own.idCharcter = Villain.id')
             .innerJoinAndSelect(PowerDB, 'power', 'power.id = own.idPower')
@@ -421,7 +442,7 @@ export class VillainPostgresRepository implements VillainRepository {
             .getMany()
         return villains.asyncMap(async (villain) => {
             const person = await this.getPersonById(
-                new PersonId(villain.personId),
+                new PersonId(villain.character.personId),
             )
             if (!person) throw new Error('Person not found')
             const objects = await this.useDB

@@ -1,7 +1,8 @@
-import { Column, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 import { Person } from './person.entity'
 
-export abstract class Character {
+@Entity()
+export class Character {
     @ManyToOne(() => Person)
     @JoinColumn({
         name: 'personId',
@@ -15,4 +16,9 @@ export abstract class Character {
         type: 'uuid',
     })
     personId: string
+    @Column({
+        type: 'enum',
+        enum: ['heroe', 'villain', 'civil'],
+    })
+    kind: string
 }

@@ -6,6 +6,7 @@ import { Combat } from 'src/combat/infraestructure/models/postgres/combat.entity
 import { Participate } from 'src/combat/infraestructure/models/postgres/participate.entity'
 import { Utilize } from 'src/combat/infraestructure/models/postgres/utilize.entity'
 import { CombatPostgresRepository } from 'src/combat/infraestructure/repository/combat.postgres.repository'
+import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
 import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
 import { Nationality } from 'src/heroe/infraestructure/models/postgres/nationality.entity'
 import { ObjectItem } from 'src/heroe/infraestructure/models/postgres/object.entity'
@@ -19,6 +20,7 @@ import { HeroePostgresRepository } from 'src/heroe/infraestructure/repositories/
 import { Actor } from 'src/movie/infraestructure/models/postgres/actor.entity'
 import { Appear } from 'src/movie/infraestructure/models/postgres/appear.entity'
 import { Develop } from 'src/movie/infraestructure/models/postgres/develop.entity'
+import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
 import { Movie } from 'src/movie/infraestructure/models/postgres/movie.entity'
 import { Represent } from 'src/movie/infraestructure/models/postgres/represent.entity'
 import { MoviePostgresRepository } from 'src/movie/infraestructure/repositories/movie.postgres.repository'
@@ -48,6 +50,8 @@ import { VillainPostgresRepository } from 'src/villain/infraestructure/repositor
 @Module({
     imports: [
         TypeOrmModule.forFeature([
+            Character,
+            Media,
             User,
             Profile,
             Membership,

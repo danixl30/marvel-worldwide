@@ -21,6 +21,7 @@ import { PersonOccupation } from 'src/heroe/domain/entities/person/value-objects
 import { PersonNationality } from 'src/heroe/domain/entities/person/value-objects/nationality'
 import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
 import { Injectable } from '@nestjs/common'
+import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
 
 @Injectable()
 export class CivilPostgresRepository implements CivilRepository {
@@ -33,6 +34,8 @@ export class CivilPostgresRepository implements CivilRepository {
         private readonly nationalityDB: Repository<Nationality>,
         @InjectRepository(OcupationDB)
         private readonly ocupationDB: Repository<OcupationDB>,
+        @InjectRepository(Character)
+        private readonly characterDB: Repository<Character>,
     ) {}
     async save(aggregate: Civil): Promise<void> {
         await this.personDB.upsert(
@@ -49,18 +52,19 @@ export class CivilPostgresRepository implements CivilRepository {
             }),
             ['id'],
         )
+        await this.characterDB.upsert(
+            this.characterDB.create({
+                id: aggregate.id.value,
+                personId: aggregate.person.id.value,
+                kind: 'civil',
+            }),
+            ['id'],
+        )
+        console.log('here')
         await this.civilDB.upsert(
             this.civilDB.create({
                 id: aggregate.id.value,
-                personId: aggregate.person.id.value,
-                idVillain:
-                    aggregate.relation.kind === 'villain'
-                        ? aggregate.relation.targetId
-                        : undefined,
-                idHeroe:
-                    aggregate.relation.kind === 'heroe'
-                        ? aggregate.relation.targetId
-                        : undefined,
+                idRelation: aggregate.relation.targetId,
             }),
             ['id'],
         )
@@ -70,37 +74,44 @@ export class CivilPostgresRepository implements CivilRepository {
         await this.civilDB.delete({
             id: aggregate.id.value,
         })
+        await this.characterDB.delete({
+            id: aggregate.id.value,
+        })
     }
 
     async getById(id: CivilId): Promise<Optional<Civil>> {
-        const civil = await this.civilDB.findOneBy({
-            id: id.value,
-        })
+        const civil = await this.civilDB
+            .createQueryBuilder('civil')
+            .innerJoinAndSelect('civil.character', 'character')
+            .innerJoinAndSelect('civil.relation', 'relation')
+            .where('civil.id = :id', {
+                id: id.value,
+            })
+            .getOne()
         if (!civil) return null
         return new Civil(
             id,
-            (await this.getPersonById(new PersonId(civil.personId)))!,
-            new CivilRelationship(
-                civil.idHeroe || civil.idVillain,
-                civil.idHeroe ? 'heroe' : 'villain',
-            ),
+            (await this.getPersonById(new PersonId(civil.character.personId)))!,
+            new CivilRelationship(civil.idRelation, civil.relation.kind),
         )
     }
 
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Civil[]> {
         const civils = await this.civilDB
-            .createQueryBuilder()
+            .createQueryBuilder('civil')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
                     1 * (criteria.pagination?.limit || 0),
             )
-            .andWhere({
+            .innerJoinAndSelect('civil.id', 'character')
+            .innerJoinAndSelect('civil.idRelation', 'relation')
+            .where('civil.character.person.name = :name', {
                 name: criteria.term,
             })
             .getMany()
         return civils.asyncMap(async (e) => {
-            const person = e.person
+            const person = e.character.person
             const ocupations = await this.ocupationDB.findBy({
                 idPerson: person.id,
             })
@@ -120,10 +131,7 @@ export class CivilPostgresRepository implements CivilRepository {
                     ocupations.map((e) => new PersonOccupation(e.name)),
                     nationalities.map((e) => new PersonNationality(e.name)),
                 ),
-                new CivilRelationship(
-                    e.idHeroe || e.idVillain,
-                    e.idHeroe ? 'heroe' : 'villain',
-                ),
+                new CivilRelationship(e.idRelation, e.relation.kind),
             )
         })
     }

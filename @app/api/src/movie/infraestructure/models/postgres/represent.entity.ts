@@ -9,56 +9,24 @@ import { Videogame } from 'src/videogame/infraestructure/models/postgres/videoga
 
 @Entity()
 export class Represent {
-    @ManyToOne(() => Movie)
+    @ManyToOne(() => Media)
     @JoinColumn({
-        name: 'idMovie',
+        name: 'idMedia',
     })
-    movie?: Movie
-    @Column({
+    media: Media
+    @PrimaryColumn({
         type: 'uuid',
-        nullable: true,
     })
-    idMovie?: string
-    @ManyToOne(() => Serie)
+    idMedia: string
+    @ManyToOne(() => Character)
     @JoinColumn({
-        name: 'idSerie',
+        name: 'idCharacter',
     })
-    serie?: Serie
-    @Column({
+    character: Character
+    @PrimaryColumn({
         type: 'uuid',
-        nullable: true,
     })
-    idSerie?: string
-    @ManyToOne(() => Videogame)
-    @JoinColumn({
-        name: 'idVideogame',
-    })
-    videogame?: Videogame
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVideogame?: string
-    @ManyToOne(() => Heroe)
-    @JoinColumn({
-        name: 'idHeroe',
-    })
-    heroe?: Heroe
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idHeroe?: string
-    @ManyToOne(() => Villain)
-    @JoinColumn({
-        name: 'idVillain',
-    })
-    villain?: Villain
-    @Column({
-        type: 'uuid',
-        nullable: true,
-    })
-    idVillain?: string
+    idCharacter: string
     @PrimaryColumn({
         type: 'uuid',
     })
