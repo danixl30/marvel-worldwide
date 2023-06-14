@@ -120,7 +120,7 @@ export default function CreateProfilePage() {
                         >
                             <Col>
                                 <Image
-                                    height={900}
+                                    height={600}
                                     src="https://upload.wikimedia.org/wikipedia/en/1/19/Marvel_Universe_%28Civil_War%29.jpg"
                                 />
                             </Col>

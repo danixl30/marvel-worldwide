@@ -1,4 +1,12 @@
-import { Button, Card, Container, Row, Spacer, Text } from '@nextui-org/react'
+import {
+    Button,
+    Card,
+    Container,
+    Image,
+    Row,
+    Spacer,
+    Text,
+} from '@nextui-org/react'
 import { mainPageLogic } from '../logic/mainPageLogic'
 import { useRouterDomNavigation } from '../../../core/infraestructure/router/router-dom/react-router-dom-navigation'
 
@@ -26,6 +34,13 @@ export default function MainPage() {
                         Welcome to Marvel Unlimited!!!
                     </Text>
                 </Row>
+                <Row align="center" justify="center">
+                    <Image
+                        width={300}
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Marvel_Logo.svg/2560px-Marvel_Logo.svg.png"
+                    />
+                </Row>
+                <Spacer y={2} />
                 <Row align="center" justify="center">
                     <Text size={30} h3>
                         You can register by this plans
