@@ -7,6 +7,7 @@ import {
     Image,
     Col,
     Spinner,
+    Button,
 } from '@nextui-org/react'
 import { chooseProfileLogic } from '../logic/chooseProfileLogic'
 import { useRouterDomNavigation } from '../../../core/infraestructure/router/router-dom/react-router-dom-navigation'
@@ -22,21 +23,23 @@ import { useRefStateFactory } from '../../../core/infraestructure/state/useRefSt
 import { useEffectStateObserver } from '../../../core/infraestructure/state-observer/useEffectStateObserver'
 
 export default function ChooseProfilePage() {
-    const { addProfile, profilesData, isLoading, error } = chooseProfileLogic(
-        useRouterDomNavigation(),
-        getProfilesService(
-            profileHttpRepository(
-                useAxiosHttp(),
-                useCookieSession(),
-                cancelHandler(useRefValueProvider(), useEffectOnInit),
+    const { addProfile, profilesData, isLoading, error, logout } =
+        chooseProfileLogic(
+            useRouterDomNavigation(),
+            getProfilesService(
+                profileHttpRepository(
+                    useAxiosHttp(),
+                    useCookieSession(),
+                    cancelHandler(useRefValueProvider(), useEffectOnInit),
+                ),
             ),
-        ),
-        nativeOnInitJob(
-            useRefStateFactory(),
-            useEffectStateObserver,
-            useEffectOnInit,
-        ),
-    )
+            nativeOnInitJob(
+                useRefStateFactory(),
+                useEffectStateObserver,
+                useEffectOnInit,
+            ),
+            useCookieSession(),
+        )
     if (error.value) {
         return (
             <>
@@ -57,7 +60,15 @@ export default function ChooseProfilePage() {
         <>
             <Container>
                 <Row align="center" justify="center">
-                    <Text h1 size={50}>
+                    <Text
+                        h1
+                        size={50}
+                        css={{
+                            background: '$titleColor2',
+                            '-webkit-background-clip': 'text',
+                            '-webkit-text-fill-color': 'transparent',
+                        }}
+                    >
                         Choose a Profile
                     </Text>
                 </Row>
@@ -76,9 +87,11 @@ export default function ChooseProfilePage() {
                                             <Card
                                                 isHoverable
                                                 isPressable
+                                                variant="bordered"
                                                 css={{
                                                     padding: 30,
                                                     alignItems: 'center',
+                                                    background: '$titleColor',
                                                 }}
                                             >
                                                 <Image
@@ -97,10 +110,12 @@ export default function ChooseProfilePage() {
                                         <Card
                                             isHoverable
                                             isPressable
+                                            variant="bordered"
                                             onPress={addProfile}
                                             css={{
                                                 padding: 30,
                                                 alignItems: 'center',
+                                                background: '$titleColor',
                                             }}
                                         >
                                             <Image
@@ -112,9 +127,12 @@ export default function ChooseProfilePage() {
                                     </Col>
                                 )}
                         </Row>
+                        <Spacer y={2} />
+                        <Button onPress={logout}>Logout</Button>
                     </Card>
                     <Spacer x={2} />
                 </Row>
+                <Spacer y={2} />
             </Container>
         </>
     )

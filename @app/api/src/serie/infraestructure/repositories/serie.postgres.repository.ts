@@ -79,7 +79,7 @@ export class SeriePostgresRepository implements SerieRepository {
                     type: actor.role.value,
                     idMedia: aggregate.id.value,
                     firstName: actor.name.firstName,
-                    lastName: actor.name.lastName
+                    lastName: actor.name.lastName,
                 }),
             ),
         )

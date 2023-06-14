@@ -94,7 +94,15 @@ export default function CreateProfilePage() {
         <>
             <Container>
                 <Row align="center" justify="center">
-                    <Text h1 size={50}>
+                    <Text
+                        h1
+                        size={50}
+                        css={{
+                            background: '$titleColor2',
+                            '-webkit-background-clip': 'text',
+                            '-webkit-text-fill-color': 'transparent',
+                        }}
+                    >
                         Create profile
                     </Text>
                 </Row>
@@ -122,6 +130,7 @@ export default function CreateProfilePage() {
                                     value={emailInput.value.value}
                                     onChange={onChangeEmail}
                                     helperText={emailInput.error.value}
+                                    helperColor="error"
                                     type="email"
                                     placeholder="Ej: direcction@email.com"
                                     label="Email"
@@ -165,6 +174,8 @@ export default function CreateProfilePage() {
                                     value={subPreference1.value}
                                     onChange={onChangeSubPreference1Input}
                                     label="Subpreference 1"
+                                    rounded
+                                    bordered
                                 />
                                 <Spacer x={1} />
                                 <Dropdown>
@@ -203,6 +214,8 @@ export default function CreateProfilePage() {
                                     value={subPreference2.value}
                                     onChange={onChangeSubPreference2Input}
                                     label="Subpreference 2"
+                                    rounded
+                                    bordered
                                 />
                                 <Spacer x={1} />
                                 <Dropdown>
@@ -241,6 +254,8 @@ export default function CreateProfilePage() {
                                     value={subPreference3.value}
                                     onChange={onChangeSubPreference3Input}
                                     label="Subpreference 3"
+                                    rounded
+                                    bordered
                                 />
                                 <Spacer x={1} />
                                 <Dropdown>

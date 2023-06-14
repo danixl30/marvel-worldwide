@@ -71,7 +71,15 @@ export default function RegisterPage() {
         <>
             <Container>
                 <Row align="center" justify="center">
-                    <Text h1 size={50}>
+                    <Text
+                        h1
+                        size={50}
+                        css={{
+                            background: '$titleColor2',
+                            '-webkit-background-clip': 'text',
+                            '-webkit-text-fill-color': 'transparent',
+                        }}
+                    >
                         Register
                     </Text>
                 </Row>
@@ -101,6 +109,7 @@ export default function RegisterPage() {
                                     type="email"
                                     placeholder="Ej: direcction@email.com"
                                     label="Email"
+                                    helperColor="error"
                                     rounded
                                     bordered
                                 />
@@ -111,6 +120,7 @@ export default function RegisterPage() {
                                     helperText={passwordInput.error.value}
                                     placeholder="Ej: A12345,"
                                     label="Password"
+                                    helperColor="error"
                                     rounded
                                     bordered
                                 />
@@ -121,6 +131,7 @@ export default function RegisterPage() {
                                     helperText={cardNumberInput.error.value}
                                     label="Card Number"
                                     placeholder="XXXX-XXXX-XXXX-XXXX"
+                                    helperColor="error"
                                     rounded
                                     bordered
                                 />

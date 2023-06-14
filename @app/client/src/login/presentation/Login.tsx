@@ -52,7 +52,15 @@ export default function LoginPage() {
         <>
             <Container>
                 <Row align="center" justify="center">
-                    <Text h1 size={50}>
+                    <Text
+                        h1
+                        size={50}
+                        css={{
+                            background: '$titleColor2',
+                            '-webkit-background-clip': 'text',
+                            '-webkit-text-fill-color': 'transparent',
+                        }}
+                    >
                         Login
                     </Text>
                 </Row>
@@ -81,6 +89,7 @@ export default function LoginPage() {
                                     value={emailInput.value.value}
                                     helperText={emailInput.error.value}
                                     placeholder="Ej: direcction@email.com"
+                                    helperColor="error"
                                     label="Email"
                                     rounded
                                     bordered
@@ -92,6 +101,7 @@ export default function LoginPage() {
                                     helperText={passwordInput.error.value}
                                     placeholder="Ej: A12345,"
                                     label="Password"
+                                    helperColor="error"
                                     rounded
                                     bordered
                                 />
