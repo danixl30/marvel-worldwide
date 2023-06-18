@@ -3,7 +3,7 @@ import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class HeroeId implements ValueObject<HeroeId> {
     constructor(private readonly id: string) {
-        if (!regExpUUID.test(id)) throw new Error('Invalid heroe id')
+        if (!regExpUUID.test(id)) throw new Error('Invalid Hero ID')
     }
 
     public get value(): string {

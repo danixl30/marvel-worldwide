@@ -6,7 +6,7 @@ export class HeroeCreator implements ValueObject<HeroeCreator> {
         private readonly _lastName: string,
     ) {
         if (!this.firstName || !this.lastName)
-            throw new Error('Inavlid creator')
+            throw new Error('Creator cannot be null')
     }
 
     get firstName() {

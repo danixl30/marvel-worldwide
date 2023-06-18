@@ -2,7 +2,7 @@ import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class Logo implements ValueObject<Logo> {
     constructor(private readonly logo: string) {
-        if (!logo) throw new Error('Invalid logo')
+        if (!logo) throw new Error('Logo cannot be null')
     }
 
     get value() {

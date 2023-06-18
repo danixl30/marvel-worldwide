@@ -2,7 +2,7 @@ import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class MovieDirector implements ValueObject<MovieDirector> {
     constructor(private readonly name: string) {
-        if (!this.name) throw new Error('Invalid movie director')
+        if (!this.name) throw new Error('Movie director cannot be null')
     }
 
     get value() {

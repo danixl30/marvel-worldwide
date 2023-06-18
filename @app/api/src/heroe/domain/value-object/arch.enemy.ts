@@ -3,7 +3,7 @@ import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class ArchEnemy implements ValueObject<ArchEnemy> {
     constructor(private readonly _id: string) {
-        if (!regExpUUID.test(_id)) throw new Error('Invalid arch enemy id')
+        if (!regExpUUID.test(_id)) throw new Error('Invalid Archenemy id')
     }
 
     public get value(): string {

@@ -8,14 +8,17 @@ export class MovieDuration implements ValueObject<MovieDuration> {
     ) {
         if (
             (!this.hours && !this.minutes && !this.seconds) ||
+            (this.hours === 0 && this.minutes === 0 && this.seconds === 0) ||
             this.hours < 0 ||
-            this.hours > 24 ||
+            this.hours > 23 ||
             this.minutes < 0 ||
-            this.minutes > 60 ||
+            this.minutes > 59 ||
             this.seconds < 0 ||
-            this.seconds > 60
+            this.seconds > 59
         ) {
-            throw new Error('Invalid movie duration')
+            throw new Error(
+                'Movie duration must be between 00:00:01 and 23:59:59',
+            )
         }
     }
 

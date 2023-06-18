@@ -6,7 +6,11 @@ export class ProductionCost implements ValueObject<ProductionCost> {
         private readonly _earning: number,
     ) {
         if (!this.cost || !this.earning)
-            throw new Error('Invalid production cost')
+            throw new Error('Production cost cannot be null')
+        if (this.cost <= 0)
+            throw new Error('Movie cost must be greater than zero')
+        if (this.earning <= 0)
+            throw new Error('Movie earning must be greater than zero')
     }
 
     get cost() {
