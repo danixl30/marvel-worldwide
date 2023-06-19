@@ -3,7 +3,7 @@ import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class VideogameId implements ValueObject<VideogameId> {
     constructor(private readonly id: string) {
-        if (!regExpUUID.test(id)) throw new Error('Invalid serie id')
+        if (!regExpUUID.test(id)) throw new Error('Invalid Videogame id')
     }
 
     get value() {

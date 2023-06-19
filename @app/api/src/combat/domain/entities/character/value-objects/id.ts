@@ -5,6 +5,12 @@ export class CharacterId implements ValueObject<CharacterId> {
     constructor(private readonly _id: string, private readonly _kind: string) {
         if (regExpUUID.test(this.id) || !_kind)
             throw new Error('Invalid character id')
+        if (
+            this.kind != 'hero' &&
+            this.kind != 'villain' &&
+            this.kind != 'civil'
+        )
+            throw new Error('A character must be a hero, villain or civil')
     }
 
     get id() {

@@ -2,7 +2,7 @@ import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class EnemyGroup implements ValueObject<EnemyGroup> {
     constructor(private readonly name: string) {
-        if (!name) throw new Error('Invalid villain name')
+        if (!name) throw new Error('Invalid rival group name')
     }
 
     public get value(): string {

@@ -6,7 +6,7 @@ export class ActorName implements ValueObject<ActorName> {
         private readonly _lastName: string,
     ) {
         if (!this.firstName || !this.lastName)
-            throw new Error('Invalid actor name')
+            throw new Error('Actor name cannot be null')
     }
 
     get firstName() {

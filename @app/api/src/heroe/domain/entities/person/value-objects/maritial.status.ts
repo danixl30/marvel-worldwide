@@ -8,7 +8,11 @@ export enum MaritialStatuses {
 }
 
 export class MaritialStatus implements ValueObject<MaritialStatus> {
-    constructor(private readonly status: MaritialStatuses) {}
+    constructor(private readonly status: MaritialStatuses) {
+        if (!status) {
+            throw new Error('Marital Status cannot be null')
+        }
+    }
 
     get value() {
         return this.status

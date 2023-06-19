@@ -2,7 +2,7 @@ import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class VideogameCreator implements ValueObject<VideogameCreator> {
     constructor(private readonly name: string) {
-        if (!name) throw new Error('Invalid videogame creator')
+        if (!name) throw new Error('Invalid Videogame creator')
     }
 
     get value() {

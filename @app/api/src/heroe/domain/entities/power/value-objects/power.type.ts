@@ -6,7 +6,9 @@ export class PowerType implements ValueObject<PowerType> {
             !type ||
             !['artificial', 'natural', 'inherited'].find((e) => e === type)
         )
-            throw new Error('Invalid power type')
+            throw new Error(
+                'Power type must be either "artificial", "natural" or "inherited"',
+            )
     }
 
     get value(): string {

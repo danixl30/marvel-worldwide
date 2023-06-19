@@ -2,7 +2,7 @@ import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export class SerieTitle implements ValueObject<SerieTitle> {
     constructor(private readonly title: string) {
-        if (!title) throw new Error('Invalid serie title')
+        if (!title) throw new Error("Invalid Series' title")
     }
 
     get value() {
