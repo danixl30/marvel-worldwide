@@ -17,4 +17,6 @@ export interface OrganizationRepository
     getHeadquarterById(id: HeadquarterId): Promise<Optional<Headquarter>>
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Organization[]>
     getIfHeroeOrVillainIsLeader(id: HeroeId | VillainId): Promise<boolean>
+    getAll(): Promise<Organization[]>
+    getAllHeadquarters(): Promise<Headquarter[]>
 }

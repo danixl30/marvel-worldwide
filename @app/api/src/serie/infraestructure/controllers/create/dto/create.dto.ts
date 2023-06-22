@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDate, IsNumber, IsString } from 'class-validator'
+import { ActorRoleType } from 'src/movie/domain/entities/actor/value-objects/actor.role'
+import { OrgParticipationType } from 'src/movie/domain/value-objects/organization'
 
 export class CreateSerieDTO {
     @ApiProperty()
@@ -31,7 +33,7 @@ export class CreateSerieDTO {
             firstName: string
             lastName: string
         }
-        role: string
+        role: ActorRoleType
         character: {
             id: string
             kind: string
@@ -40,6 +42,6 @@ export class CreateSerieDTO {
     @ApiProperty()
     organizations: {
         id: string
-        participationType: string
+        participationType: OrgParticipationType
     }[]
 }

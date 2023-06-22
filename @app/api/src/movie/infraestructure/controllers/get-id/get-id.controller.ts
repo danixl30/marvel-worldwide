@@ -10,11 +10,18 @@ import { Controller, Get, Param, UseGuards } from '@nestjs/common'
 import { MOVIE_ROUTE, MOVIE_TAG } from '../prefix'
 import { ApiHeader, ApiTags } from '@nestjs/swagger'
 import { AuthCuard } from 'src/user/infraestructure/guards/auth.guard'
+import { ProfilePostgresRepository } from 'src/profile/infraestructure/repositories/profile.postgres.repository'
+import { ConcreteUUIDGenerator } from 'src/core/infraestructure/UUID/service/concrete.UUID.generator'
+import { EventHandlerNative } from 'src/core/infraestructure/event-handler/native/service/event.hadler.native.service'
+import { AddHistoryCommand } from 'src/profile/application/commands/add-history/add.history'
+import { ProfileGuard } from 'src/profile/infraestructure/guards/profile.guard'
+import { GetProfile } from 'src/profile/infraestructure/decorators/get.profile'
+import { Profile } from 'src/profile/domain/profile'
 
 @Controller(MOVIE_ROUTE)
 @ApiTags(MOVIE_TAG)
 export class GetMovieByIdController
-    implements ControllerContract<string, GetMovieByIdResponse>
+    implements ControllerContract<string | Profile, GetMovieByIdResponse>
 {
     constructor(
         private movieRepository: MoviePostgresRepository,
@@ -22,12 +29,19 @@ export class GetMovieByIdController
         private villainRepository: VillainPostgresRepository,
         private civilRepository: CivilPostgresRepository,
         private organizationRepository: OrganizationPostgresRepository,
+        private profileRepository: ProfilePostgresRepository,
+        private uuidGen: ConcreteUUIDGenerator,
+        private eventHandler: EventHandlerNative,
     ) {}
 
     @Get('detail/:id')
     @ApiHeader({ name: 'auth' })
-    @UseGuards(AuthCuard)
-    async execute(@Param('id') id: string): Promise<GetMovieByIdResponse> {
+    @ApiHeader({ name: 'profile' })
+    @UseGuards(AuthCuard, ProfileGuard)
+    async execute(
+        @Param('id') id: string,
+        @GetProfile() profile: Profile,
+    ): Promise<GetMovieByIdResponse> {
         const resp = await new GetMovieByIdQuery(
             this.movieRepository,
             this.heroeRepository,
@@ -36,6 +50,15 @@ export class GetMovieByIdController
             this.organizationRepository,
         ).execute({
             id,
+        })
+        await new AddHistoryCommand(
+            this.profileRepository,
+            this.uuidGen,
+            this.eventHandler,
+        ).execute({
+            profileId: profile.id.value,
+            target: id,
+            kind: 'movie',
         })
         return resp.unwrap()
     }

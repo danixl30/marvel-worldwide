@@ -1,15 +1,6 @@
-import {
-    Entity,
-    JoinColumn,
-    ManyToOne,
-    PrimaryColumn,
-    Column,
-    PrimaryGeneratedColumn,
-} from 'typeorm'
+import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 import { Combat } from './combat.entity'
 import { ObjectItem } from 'src/heroe/infraestructure/models/postgres/object.entity'
-import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
-import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
 import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
 
 @Entity()

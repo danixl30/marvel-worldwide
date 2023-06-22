@@ -1,3 +1,6 @@
+import { ActorRoleType } from 'src/movie/domain/entities/actor/value-objects/actor.role'
+import { OrgParticipationType } from 'src/movie/domain/value-objects/organization'
+
 export type CreateSerieDTO = {
     title: string
     synopsis: string
@@ -12,7 +15,7 @@ export type CreateSerieDTO = {
             firstName: string
             lastName: string
         }
-        role: string
+        role: ActorRoleType
         character: {
             id: string
             kind: string
@@ -20,6 +23,6 @@ export type CreateSerieDTO = {
     }[]
     organizations: {
         id: string
-        participationType: string
+        participationType: OrgParticipationType
     }[]
 }

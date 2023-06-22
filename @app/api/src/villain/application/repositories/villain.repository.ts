@@ -20,4 +20,5 @@ export interface VillainRepository extends Repository<VillainId, Villain> {
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Villain[]>
     getVillainsByPowerType(type: PowerType): Promise<Villain[]>
     getSuperInheritedPowersUsedAtLeast2(): Promise<Power[]>
+    getAll(): Promise<Villain[]>
 }

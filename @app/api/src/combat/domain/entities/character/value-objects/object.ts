@@ -3,7 +3,7 @@ import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class ObjectId implements ValueObject<ObjectId> {
     constructor(private readonly id: string) {
-        if (regExpUUID.test(id)) throw new Error('Invalid object id')
+        if (!regExpUUID.test(id)) throw new Error('Invalid object id')
     }
 
     get value() {

@@ -97,7 +97,7 @@ export class MoviePostgresRepository implements MovieRepository {
                 this.appearDB.create({
                     idMedia: aggregate.id.value,
                     idOrganization: organization.value,
-                    type: '',
+                    type: organization.participationType,
                 }),
             ),
         )
@@ -170,16 +170,19 @@ export class MoviePostgresRepository implements MovieRepository {
 
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Movie[]> {
         const movies = await this.movieDB
-            .createQueryBuilder()
+            .createQueryBuilder('movie')
             .innerJoinAndSelect('movie.media', 'media')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
                     1 * (criteria.pagination?.limit || 0),
             )
-            .andWhere({
-                title: criteria.term,
+            .where('media.title = :term', {
+                term: `%${criteria.term}%`,
             })
+            .orWhere(
+                'movie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'movie\' and "endDate" is not NULL order by time DESC) as t)',
+            )
             .getMany()
 
         return movies.asyncMap(async (movie) => {
@@ -226,11 +229,12 @@ export class MoviePostgresRepository implements MovieRepository {
 
     async getAtLeast2WeeksNearRelease(): Promise<Movie[]> {
         const movies = await this.movieDB
-            .createQueryBuilder()
+            .createQueryBuilder('movie')
             .innerJoinAndSelect('movie.media', 'media')
-            .andWhere({
-                release: 'BETWEEN (NOW() - INTERVAL 14 DAY) AND NOW()',
-            })
+            .where("media.release BETWEEN now() - interval '2 week' AND NOW()")
+            .andWhere(
+                'movie.id in (select "idMedia" from calification order by rating DESC)',
+            )
             .orderBy('release', 'DESC')
             .getMany()
         return movies.asyncMap(async (movie) => {
@@ -277,9 +281,9 @@ export class MoviePostgresRepository implements MovieRepository {
 
     async getByType(type: MovieType): Promise<Movie[]> {
         const movies = await this.movieDB
-            .createQueryBuilder()
+            .createQueryBuilder('movie')
             .innerJoinAndSelect('movie.media', 'media')
-            .andWhere({
+            .where({
                 type: type.value,
             })
             .getMany()
@@ -327,7 +331,57 @@ export class MoviePostgresRepository implements MovieRepository {
     }
 
     async getTrending(profileId: ProfileId): Promise<Movie[]> {
-        return []
+        const movies = await this.movieDB
+            .createQueryBuilder('movie')
+            .innerJoinAndSelect('movie.media', 'media')
+            .where(
+                'movie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "idProfile" = :id and "mediaKind" = \'movie\' and "endDate" is not NULL order by time DESC) as t) or movie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'movie\' and "endDate" is not NULL order by time DESC) as t) or movie.id in (select "idMedia" from calification order by rating DESC)',
+                {
+                    id: profileId.value,
+                },
+            )
+            .limit(10)
+            .getMany()
+        return movies.asyncMap(async (movie) => {
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: movie.id,
+                })
+                .getMany()
+            const appear = await this.appearDB.findBy({
+                idMedia: movie.id,
+            })
+            return new Movie(
+                new MovieId(movie.id),
+                new MovieTitle(movie.media.title),
+                new MovieSynopsis(movie.media.synopsis),
+                new ReleaseDate(movie.media.release),
+                new MovieCreator(movie.media.creator),
+                new MovieDirector(movie.director),
+                new MovieDuration(
+                    movie.durationH,
+                    movie.durationM,
+                    movie.durationS,
+                ),
+                new MovieType(movie.type),
+                new ProductionCost(movie.productionCost, movie.earning),
+                new Comic(movie.media.comic),
+                appear.map(
+                    (e) => new OrganizationRef(e.idOrganization, e.type),
+                ),
+                actors.map(
+                    (e) =>
+                        new Actor(
+                            new ActorId(e.id),
+                            new ActorName(e.firstName, e.lastName),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
+                            new ActorRole(e.type),
+                        ),
+                ),
+            )
+        })
     }
 
     async getActorByName(name: ActorName): Promise<Optional<Actor>> {

@@ -3,7 +3,7 @@ import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class CharacterId implements ValueObject<CharacterId> {
     constructor(private readonly _id: string, private readonly _kind: string) {
-        if (regExpUUID.test(this.id) || !_kind)
+        if (!regExpUUID.test(this.id) || !_kind)
             throw new Error('Invalid character id')
         if (
             this.kind != 'hero' &&

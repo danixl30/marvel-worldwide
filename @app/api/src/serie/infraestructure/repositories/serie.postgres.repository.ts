@@ -88,7 +88,7 @@ export class SeriePostgresRepository implements SerieRepository {
                 this.appearDB.create({
                     idMedia: aggregate.id.value,
                     idOrganization: organization.value,
-                    type: '',
+                    type: organization.participationType,
                 }),
             ),
         )
@@ -198,11 +198,12 @@ export class SeriePostgresRepository implements SerieRepository {
 
     async getAtLeast2WeeksNearRelease(): Promise<Serie[]> {
         const series = await this.serieDB
-            .createQueryBuilder()
+            .createQueryBuilder('serie')
             .innerJoinAndSelect('actor.character', 'character')
-            .andWhere({
-                release: 'BETWEEN (NOW() - INTERVAL 14 DAY) AND NOW()',
-            })
+            .where("media.release BETWEEN now() - interval '2 week' AND NOW()")
+            .andWhere(
+                'serie.id in (select "idMedia" from calification order by rating DESC)',
+            )
             .orderBy('release', 'DESC')
             .getMany()
         return series.asyncMap(async (serie) => {
@@ -243,21 +244,69 @@ export class SeriePostgresRepository implements SerieRepository {
     }
 
     async getTrending(profileId: ProfileId): Promise<Serie[]> {
-        return []
+        const series = await this.serieDB
+            .createQueryBuilder('serie')
+            .innerJoinAndSelect('serie.media', 'media')
+            .where(
+                'serie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "idProfile" = :id and "mediaKind" = \'serie\' and "endDate" is not NULL order by time DESC) as t) or serie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'serie\' and "endDate" is not NULL order by time DESC) as t) or serie.id in (select "idMedia" from calification order by rating DESC)',
+                {
+                    id: profileId.value,
+                },
+            )
+            .limit(10)
+            .getMany()
+        return series.asyncMap(async (serie) => {
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: serie.id,
+                })
+                .getMany()
+            const appear = await this.appearDB.findBy({
+                idMedia: serie.id,
+            })
+            return new Serie(
+                new SerieId(serie.id),
+                new SerieTitle(serie.media.title),
+                new SerieSynopsis(serie.media.synopsis),
+                new ReleaseDate(serie.media.release),
+                new SerieCreator(serie.media.creator),
+                new SerieType(serie.type),
+                new SerieEpisodes(serie.episodes),
+                new SerieChannel(serie.channel),
+                new Comic(serie.media.comic),
+                appear.map(
+                    (e) => new OrganizationRef(e.idOrganization, e.type),
+                ),
+                actors.map(
+                    (e) =>
+                        new Actor(
+                            new ActorId(e.id),
+                            new ActorName(e.firstName, e.lastName),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
+                            new ActorRole(e.type),
+                        ),
+                ),
+            )
+        })
     }
 
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Serie[]> {
         const series = await this.serieDB
-            .createQueryBuilder()
+            .createQueryBuilder('serie')
             .innerJoinAndSelect('actor.character', 'character')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
                     1 * (criteria.pagination?.limit || 0),
             )
-            .andWhere({
-                title: criteria.term,
+            .where('media.title = :term', {
+                term: `%${criteria.term}%`,
             })
+            .orWhere(
+                'serie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'serie\' and "endDate" is not NULL order by time DESC) as t)',
+            )
             .getMany()
         return series.asyncMap(async (serie) => {
             const actors = await this.representDB

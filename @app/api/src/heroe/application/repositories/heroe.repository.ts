@@ -20,4 +20,7 @@ export interface HeroeRepository extends Repository<HeroeId, Heroe> {
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Heroe[]>
     getHeroesByPowerType(type: PowerType): Promise<Heroe[]>
     getTop5MoreUsedObjects(): Promise<ObjectItem[]>
+    getAll(): Promise<Heroe[]>
+    getAllObjects(): Promise<ObjectItem[]>
+    getAllPowers(): Promise<Power[]>
 }

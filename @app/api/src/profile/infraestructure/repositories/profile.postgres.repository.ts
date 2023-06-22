@@ -78,6 +78,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
                 rating: e.calification.value,
                 idMedia: e.id.value,
                 timestamp: e.timestamp.value,
+                idProfile: aggregate.id.value,
             })),
         )
         await this.preferenceDB.save(
@@ -153,9 +154,9 @@ export class ProfilePostgresRepository implements ProfileRepository {
 
     async getTop10History(id: ProfileId): Promise<History[]> {
         const histories = await this.historyDB
-            .createQueryBuilder()
+            .createQueryBuilder('history')
             .take(10)
-            .addOrderBy('timestamp', 'ASC')
+            .addOrderBy('history.endDate', 'DESC')
             .andWhere({
                 idProfile: id.value,
             })
@@ -172,8 +173,8 @@ export class ProfilePostgresRepository implements ProfileRepository {
     }
     async getProfileHistory(id: ProfileId): Promise<History[]> {
         const histories = await this.historyDB
-            .createQueryBuilder()
-            .addOrderBy('timestamp', 'ASC')
+            .createQueryBuilder('history')
+            .addOrderBy('history.endDate', 'DESC')
             .andWhere({
                 idProfile: id.value,
             })
@@ -192,7 +193,7 @@ export class ProfilePostgresRepository implements ProfileRepository {
     async getTop5ContentPrimiumVIP(): Promise<{ target: HistoryTarget }[]> {
         const membershipVIPPremium = await this.membershipDB
             .createQueryBuilder()
-            .orWhere({
+            .where({
                 type: UserTypes.VIP,
             })
             .orWhere({

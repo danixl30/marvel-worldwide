@@ -1,4 +1,4 @@
-import { Optional } from '@mono/types-utils'
+import { Dictionary, Optional } from '@mono/types-utils'
 import { InjectRepository } from '@nestjs/typeorm'
 import { SearchByCriteriaDTO } from 'src/civil/application/repositories/types/search.criteria.dto'
 import { CombatRepository } from 'src/combat/application/repositories/combat.repository'
@@ -11,6 +11,11 @@ import { Participate } from '../models/postgres/participate.entity'
 import { Utilize } from '../models/postgres/utilize.entity'
 import { CombatDate } from 'src/combat/domain/value-objects/date'
 import { Injectable } from '@nestjs/common'
+import { Character } from 'src/combat/domain/entities/character/character'
+import { CharacterId } from 'src/combat/domain/entities/character/value-objects/id'
+import { objectKeys, objectValues } from '@mono/object-utils'
+import { ObjectId } from 'src/combat/domain/entities/character/value-objects/object'
+import { PowerId } from 'src/combat/domain/entities/character/value-objects/power'
 
 @Injectable()
 export class CombatPostgresRepository implements CombatRepository {
@@ -77,15 +82,45 @@ export class CombatPostgresRepository implements CombatRepository {
             .andWhere({
                 id: id.value,
             })
-            .innerJoinAndSelect(Participate, 'p', 'p.combatId = Combat.id')
-            .innerJoinAndSelect(Utilize, 'u', 'u.combatId = Combat.id')
             .getOne()
         if (!combat) return null
+        const participations = await this.participateDB
+            .createQueryBuilder('part')
+            .innerJoinAndSelect('part.character', 'character')
+            .where({
+                idCombat: combat.id,
+            })
+            .getMany()
+        const utilezes = await this.utilizeDB
+            .createQueryBuilder('utl')
+            .innerJoinAndSelect('utl.character', 'character')
+            .where({
+                idCombat: combat.id,
+            })
+            .getMany()
+        const recordId: Dictionary<{
+            kind: string
+        }> = {}
+        participations.forEach((e) => {
+            recordId[e.idCharacter] = e.character
+        })
+        utilezes.forEach((e) => {
+            recordId[e.idCharacter] = e.character
+        })
+        const charcters = objectKeys(recordId).map((id) => {
+            const powers = participations.filter((e) => e.idCharacter === id)
+            const objects = utilezes.filter((e) => e.idCharacter === id)
+            return new Character(
+                new CharacterId(id, recordId[id].kind),
+                objects.map((object) => new ObjectId(object.idObject)),
+                powers.map((power) => new PowerId(power.idPower)),
+            )
+        })
         return new Combat(
             new CombatId(combat.id),
             new CombatPlace(combat.place),
             new CombatDate(combat.date),
-            [],
+            charcters,
         )
     }
 
@@ -95,8 +130,6 @@ export class CombatPostgresRepository implements CombatRepository {
             .andWhere({
                 id: criteria.term,
             })
-            .innerJoinAndSelect(Participate, 'p', 'p.combatId = Combat.id')
-            .innerJoinAndSelect(Utilize, 'u', 'u.combatId = Combat.id')
             .getMany()
         return combats.map(
             (combat) =>
@@ -110,6 +143,14 @@ export class CombatPostgresRepository implements CombatRepository {
     }
 
     async getTop3Locations(): Promise<CombatPlace[]> {
-        return []
+        const places = await this.combatDB
+            .createQueryBuilder('combat')
+            .select('combat.place')
+            .addSelect('count(combat.place)', 'loc')
+            .groupBy('combat.place')
+            .orderBy('loc', 'DESC')
+            .limit(3)
+            .getRawMany()
+        return places.map((e) => new CombatPlace(e.combat_place))
     }
 }

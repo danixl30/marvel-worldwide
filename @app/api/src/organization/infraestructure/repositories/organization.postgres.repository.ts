@@ -60,6 +60,7 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
                 slogan: aggregate.slogan.value,
                 objetive: aggregate.objetive.value,
                 creationPlace: aggregate.creationPlace.value,
+                idFounder: aggregate.founder.id,
             }),
             ['id'],
         )
@@ -97,9 +98,13 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
     }
 
     async getById(id: OrganizationId): Promise<Optional<Organization>> {
-        const organization = await this.organizationDB.findOneBy({
-            id: id.value,
-        })
+        const organization = await this.organizationDB
+            .createQueryBuilder('organization')
+            .innerJoinAndSelect('organization.founder', 'founder')
+            .where({
+                id: id.value,
+            })
+            .getOne()
         if (!organization) return null
         const leads = await this.leadDB
             .createQueryBuilder('lead')
@@ -129,9 +134,12 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
                 new HeadquarterId(headquarter.id),
                 new HeadquarterName(headquarter.name),
                 new HeadquarterKind(headquarter.edificationType),
-                new HeadquarterPlace(headquarter.location, ''),
+                new HeadquarterPlace(
+                    headquarter.location.split(', ')[0],
+                    headquarter.location.split(', ')[1],
+                ),
             ),
-            new OrganizationFounder(''),
+            new OrganizationFounder(organization.idFounder),
             new CreationPlace(organization.creationPlace),
             belong.map(
                 (e) =>
@@ -144,17 +152,85 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
         )
     }
 
+    async getAll(): Promise<Organization[]> {
+        const organizations = await this.organizationDB
+            .createQueryBuilder('organization')
+            .innerJoinAndSelect('organization.founder', 'founder')
+            .getMany()
+        return organizations.asyncMap(async (organization) => {
+            const leads = await this.leadDB
+                .createQueryBuilder('lead')
+                .innerJoinAndSelect('lead.character', 'character')
+                .where('lead.idOrganization = :id', {
+                    id: organization.id,
+                })
+                .getOne()
+            const belong = await this.belengDB
+                .createQueryBuilder('belong')
+                .innerJoinAndSelect('belong.character', 'character')
+                .where('belong.idOrganization = :id', {
+                    id: organization.id,
+                })
+                .getMany()
+            const headquarter = await this.headquarterDB.findOneBy({
+                id: organization.headquarterId,
+            })
+            if (!headquarter)
+                throw new Error('organization without headquarter')
+            return new Organization(
+                new OrganizationId(organization.id),
+                new OrganizationName(organization.name),
+                new OrganizationObjetive(organization.objetive),
+                new Slogan(organization.slogan),
+                new OrganizationLeader(
+                    leads!.idCharacter,
+                    leads!.character.kind,
+                ),
+                new Headquarter(
+                    new HeadquarterId(headquarter.id),
+                    new HeadquarterName(headquarter.name),
+                    new HeadquarterKind(headquarter.edificationType),
+                    new HeadquarterPlace(headquarter.location, ''),
+                ),
+                new OrganizationFounder(organization.idFounder),
+                new CreationPlace(organization.creationPlace),
+                belong.map(
+                    (e) =>
+                        new Member(
+                            new MemberId(e.idCharacter, e.character.kind),
+                            new MemberCharge(e.charge),
+                        ),
+                ),
+                new FirstAparition(organization.firstApparition),
+            )
+        })
+    }
+
+    async getAllHeadquarters(): Promise<Headquarter[]> {
+        const headquarters = await this.headquarterDB.find()
+        return headquarters.map(
+            (headquarter) =>
+                new Headquarter(
+                    new HeadquarterId(headquarter.id),
+                    new HeadquarterName(headquarter.name),
+                    new HeadquarterKind(headquarter.edificationType),
+                    new HeadquarterPlace(headquarter.location, ''),
+                ),
+        )
+    }
+
     async getByCriteria(
         criteria: SearchByCriteriaDTO,
     ): Promise<Organization[]> {
         const organizations = await this.organizationDB
             .createQueryBuilder('organization')
+            .innerJoinAndSelect('organization.founder', 'founder')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
                     1 * (criteria.pagination?.limit || 0),
             )
-            .andWhere({
+            .where({
                 name: criteria.term,
             })
             .getMany()
@@ -193,7 +269,7 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
                     new HeadquarterKind(headquarter.edificationType),
                     new HeadquarterPlace(headquarter.location, ''),
                 ),
-                new OrganizationFounder(''),
+                new OrganizationFounder(organization.idFounder),
                 new CreationPlace(organization.creationPlace),
                 belong.map(
                     (e) =>

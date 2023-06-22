@@ -11,4 +11,5 @@ export interface CivilRepository extends Repository<CivilId, Civil> {
     getPersonByName(name: PersonName): Promise<Optional<Person>>
     getPersonById(id: PersonId): Promise<Optional<Person>>
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Civil[]>
+    getAll(): Promise<Civil[]>
 }

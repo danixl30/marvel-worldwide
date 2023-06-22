@@ -102,7 +102,7 @@ export class VideogamePostgresRepository implements VideogameRepository {
                 this.appearDB.create({
                     idMedia: aggregate.id.value,
                     idOrganization: organization.value,
-                    type: '',
+                    type: organization.participationType,
                 }),
             ),
         )
@@ -175,11 +175,12 @@ export class VideogamePostgresRepository implements VideogameRepository {
 
     async getAtLeast2WeeksNearRelease(): Promise<Videogame[]> {
         const videogames = await this.videogameDB
-            .createQueryBuilder()
+            .createQueryBuilder('videogame')
             .innerJoinAndSelect('videogame.media', 'media')
-            .andWhere({
-                release: 'BETWEEN (NOW() - INTERVAL 14 DAY) AND NOW()',
-            })
+            .where("media.release BETWEEN now() - interval '2 week' AND NOW()")
+            .andWhere(
+                'videogame.id in (select "idMedia" from calification order by rating DESC)',
+            )
             .orderBy('release', 'DESC')
             .getMany()
         return videogames.asyncMap(async (videogame) => {
@@ -222,21 +223,69 @@ export class VideogamePostgresRepository implements VideogameRepository {
     }
 
     async getTrending(profileId: ProfileId): Promise<Videogame[]> {
-        return []
+        const videogames = await this.videogameDB
+            .createQueryBuilder('videogame')
+            .innerJoinAndSelect('videogame.media', 'media')
+            .where(
+                'videogame.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "idProfile" = :id and "mediaKind" = \'videogame\' and "endDate" is not NULL order by time DESC) as t) or videogame.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'videogame\' and "endDate" is not NULL order by time DESC) as t) or videogame.id in (select "idMedia" from calification order by rating DESC)',
+                {
+                    id: profileId.value,
+                },
+            )
+            .limit(10)
+            .getMany()
+        return videogames.asyncMap(async (videogame) => {
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: videogame.id,
+                })
+                .getMany()
+            const appear = await this.appearDB.findBy({
+                idMedia: videogame.id,
+            })
+            const platforms = await this.platformDB.findBy({
+                idVideogame: videogame.id,
+            })
+            return new Videogame(
+                new VideogameId(videogame.id),
+                new VideogameTitle(videogame.media.title),
+                new VideogameSynopsis(videogame.media.synopsis),
+                new ReleaseDate(videogame.media.release),
+                new VideogameCreator(videogame.media.creator),
+                new VideogameType(videogame.type),
+                new Comic(videogame.media.comic),
+                appear.map(
+                    (e) => new OrganizationRef(e.idOrganization, e.type),
+                ),
+                platforms.map((e) => new VideogamePlatform(e.name)),
+                actors.map(
+                    (e) =>
+                        new Actor(
+                            new ActorId(e.id),
+                            new ActorName(e.firstName, e.lastName),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
+                            new ActorRole(e.type),
+                        ),
+                ),
+            )
+        })
     }
 
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Videogame[]> {
         const videogames = await this.videogameDB
-            .createQueryBuilder()
+            .createQueryBuilder('videogame')
             .innerJoinAndSelect('videogame.media', 'media')
             .limit(criteria.pagination?.limit || 10)
             .skip(
                 (criteria.pagination?.page || 1) -
                     1 * (criteria.pagination?.limit || 0),
             )
-            .andWhere({
-                title: criteria.term,
-            })
+            .where(`media.title like '%${criteria.term}%'`)
+            .orWhere(
+                'videogame.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'videogame\' and "endDate" is not NULL order by time DESC) as t)',
+            )
             .getMany()
         return videogames.asyncMap(async (videogame) => {
             const actors = await this.representDB

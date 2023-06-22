@@ -35,6 +35,7 @@ export class History {
     initDate: Date
     @Column({
         type: 'timestamp',
+        nullable: true,
     })
     endDate?: Date
     @Column({

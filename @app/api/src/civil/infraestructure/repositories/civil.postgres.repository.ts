@@ -96,6 +96,39 @@ export class CivilPostgresRepository implements CivilRepository {
         )
     }
 
+    async getAll(): Promise<Civil[]> {
+        const civils = await this.civilDB
+            .createQueryBuilder('civil')
+            .innerJoinAndSelect('civil.character', 'character')
+            .innerJoinAndSelect('character.person', 'person')
+            .innerJoinAndSelect('civil.relation', 'relation')
+            .getMany()
+        return civils.asyncMap(async (e) => {
+            const person = e.character.person
+            const ocupations = await this.ocupationDB.findBy({
+                idPerson: person.id,
+            })
+            const nationalities = await this.nationalityDB.findBy({
+                idPerson: person.id,
+            })
+            return new Civil(
+                new CivilId(e.id),
+                new Person(
+                    new PersonId(person.id),
+                    new PersonName(person.firstName, person.lastName),
+                    new PersonGender(person.gender),
+                    new Phrase(person.phrase),
+                    new MaritialStatus(person.maritialState),
+                    new PersonHair(person.hairColor),
+                    new PersonEye(person.eyesColor),
+                    ocupations.map((e) => new PersonOccupation(e.name)),
+                    nationalities.map((e) => new PersonNationality(e.name)),
+                ),
+                new CivilRelationship(e.idRelation, e.relation.kind),
+            )
+        })
+    }
+
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Civil[]> {
         const civils = await this.civilDB
             .createQueryBuilder('civil')

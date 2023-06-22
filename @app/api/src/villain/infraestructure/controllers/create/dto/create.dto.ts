@@ -7,19 +7,52 @@ import {
 import { Genders } from 'src/heroe/domain/entities/person/value-objects/gender'
 import { MaritialStatuses } from 'src/heroe/domain/entities/person/value-objects/maritial.status'
 
+export class CreatePersonDTO {
+    @ApiProperty()
+    name: string
+    @ApiProperty()
+    phrase: string
+    @ApiProperty()
+    lastName: string
+    @ApiProperty()
+    nationalities: string[]
+    @ApiProperty()
+    occupations: string[]
+    @ApiProperty()
+    hairColor: string
+    @ApiProperty()
+    eyesColor: string
+    @ApiProperty()
+    maritialStatus: MaritialStatuses
+    @ApiProperty()
+    gender: Genders
+}
+
+export class CreateObjectDTO {
+    @ApiProperty()
+    name: string
+    @ApiProperty()
+    description: string
+    @ApiProperty()
+    material: string
+    @ApiProperty()
+    creator: string
+    @ApiProperty()
+    kind: string
+}
+
+export class CreatePowerDTO {
+    @ApiProperty()
+    name: string
+    @ApiProperty()
+    description: string
+    @ApiProperty()
+    type: string
+}
+
 export class CreateVillainDTO {
     @ApiProperty()
-    person?: {
-        name: string
-        phrase: string
-        lastName: string
-        nationalities: string[]
-        occupations: string[]
-        hairColor: string
-        eyesColor: string
-        maritialStatus: MaritialStatuses
-        gender: Genders
-    }
+    person?: CreatePersonDTO
     @ApiProperty()
     @IsOptional()
     @IsUUID()
@@ -28,9 +61,13 @@ export class CreateVillainDTO {
     objectsId: string[]
     @ApiProperty()
     powersId: string[]
-    @ApiProperty()
+    @ApiProperty({
+        type: [CreateObjectDTO],
+    })
     objects: ObjectDTO[]
-    @ApiProperty()
+    @ApiProperty({
+        type: [CreatePowerDTO],
+    })
     powers: PowerDTO[]
     @ApiProperty()
     @IsString()

@@ -3,7 +3,8 @@ import { regExpUUID } from 'src/utils/reg-exps/UUID'
 
 export class MemberId implements ValueObject<MemberId> {
     constructor(private readonly _id: string, private readonly _kind: string) {
-        if (!regExpUUID.test(_id) || _kind) throw new Error('Invalid member id')
+        if (!regExpUUID.test(_id) || !_kind)
+            throw new Error('Invalid member id')
     }
 
     get id() {

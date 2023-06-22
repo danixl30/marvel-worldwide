@@ -25,7 +25,9 @@ export class GetOrganizationByIdController
     @Get('detail/:id')
     @ApiHeader({ name: 'auth' })
     @UseGuards(AuthCuard)
-    async execute(@Param() id: string): Promise<GetOrganizationByIdResponse> {
+    async execute(
+        @Param('id') id: string,
+    ): Promise<GetOrganizationByIdResponse> {
         const resp = await new GetOrganizationByIdQuery(
             this.organizationRepository,
             this.heroeRepository,

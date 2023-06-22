@@ -1,13 +1,42 @@
 import { ApiProperty } from '@nestjs/swagger'
 
+export class CreateLeaderDTO {
+    @ApiProperty()
+    id: string
+    @ApiProperty()
+    kind: string
+}
+
+export class PlaceDTO {
+    @ApiProperty()
+    country: string
+    @ApiProperty()
+    city: string
+}
+
+export class CreateHeadquarterDTO {
+    @ApiProperty()
+    name: string
+    @ApiProperty()
+    place: PlaceDTO
+    @ApiProperty()
+    kind: string
+}
+
+export class CreateMemberDTO {
+    @ApiProperty()
+    id: string
+    @ApiProperty()
+    kind: string
+    @ApiProperty()
+    charge: string
+}
+
 export class CreateOrganizationDTO {
     @ApiProperty()
     name: string
     @ApiProperty()
-    leader: {
-        id: string
-        kind: string
-    }
+    leader: CreateLeaderDTO
     @ApiProperty()
     objetive: string
     @ApiProperty()
@@ -19,20 +48,11 @@ export class CreateOrganizationDTO {
     @ApiProperty()
     headquarterId?: string
     @ApiProperty()
-    headquarter?: {
-        name: string
-        place: {
-            country: string
-            city: string
-        }
-        kind: string
-    }
-    @ApiProperty()
-    members: {
-        id: string
-        kind: string
-        charge: string
-    }[]
+    headquarter?: CreateHeadquarterDTO
+    @ApiProperty({
+        type: [CreateMemberDTO],
+    })
+    members: CreateMemberDTO[]
     @ApiProperty()
     firstApparition: string
 }

@@ -266,6 +266,95 @@ export class HeroePostgresRepository implements HeroeRepository {
         )
     }
 
+    async getAll(): Promise<Heroe[]> {
+        const heroes = await this.heroeDB
+            .createQueryBuilder()
+            .innerJoinAndSelect('heroe.character', 'character')
+            .getMany()
+        return heroes.asyncMap(async (heroe) => {
+            const person = await this.getPersonById(
+                new PersonId(heroe.character.personId),
+            )
+            if (!person) throw new Error('Person not found')
+            const colors = await this.colorDB.findBy({
+                idHeroe: heroe.id,
+            })
+            const objects = await this.useDB
+                .createQueryBuilder('use')
+                .innerJoinAndSelect('use.objectItem', 'object')
+                .where('use.idCharacter = :idHe', {
+                    idHe: heroe.id,
+                })
+                .getMany()
+            const powers = await this.ownDB
+                .createQueryBuilder('own')
+                .innerJoinAndSelect('own.power', 'power')
+                .where('own.idCharacter = :idHe', {
+                    idHe: heroe.id,
+                })
+                .getMany()
+            return new Heroe(
+                new HeroeId(heroe.id),
+                new HeroeName(heroe.name),
+                person,
+                new Logo(heroe.logo),
+                new HeroeCreator('', ''),
+                new ArchEnemy(heroe.idArchEnemy),
+                colors.map((e) => new SuitColor(e.color)),
+                powers.map(
+                    (e) =>
+                        new Power(
+                            new PowerId(e.idPower),
+                            new PowerName(e.power.name),
+                            new PowerDescription(e.power.description),
+                            new PowerType(e.power.type),
+                        ),
+                ),
+                objects.map(
+                    (e) =>
+                        new ObjectItem(
+                            new ObjectId(e.idObject),
+                            new ObjectName(e.objectItem.name),
+                            new ObjectDescription(e.objectItem.description),
+                            new ObjectKind(e.objectItem.type),
+                            new ObjectMaterial(e.objectItem.material),
+                            new ObjectCreator(e.objectItem.creator),
+                        ),
+                ),
+            )
+        })
+    }
+
+    async getAllPowers(): Promise<Power[]> {
+        const powers = await this.powerDB.find()
+        return powers.map(
+            (power) =>
+                new Power(
+                    new PowerId(power.id),
+                    new PowerName(power.name),
+                    new PowerDescription(power.description),
+                    new PowerType(power.type),
+                ),
+        )
+    }
+
+    async getAllObjects(): Promise<ObjectItem[]> {
+        const objects = await this.objectDB
+            .createQueryBuilder('object')
+            .getMany()
+        return objects.map(
+            (e) =>
+                new ObjectItem(
+                    new ObjectId(e.id),
+                    new ObjectName(e.name),
+                    new ObjectDescription(e.description),
+                    new ObjectKind(e.type),
+                    new ObjectMaterial(e.material),
+                    new ObjectCreator(e.creator),
+                ),
+        )
+    }
+
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Heroe[]> {
         const heroes = await this.heroeDB
             .createQueryBuilder()

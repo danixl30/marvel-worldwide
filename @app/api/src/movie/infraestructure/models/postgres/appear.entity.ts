@@ -1,16 +1,7 @@
-import {
-    Column,
-    Entity,
-    JoinColumn,
-    ManyToOne,
-    PrimaryColumn,
-    PrimaryGeneratedColumn,
-} from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 import { Organization } from 'src/organization/infraestructure/models/postgres/organization.entity'
-import { Movie } from './movie.entity'
-import { Serie } from 'src/serie/infraestructure/models/postgres/serie.entity'
-import { Videogame } from 'src/videogame/infraestructure/models/postgres/videogame.entity'
 import { Media } from './media.entity'
+import { OrgParticipationType } from 'src/movie/domain/value-objects/organization'
 
 @Entity()
 export class Appear {
@@ -33,11 +24,8 @@ export class Appear {
     })
     idOrganization: string
     @Column({
-        type: 'varchar',
+        type: 'enum',
+        enum: OrgParticipationType,
     })
-    type: string
-    @Column({
-        type: 'varchar',
-    })
-    finalState: string
+    type: OrgParticipationType
 }

@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 import { Headquarter } from './headquarter.entity'
+import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
 
 @Entity()
 export class Organization {
@@ -8,6 +9,15 @@ export class Organization {
         name: 'headquarterId',
     })
     headquarter: Headquarter
+    @ManyToOne(() => Character)
+    @JoinColumn({
+        name: 'idFounder',
+    })
+    founder: Character
+    @PrimaryColumn({
+        type: 'uuid',
+    })
+    idFounder: string
     @PrimaryColumn({
         type: 'uuid',
     })

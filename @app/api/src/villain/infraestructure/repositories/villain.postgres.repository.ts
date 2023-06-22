@@ -292,21 +292,27 @@ export class VillainPostgresRepository implements VillainRepository {
     }
 
     async getSuperInheritedPowersUsedAtLeast2(): Promise<Power[]> {
-        return []
+        const powers = await this.powerDB
+            .createQueryBuilder('power')
+            .where(
+                'power.id IN (Select sub2."idPower" from (Select "idPower" from own where "idCharacter" in (Select own."idCharacter" from own inner join character as cha on (cha.id = own."idCharacter") where cha.kind = \'villain\' group by own."idCharacter" having count(own."idCharacter") >= 2)) as sub2) and name = \'%Super%\' and type = \'inherited\'',
+            )
+            .getMany()
+        return powers.map(
+            (e) =>
+                new Power(
+                    new PowerId(e.id),
+                    new PowerName(e.name),
+                    new PowerDescription(e.description),
+                    new PowerType(e.type),
+                ),
+        )
     }
 
-    async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Villain[]> {
+    async getAll(): Promise<Villain[]> {
         const villains = await this.villainDB
-            .createQueryBuilder()
+            .createQueryBuilder('villain')
             .innerJoinAndSelect('villain.character', 'character')
-            .limit(criteria.pagination?.limit || 10)
-            .skip(
-                (criteria.pagination?.page || 1) -
-                    1 * (criteria.pagination?.limit || 0),
-            )
-            .andWhere({
-                name: criteria.term,
-            })
             .getMany()
         return villains.asyncMap(async (villain) => {
             const person = await this.getPersonById(
@@ -316,7 +322,7 @@ export class VillainPostgresRepository implements VillainRepository {
             const objects = await this.useDB
                 .createQueryBuilder('use')
                 .innerJoinAndSelect('use.objectItem', 'object')
-                .where('use.idVillain = :idVi', {
+                .where('use.idCharacter = :idVi', {
                     idVi: villain.id,
                 })
                 .getMany()
@@ -329,7 +335,77 @@ export class VillainPostgresRepository implements VillainRepository {
             const powers = await this.ownDB
                 .createQueryBuilder('own')
                 .innerJoinAndSelect('own.power', 'power')
-                .where('own.idVillain = :idVi', {
+                .where('own.idCharacter = :idVi', {
+                    idVi: villain.id,
+                })
+                .getMany()
+            return new Villain(
+                new VillainId(villain.id),
+                new VillainName(villain.name),
+                person,
+                new VillainObjetive(villain.objetive),
+                new Logo(villain.logo),
+                antagonists.map((e) => new Enemy(e.idHeroe)),
+                enemyGroups.map((e) => new EnemyGroup(e.idOrganization)),
+                powers.map(
+                    (e) =>
+                        new Power(
+                            new PowerId(e.idPower),
+                            new PowerName(e.power.name),
+                            new PowerDescription(e.power.description),
+                            new PowerType(e.power.type),
+                        ),
+                ),
+                objects.map(
+                    (e) =>
+                        new ObjectItem(
+                            new ObjectId(e.idObject),
+                            new ObjectName(e.objectItem.name),
+                            new ObjectDescription(e.objectItem.description),
+                            new ObjectKind(e.objectItem.type),
+                            new ObjectMaterial(e.objectItem.material),
+                            new ObjectCreator(e.objectItem.creator),
+                        ),
+                ),
+            )
+        })
+    }
+
+    async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Villain[]> {
+        const villains = await this.villainDB
+            .createQueryBuilder('villain')
+            .innerJoinAndSelect('villain.character', 'character')
+            .limit(criteria.pagination?.limit || 10)
+            .skip(
+                (criteria.pagination?.page || 1) -
+                    1 * (criteria.pagination?.limit || 0),
+            )
+            .where('villain.name like :term', {
+                term: `%${criteria.term}%`,
+            })
+            .getMany()
+        return villains.asyncMap(async (villain) => {
+            const person = await this.getPersonById(
+                new PersonId(villain.character.personId),
+            )
+            if (!person) throw new Error('Person not found')
+            const objects = await this.useDB
+                .createQueryBuilder('use')
+                .innerJoinAndSelect('use.objectItem', 'object')
+                .where('use.idCharacter = :idVi', {
+                    idVi: villain.id,
+                })
+                .getMany()
+            const antagonists = await this.antagonistDB.findBy({
+                idVillain: villain.id,
+            })
+            const enemyGroups = await this.antagonistGroupDB.findBy({
+                idVillain: villain.id,
+            })
+            const powers = await this.ownDB
+                .createQueryBuilder('own')
+                .innerJoinAndSelect('own.power', 'power')
+                .where('own.idCharacter = :idVi', {
                     idVi: villain.id,
                 })
                 .getMany()
@@ -431,10 +507,10 @@ export class VillainPostgresRepository implements VillainRepository {
 
     async getVillainsByPowerType(type: PowerType): Promise<Villain[]> {
         const villains = await this.villainDB
-            .createQueryBuilder()
+            .createQueryBuilder('villain')
             .innerJoinAndSelect('villain.character', 'character')
             .limit(5)
-            .innerJoinAndSelect(Own, 'own', 'own.idCharcter = Villain.id')
+            .innerJoinAndSelect(Own, 'own', 'own.idCharacter = Villain.id')
             .innerJoinAndSelect(PowerDB, 'power', 'power.id = own.idPower')
             .where('power.type = :type', {
                 type: type.value,
@@ -448,7 +524,7 @@ export class VillainPostgresRepository implements VillainRepository {
             const objects = await this.useDB
                 .createQueryBuilder('use')
                 .innerJoinAndSelect('use.objectItem', 'object')
-                .where('use.idVillain = :idVi', {
+                .where('use.idCharacter = :idVi', {
                     idVi: villain.id,
                 })
                 .getMany()
@@ -461,7 +537,7 @@ export class VillainPostgresRepository implements VillainRepository {
             const powers = await this.ownDB
                 .createQueryBuilder('own')
                 .innerJoinAndSelect('own.power', 'power')
-                .where('own.idVillain = :idVi', {
+                .where('own.idCharacter = :idVi', {
                     idVi: villain.id,
                 })
                 .getMany()
