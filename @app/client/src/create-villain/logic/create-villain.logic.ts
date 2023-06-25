@@ -2,6 +2,13 @@ import { Optional } from '@mono/types-utils'
 import { InputManager } from '../../core/application/input-manager'
 import { StateFactory } from '../../core/application/state/state-factory'
 import { ToastProvider } from '../../core/application/toast/toast'
+import { OnInitJob } from '../../core/application/on-init-job/on-init-job'
+import { getAllHeroesApplicationService } from '../application/get.all.heroes'
+import { getAllObjectsApplicationService } from '../../create-heroe/application/get.all.objects'
+import { getAllPowersApplicationService } from '../../create-heroe/application/get.all.powers'
+import { createVillainApplicationService } from '../application/create.villain.service'
+import { OnInitJobLazy } from '../../core/application/on-init-job/lazy/on-init-job-lazy'
+import { Alerts } from '../../core/application/toast/types/alerts'
 
 type PowerInput = {
     name: string
@@ -27,7 +34,67 @@ export const createVillainLogic = (
     stateFactory: StateFactory,
     inputManagerFactory: InputManager,
     toastManager: ToastProvider,
+    onInitJobFactory: OnInitJob,
+    onInitJobLazy: OnInitJobLazy,
+    getHeroesService: ReturnType<typeof getAllHeroesApplicationService>,
+    getAllObjectsService: ReturnType<typeof getAllObjectsApplicationService>,
+    getAllPowersService: ReturnType<typeof getAllPowersApplicationService>,
+    createVillainService: ReturnType<typeof createVillainApplicationService>,
 ) => {
+    const heroesJob = onInitJobFactory(() =>
+        getHeroesService.execute(undefined),
+    )
+    const powersJob = onInitJobFactory(() =>
+        getAllPowersService.execute(undefined),
+    )
+    const objectsJob = onInitJobFactory(() =>
+        getAllObjectsService.execute(undefined),
+    )
+
+    const createVillainTask = onInitJobLazy(
+        () =>
+            createVillainService.execute({
+                name: nameInput.value.value,
+                personId: personId.state.value || undefined,
+                person: personId.state.value
+                    ? undefined
+                    : {
+                          name: personNameInput.value.value,
+                          nationalities: nationalities.state.value,
+                          occupations: occupations.state.value,
+                          hairColor: hairColorInput.value.value,
+                          eyesColor: eyesColorInput.value.value,
+                          gender: genderStatusInput.value.value,
+                          maritialStatus: maritialStatusInput.value.value,
+                          lastName: 'lastName',
+                          phrase: phrseInput.value.value,
+                      },
+                objectsId: objectIds.state.value,
+                powersId: powerIds.state.value,
+                powers: powers.state.value,
+                objects: objects.state.value,
+                enemieGroups: [],
+                enemies: enemiesIds.state.value,
+                objetive: objetiveInput.value.value,
+                logo: 'logo',
+                creator: {
+                    firstName: creatorFirstNameInput.value.value,
+                    lastName: creatorLastNameNameInput.value.value,
+                },
+            }),
+        () => {
+            const pending = toastManager.pending('Creating')
+            return {
+                success: () => {
+                    pending('Villain created!!!', Alerts.SUCCESS)
+                },
+                error: (_e) => {
+                    pending('Error creating villain', Alerts.ERROR)
+                },
+            }
+        },
+    )
+
     const personNameInput = inputManagerFactory(
         '',
         (data) => {
@@ -38,12 +105,35 @@ export const createVillainLogic = (
     )
     const phrseInput = inputManagerFactory(
         '',
-        (data) => {
+        () => {
+            return ''
+        },
+        (data) => data,
+    )
+    const enemyInput = inputManagerFactory(
+        '',
+        () => {
             return ''
         },
         (data) => data,
     )
     const hairColorInput = inputManagerFactory(
+        '',
+        (data) => {
+            if (data.length < 6) return 'Invalid person name'
+            return ''
+        },
+        (data) => data,
+    )
+    const nationalityInput = inputManagerFactory(
+        '',
+        (data) => {
+            if (data.length < 6) return 'Invalid person name'
+            return ''
+        },
+        (data) => data,
+    )
+    const occupationInput = inputManagerFactory(
         '',
         (data) => {
             if (data.length < 6) return 'Invalid person name'
@@ -219,7 +309,7 @@ export const createVillainLogic = (
     }
 
     const addOccupation = (oc: string) => {
-        if (occupations.state.value.filter((e) => e === oc)) return
+        if (occupations.state.value.find((e) => e === oc)) return
         occupations.setState([...occupations.state.value, oc])
     }
 
@@ -315,4 +405,71 @@ export const createVillainLogic = (
                 !maritialStatusInput.error.value &&
                 genderStatusInput.value.value &&
                 !genderStatusInput.error.value))
+
+    const submit = async () => {
+        if (!isSubmitable()) {
+            toastManager.error('Invalid villain')
+            return
+        }
+        await createVillainTask.do().catch((e) => console.log(e))
+    }
+
+    return {
+        submit,
+        isSubmitable,
+        personId: personId.state,
+        personNameInput,
+        nameInput,
+        objects: objects.state,
+        powers: powers.state,
+        powerIds: powerIds.state,
+        powerNameInput,
+        powerTypeInput,
+        powerDescriptionInput,
+        powerInputIsSubmitable,
+        objectIds: objectIds.state,
+        objetiveInput,
+        objectKindInput,
+        objectNameInput,
+        objectCreatorInput,
+        objectMaterialInput,
+        objectDescriptionInput,
+        objectInputIsSubmitable,
+        addEnemyId,
+        addPowerId,
+        addObjectcId,
+        addOccupation,
+        addNationality,
+        occupations: occupations.state,
+        nationalities: nationalities.state,
+        submitAddPower,
+        submitAddObject,
+        removeObject,
+        removePower,
+        removeEnemyId,
+        removePowerId,
+        removeObjectId,
+        removeOccupation,
+        removeNationality,
+        heroes: heroesJob.data,
+        isLoadingHeroes: heroesJob.isLoading,
+        errorHeroes: heroesJob.error,
+        powersSelect: powersJob.data,
+        isLoadingPowers: powersJob.isLoading,
+        errorPowers: powersJob.error,
+        objectsSelect: objectsJob.data,
+        isLoadingObjects: objectsJob.isLoading,
+        errorObjects: objectsJob.error,
+        creatorFirstNameInput,
+        creatorLastNameNameInput,
+        hairColorInput,
+        eyesColorInput,
+        nationalityInput,
+        occupationInput,
+        genderStatusInput,
+        maritialStatusInput,
+        phrseInput,
+        enemyInput,
+        enemiesIds: enemiesIds.state,
+    }
 }

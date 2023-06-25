@@ -24,6 +24,15 @@ export type CreateSerieDTO = {
     }[]
 }
 
+export type GetSeriesByCriteriaResponse = {
+    id: string
+    title: string
+    synopsis: string
+    episodes: number
+    rating: number
+}[]
+
 export type SerieRepository = {
     create(data: CreateSerieDTO): Promise<void>
+    getSeriesEpisodesGreaterThanAverage(): Promise<GetSeriesByCriteriaResponse>
 }

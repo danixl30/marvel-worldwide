@@ -2,6 +2,7 @@ import { OnInitJob } from '../../../core/application/on-init-job/on-init-job'
 import { NavigationManager } from '../../../core/application/router/router.manager'
 import { SessionManager } from '../../../core/application/session/session.manager'
 import { CREATE_PROFILE } from '../../../create-profile/presentation/page/page'
+import { HOME_PAGE } from '../../../home/page/page'
 import { MAIN_PAGE } from '../../../main/presentation/page/route'
 import { GetProfilesResponse } from '../../../profile/application/services/dto/profile.list'
 import { getProfilesService } from '../../../profile/application/services/get.profiles'
@@ -25,6 +26,11 @@ export const chooseProfileLogic = (
         navigationManager.goTo(CREATE_PROFILE)
     }
 
+    const selectProfile = (id: string) => {
+        sessionManager.setProfile(id)
+        navigationManager.goTo(HOME_PAGE)
+    }
+
     const logout = () => {
         sessionManager.removeProfile()
         sessionManager.deleteSession()
@@ -37,5 +43,6 @@ export const chooseProfileLogic = (
         error,
         isLoading,
         logout,
+        selectProfile,
     }
 }

@@ -19,7 +19,7 @@ export class GetSeriesWithMoreEpisodesThanAverageController
 {
     constructor(private serieRepository: SeriePostgresRepository) {}
 
-    @Get('episodel/greater/average')
+    @Get('episodes/greater/average')
     @ApiHeader({ name: 'auth' })
     @UseGuards(AuthCuard)
     async execute(): Promise<GetSeriesByCriteriaResponse> {

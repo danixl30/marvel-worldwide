@@ -9,12 +9,16 @@ export class Organization {
         name: 'headquarterId',
     })
     headquarter: Headquarter
+    @Column({
+        type: 'uuid',
+    })
+    headquarterId: string
     @ManyToOne(() => Character)
     @JoinColumn({
         name: 'idFounder',
     })
     founder: Character
-    @PrimaryColumn({
+    @Column({
         type: 'uuid',
     })
     idFounder: string
@@ -46,8 +50,4 @@ export class Organization {
         type: 'varchar',
     })
     firstApparition: string
-    @Column({
-        type: 'uuid',
-    })
-    headquarterId: string
 }

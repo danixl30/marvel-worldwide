@@ -2,6 +2,12 @@ import { Optional } from '@mono/types-utils'
 import { InputManager } from '../../core/application/input-manager'
 import { StateFactory } from '../../core/application/state/state-factory'
 import { ToastProvider } from '../../core/application/toast/toast'
+import { OnInitJob } from '../../core/application/on-init-job/on-init-job'
+import { OnInitJobLazy } from '../../core/application/on-init-job/lazy/on-init-job-lazy'
+import { getAllCharactersApplicationService } from '../application/get.all.characters'
+import { getAllOrganizationsApplicationService } from '../application/get.all.organizations'
+import { createVideogameApplicationService } from '../application/create.videogame'
+import { Alerts } from '../../core/application/toast/types/alerts'
 
 export const videogameTypes = [
     'action',
@@ -41,7 +47,47 @@ export const createVideogameLogic = (
     stateFactory: StateFactory,
     inputManagerFactory: InputManager,
     toastManager: ToastProvider,
+    onInitJobFactory: OnInitJob,
+    onInitJobLazy: OnInitJobLazy,
+    getAllCharacters: ReturnType<typeof getAllCharactersApplicationService>,
+    getAllOrganizations: ReturnType<
+        typeof getAllOrganizationsApplicationService
+    >,
+    createVideogame: ReturnType<typeof createVideogameApplicationService>,
 ) => {
+    const charactersTask = onInitJobFactory(() =>
+        getAllCharacters.execute(undefined),
+    )
+    const organizationsTask = onInitJobFactory(() =>
+        getAllOrganizations.execute(undefined),
+    )
+
+    const createVideogameTask = onInitJobLazy(
+        () =>
+            createVideogame.execute({
+                title: titleInput.value.value,
+                synopsis: synopsisInput.value.value,
+                release: releaseState.state.value!,
+                creator: creatorInput.value.value,
+                type: typeInput.value.value,
+                actors: actors.state.value,
+                platforms: platforms.state.value,
+                comic: comicInput.value.value,
+                organizations: organizations.state.value,
+            }),
+        () => {
+            const pending = toastManager.pending('Creating')
+            return {
+                success: () => {
+                    pending('Videogame created!!!', Alerts.SUCCESS)
+                },
+                error: (_e) => {
+                    pending('Error creating videogame', Alerts.ERROR)
+                },
+            }
+        },
+    )
+
     const titleInput = inputManagerFactory(
         '',
         (data) => {
@@ -77,7 +123,7 @@ export const createVideogameLogic = (
     const comicInput = inputManagerFactory(
         '',
         (data) => {
-            if (!videogameTypes.find((e) => e === data)) return 'Invalid type'
+            if (data.length < 6) return 'Invalid comic'
             return ''
         },
         (data) => data,
@@ -189,10 +235,52 @@ export const createVideogameLogic = (
         typeInput.value.value &&
         !typeInput.error.value &&
         synopsisInput.value.value &&
-        !synopsisInput.value.value &&
+        !synopsisInput.error.value &&
         creatorInput.value.value &&
         !creatorInput.error.value &&
         releaseState.state.value &&
         comicInput.value.value &&
         !comicInput.error.value
+
+    const submit = async () => {
+        if (!isSubmitable()) {
+            toastManager.error('Invalid videogame')
+            return
+        }
+        await createVideogameTask.do().catch((e) => console.log(e))
+    }
+
+    return {
+        comicInput,
+        release: releaseState.state,
+        creatorInput,
+        onChangeRelease,
+        submit,
+        isSubmitable,
+        addOrganization,
+        organizations: organizations.state,
+        titleInput,
+        synopsisInput,
+        platforms: platforms.state,
+        addPlatform,
+        removePlatform,
+        actors: actors.state,
+        addActor,
+        removeActor,
+        typeInput,
+        submitAddActor,
+        removeOrganization,
+        setCharacter,
+        character: character.state,
+        actorRoleInput,
+        actorLastNameInput,
+        actorFirstNameInput,
+        characters: charactersTask.data,
+        isLoadingCharacters: charactersTask.isLoading,
+        errorCharacters: charactersTask.error,
+        organizationsOptions: organizationsTask.data,
+        isLoadingOrgs: organizationsTask.isLoading,
+        errorOrganizations: organizationsTask.error,
+        actorAddSubmitable,
+    }
 }

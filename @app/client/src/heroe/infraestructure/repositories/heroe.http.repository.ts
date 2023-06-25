@@ -2,13 +2,15 @@ import { CancelHandler, HttpHandler } from '../../../core/application/http'
 import { SessionManager } from '../../../core/application/session/session.manager'
 import {
     CreateHeroeDTO,
+    GetHeroesThatHaveArtificialPowersAndLeaderResponse,
+    GetTop5MoreUsedObjectsResponse,
     HeroeList,
     HeroeRepository,
     ObjectList,
     PowerList,
 } from '../../application/repositories/heroe.repository'
 
-export const organizationHttpRepository = (
+export const heroeHttpRepository = (
     httpHandler: HttpHandler,
     session: SessionManager,
     cancelHandler: CancelHandler,
@@ -63,10 +65,43 @@ export const organizationHttpRepository = (
         return resp.body
     }
 
+    const getHeroesWithArtificialPowersAndLeader = async () => {
+        const { job, cancel } = httpHandler.get<
+            unknown,
+            GetHeroesThatHaveArtificialPowersAndLeaderResponse
+        >({
+            url: '/heroe/artificial/powers/leader',
+            headers: {
+                auth: session.getSession() || '',
+            },
+        })
+        cancelHandler.subscribeCancel(cancel)
+        const resp = await job()
+        cancelHandler.unsubscribeCancel(cancel)
+        return resp.body
+    }
+    const getTop5MoreUsedObjects = async () => {
+        const { job, cancel } = httpHandler.get<
+            unknown,
+            GetTop5MoreUsedObjectsResponse
+        >({
+            url: '/heroe/top5/use/objects',
+            headers: {
+                auth: session.getSession() || '',
+            },
+        })
+        cancelHandler.subscribeCancel(cancel)
+        const resp = await job()
+        cancelHandler.unsubscribeCancel(cancel)
+        return resp.body
+    }
+
     return {
         create,
         getAll,
         getAllPowers,
         getAllObjects,
+        getHeroesWithArtificialPowersAndLeader,
+        getTop5MoreUsedObjects,
     }
 }

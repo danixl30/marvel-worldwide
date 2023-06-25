@@ -14,7 +14,7 @@ export class GetTop5MoreUsedObjectsController
 {
     constructor(private readonly heroeRepository: HeroePostgresRepository) {}
 
-    @Get('top5/user/powers')
+    @Get('top5/use/objects')
     @ApiHeader({ name: 'auth' })
     @UseGuards(AuthCuard)
     async execute(): Promise<GetTop5MoreUsedObjectsResponse> {

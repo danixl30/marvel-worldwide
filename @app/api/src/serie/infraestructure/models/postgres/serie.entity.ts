@@ -1,4 +1,5 @@
 import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
+import { serieTypes } from 'src/serie/domain/value-objects/type'
 import {
     Check,
     Column,
@@ -29,7 +30,8 @@ export class Serie {
     })
     channel: string
     @Column({
-        type: 'varchar',
+        type: 'enum',
+        enum: serieTypes,
     })
     type: string
 }

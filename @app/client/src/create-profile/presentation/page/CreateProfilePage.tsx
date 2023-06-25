@@ -26,6 +26,9 @@ import { cancelHandler } from '../../../core/infraestructure/http/cancel-handler
 import { useRefValueProvider } from '../../../core/infraestructure/value-provider/useRefValueProvider'
 import { useEffectOnInit } from '../../../core/infraestructure/on-init/useEffectOnInit'
 import { useRouterDomNavigation } from '../../../core/infraestructure/router/router-dom/react-router-dom-navigation'
+import { movieTypes } from '../../../create-movie/logic/create-movie.logic'
+import { serieTypes } from '../../../create-serie/logic/create-serie.logic'
+import { videogameTypes } from '../../../create-videogame/logic/create-videogame.logic'
 
 const languages = [
     'espanol',
@@ -78,18 +81,6 @@ export default function CreateProfilePage() {
         emailInput.onChange(e.target.value)
     }
 
-    const onChangeSubPreference3Input = (e: ChangeEvent<FormElement>) => {
-        onChangeSubPreference3(e.target.value)
-    }
-
-    const onChangeSubPreference2Input = (e: ChangeEvent<FormElement>) => {
-        onChangeSubPreference2(e.target.value)
-    }
-
-    const onChangeSubPreference1Input = (e: ChangeEvent<FormElement>) => {
-        onChangeSubPreference1(e.target.value)
-    }
-
     return (
         <>
             <Container>
@@ -140,6 +131,34 @@ export default function CreateProfilePage() {
                                 <Spacer x={1} />
                                 <Dropdown>
                                     <Dropdown.Button>
+                                        {language.value
+                                            ? language.value
+                                            : 'Language'}
+                                    </Dropdown.Button>
+                                    <Dropdown.Menu
+                                        aria-label="Static Actions"
+                                        onSelectionChange={(keys) =>
+                                            onChangeLanguage(
+                                                Array.from(
+                                                    keys as Set<string>,
+                                                )[0],
+                                            )
+                                        }
+                                        selectionMode="single"
+                                        selectedKeys={[language.value]}
+                                    >
+                                        {languages.map((e) => (
+                                            <Dropdown.Item key={e}>
+                                                {e}
+                                            </Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                                <Spacer x={1} />
+                                <Text h3>Preference 1</Text>
+                                <Spacer x={1} />
+                                <Dropdown>
+                                    <Dropdown.Button>
                                         {preference1.value
                                             ? preference1.value
                                             : 'Select the first preference'}
@@ -170,13 +189,49 @@ export default function CreateProfilePage() {
                                     </Dropdown.Menu>
                                 </Dropdown>
                                 <Spacer x={1} />
-                                <Input
-                                    value={subPreference1.value}
-                                    onChange={onChangeSubPreference1Input}
-                                    label="Subpreference 1"
-                                    rounded
-                                    bordered
-                                />
+                                <Dropdown>
+                                    <Dropdown.Button>
+                                        {subPreference1.value
+                                            ? subPreference1.value
+                                            : 'Select the first sub preference'}
+                                    </Dropdown.Button>
+                                    <Dropdown.Menu
+                                        aria-label="Static Actions"
+                                        onSelectionChange={(keys) =>
+                                            onChangeSubPreference1(
+                                                Array.from(
+                                                    keys as Set<string>,
+                                                )[0],
+                                            )
+                                        }
+                                        selectionMode="single"
+                                        selectedKeys={[subPreference1.value]}
+                                    >
+                                        {preference1.value ===
+                                            MediaType.MOVIE &&
+                                            movieTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
+                                        {preference1.value ===
+                                            MediaType.SERIE &&
+                                            serieTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
+                                        {preference1.value ===
+                                            MediaType.VIDEOGAME &&
+                                            videogameTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                                <Spacer x={1} />
+                                <Text h3>Preference 2</Text>
                                 <Spacer x={1} />
                                 <Dropdown>
                                     <Dropdown.Button>
@@ -210,13 +265,49 @@ export default function CreateProfilePage() {
                                     </Dropdown.Menu>
                                 </Dropdown>
                                 <Spacer x={1} />
-                                <Input
-                                    value={subPreference2.value}
-                                    onChange={onChangeSubPreference2Input}
-                                    label="Subpreference 2"
-                                    rounded
-                                    bordered
-                                />
+                                <Dropdown>
+                                    <Dropdown.Button>
+                                        {subPreference2.value
+                                            ? subPreference2.value
+                                            : 'Select the second sub preference'}
+                                    </Dropdown.Button>
+                                    <Dropdown.Menu
+                                        aria-label="Static Actions"
+                                        onSelectionChange={(keys) =>
+                                            onChangeSubPreference2(
+                                                Array.from(
+                                                    keys as Set<string>,
+                                                )[0],
+                                            )
+                                        }
+                                        selectionMode="single"
+                                        selectedKeys={[subPreference2.value]}
+                                    >
+                                        {preference2.value ===
+                                            MediaType.MOVIE &&
+                                            movieTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
+                                        {preference2.value ===
+                                            MediaType.SERIE &&
+                                            serieTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
+                                        {preference2.value ===
+                                            MediaType.VIDEOGAME &&
+                                            videogameTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                                <Spacer x={1} />
+                                <Text h3>Preference 3</Text>
                                 <Spacer x={1} />
                                 <Dropdown>
                                     <Dropdown.Button>
@@ -250,40 +341,48 @@ export default function CreateProfilePage() {
                                     </Dropdown.Menu>
                                 </Dropdown>
                                 <Spacer x={1} />
-                                <Input
-                                    value={subPreference3.value}
-                                    onChange={onChangeSubPreference3Input}
-                                    label="Subpreference 3"
-                                    rounded
-                                    bordered
-                                />
-                                <Spacer x={1} />
                                 <Dropdown>
                                     <Dropdown.Button>
-                                        {language.value
-                                            ? language.value
-                                            : 'Language'}
+                                        {subPreference3.value
+                                            ? subPreference3.value
+                                            : 'Select the third sub preference'}
                                     </Dropdown.Button>
                                     <Dropdown.Menu
                                         aria-label="Static Actions"
                                         onSelectionChange={(keys) =>
-                                            onChangeLanguage(
+                                            onChangeSubPreference3(
                                                 Array.from(
                                                     keys as Set<string>,
                                                 )[0],
                                             )
                                         }
                                         selectionMode="single"
-                                        selectedKeys={[language.value]}
+                                        selectedKeys={[subPreference3.value]}
                                     >
-                                        {languages.map((e) => (
-                                            <Dropdown.Item key={e}>
-                                                {e}
-                                            </Dropdown.Item>
-                                        ))}
+                                        {preference3.value ===
+                                            MediaType.MOVIE &&
+                                            movieTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
+                                        {preference3.value ===
+                                            MediaType.SERIE &&
+                                            serieTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
+                                        {preference3.value ===
+                                            MediaType.VIDEOGAME &&
+                                            videogameTypes.map((type) => (
+                                                <Dropdown.Item key={type}>
+                                                    {type}
+                                                </Dropdown.Item>
+                                            ))}
                                     </Dropdown.Menu>
                                 </Dropdown>
-                                <Spacer y={1} />
+                                <Spacer x={1} />
                                 <Button
                                     disabled={!isSubmitable()}
                                     onPress={submit}

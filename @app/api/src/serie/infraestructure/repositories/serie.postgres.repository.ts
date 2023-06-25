@@ -157,7 +157,7 @@ export class SeriePostgresRepository implements SerieRepository {
     async getAll(): Promise<Serie[]> {
         const series = await this.serieDB
             .createQueryBuilder('serie')
-            .innerJoinAndSelect('actor.character', 'character')
+            .innerJoinAndSelect('serie.media', 'media')
             .getMany()
         return series.asyncMap(async (serie) => {
             const actors = await this.representDB

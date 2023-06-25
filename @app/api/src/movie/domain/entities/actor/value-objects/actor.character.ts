@@ -6,12 +6,12 @@ export class ActorCharacter implements ValueObject<ActorCharacter> {
         if (!regExpUUID.test(this.id) || !_kind)
             throw new Error('Invalid actor character')
         if (
-            this.kind != 'hero' &&
+            this.kind != 'heroe' &&
             this.kind != 'villain' &&
             this.kind != 'civil'
         )
             throw new Error(
-                'A certain character can only be a hero, villain or civil',
+                'A certain character can only be a heroe, villain or civil',
             )
     }
 

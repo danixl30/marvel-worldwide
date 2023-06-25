@@ -69,14 +69,17 @@ export const createProfileLogic = (
     )
 
     const onChangePreference1 = (data: string) => {
+        subPreference1.setState('')
         preference1.setState(data)
     }
 
     const onChangePreference2 = (data: string) => {
+        subPreference2.setState('')
         preference2.setState(data)
     }
 
     const onChangePreference3 = (data: string) => {
+        subPreference3.setState('')
         preference3.setState(data)
     }
 

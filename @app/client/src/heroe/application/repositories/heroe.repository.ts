@@ -55,9 +55,25 @@ export type CreateHeroeDTO = {
     logo: string
 }
 
+export type GetHeroesThatHaveArtificialPowersAndLeaderResponse = {
+    id: string
+    name: string
+    logo: string
+}[]
+
+export type GetTop5MoreUsedObjectsResponse = {
+    id: string
+    name: string
+    type: string
+    creator: string
+    material: string
+}[]
+
 export type HeroeRepository = {
     create(data: CreateHeroeDTO): Promise<void>
     getAll(): Promise<HeroeList[]>
     getAllPowers(): Promise<PowerList[]>
     getAllObjects(): Promise<ObjectList[]>
+    getHeroesWithArtificialPowersAndLeader(): Promise<GetHeroesThatHaveArtificialPowersAndLeaderResponse>
+    getTop5MoreUsedObjects(): Promise<GetTop5MoreUsedObjectsResponse>
 }

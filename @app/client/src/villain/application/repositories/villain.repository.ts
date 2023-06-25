@@ -36,7 +36,14 @@ export type CreateVillainDTO = {
     logo: string
 }
 
+export type GetVillainsThatHaveArtificialPowersAndLeaderResponse = {
+    id: string
+    name: string
+    logo: string
+}[]
+
 export type VillainRepository = {
     create(data: CreateVillainDTO): Promise<void>
     getAll(): Promise<VillainList[]>
+    getVillainsWithArtificialPowersAndLeader(): Promise<GetVillainsThatHaveArtificialPowersAndLeaderResponse>
 }

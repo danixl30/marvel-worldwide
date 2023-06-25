@@ -19,7 +19,7 @@ export class Civil {
         name: 'idRelation',
     })
     relation: Character
-    @PrimaryColumn({
+    @Column({
         type: 'uuid',
     })
     idRelation: string

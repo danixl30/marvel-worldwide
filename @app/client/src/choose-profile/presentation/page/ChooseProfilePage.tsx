@@ -23,23 +23,29 @@ import { useRefStateFactory } from '../../../core/infraestructure/state/useRefSt
 import { useEffectStateObserver } from '../../../core/infraestructure/state-observer/useEffectStateObserver'
 
 export default function ChooseProfilePage() {
-    const { addProfile, profilesData, isLoading, error, logout } =
-        chooseProfileLogic(
-            useRouterDomNavigation(),
-            getProfilesService(
-                profileHttpRepository(
-                    useAxiosHttp(),
-                    useCookieSession(),
-                    cancelHandler(useRefValueProvider(), useEffectOnInit),
-                ),
+    const {
+        addProfile,
+        profilesData,
+        isLoading,
+        error,
+        logout,
+        selectProfile,
+    } = chooseProfileLogic(
+        useRouterDomNavigation(),
+        getProfilesService(
+            profileHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
             ),
-            nativeOnInitJob(
-                useRefStateFactory(),
-                useEffectStateObserver,
-                useEffectOnInit,
-            ),
-            useCookieSession(),
-        )
+        ),
+        nativeOnInitJob(
+            useRefStateFactory(),
+            useEffectStateObserver,
+            useEffectOnInit,
+        ),
+        useCookieSession(),
+    )
     if (error.value) {
         return (
             <>
@@ -87,6 +93,9 @@ export default function ChooseProfilePage() {
                                             <Card
                                                 isHoverable
                                                 isPressable
+                                                onPress={() =>
+                                                    selectProfile(e.id)
+                                                }
                                                 variant="bordered"
                                                 css={{
                                                     padding: 30,

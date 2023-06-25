@@ -6,12 +6,12 @@ export class OrganizationLeader implements ValueObject<OrganizationLeader> {
         if (!regExpUUID.test(this.id) || !_kind)
             throw new Error('Invalid organization leader')
         if (
-            this.kind != 'hero' &&
+            this.kind != 'heroe' &&
             this.kind != 'villain' &&
             this.kind != 'civil'
         )
             throw new Error(
-                'Organization leader must be a hero, villain or civil',
+                'Organization leader must be a heroe, villain or civil',
             )
     }
 

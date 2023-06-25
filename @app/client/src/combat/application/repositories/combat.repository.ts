@@ -11,4 +11,5 @@ export type CreateCombatDTO = {
 
 export type CombatRepository = {
     create(data: CreateCombatDTO): Promise<void>
+    getTop3Locations(): Promise<string[]>
 }

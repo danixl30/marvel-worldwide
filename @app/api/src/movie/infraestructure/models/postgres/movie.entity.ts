@@ -7,6 +7,7 @@ import {
     PrimaryColumn,
 } from 'typeorm'
 import { Media } from './media.entity'
+import { movieTypes } from 'src/movie/domain/value-objects/type'
 
 @Entity()
 @Check('"productionCost" > 0')
@@ -50,7 +51,8 @@ export class Movie {
     })
     director: string
     @Column({
-        type: 'varchar',
+        type: 'enum',
+        enum: movieTypes,
     })
     type: string
 }

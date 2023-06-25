@@ -2,6 +2,12 @@ import { Optional } from '@mono/types-utils'
 import { InputManager } from '../../core/application/input-manager'
 import { StateFactory } from '../../core/application/state/state-factory'
 import { ToastProvider } from '../../core/application/toast/toast'
+import { OnInitJob } from '../../core/application/on-init-job/on-init-job'
+import { OnInitJobLazy } from '../../core/application/on-init-job/lazy/on-init-job-lazy'
+import { getAllCharactersApplicationService } from '../../create-videogame/application/get.all.characters'
+import { createOrganizationApplicationService } from '../application/create.organization'
+import { Alerts } from '../../core/application/toast/types/alerts'
+import { getAllHeadquartersApplicationService } from '../application/get.all.headquarters'
 
 type Characters = {
     id: string
@@ -21,7 +27,55 @@ export const createOrganizationLogic = (
     stateFactory: StateFactory,
     inputManagerFactory: InputManager,
     toastManager: ToastProvider,
+    onInitJobFactory: OnInitJob,
+    onInitJobLazy: OnInitJobLazy,
+    getAllCharacters: ReturnType<typeof getAllCharactersApplicationService>,
+    getAllHeadquarters: ReturnType<typeof getAllHeadquartersApplicationService>,
+    createOrganization: ReturnType<typeof createOrganizationApplicationService>,
 ) => {
+    const charactersTask = onInitJobFactory(() =>
+        getAllCharacters.execute(undefined),
+    )
+    const headquartersJob = onInitJobFactory(() =>
+        getAllHeadquarters.execute(undefined),
+    )
+
+    const createOrganizationTask = onInitJobLazy(
+        () =>
+            createOrganization.execute({
+                name: nameInput.value.value,
+                headquarterId: headquarterIdInput.value.value || undefined,
+                headquarter: headquarterIdInput.value.value
+                    ? undefined
+                    : {
+                          name: headquarterNameInput.value.value,
+                          kind: headquarterKindInput.value.value,
+                          place: {
+                              country: headquarterCountryInput.value.value,
+                              city: headquarterCityInput.value.value,
+                          },
+                      },
+                members: members.state.value,
+                firstApparition: firstApparitionInput.value.value,
+                leader: leader.state.value!,
+                objetive: objetiveInput.value.value,
+                slogan: sloganInput.value.value,
+                founder: founderInput.value.value,
+                creationPlace: creationPlaceInput.value.value,
+            }),
+        () => {
+            const pending = toastManager.pending('Creating')
+            return {
+                success: () => {
+                    pending('Organization created!!!', Alerts.SUCCESS)
+                },
+                error: (_e) => {
+                    pending('Error creating organization', Alerts.ERROR)
+                },
+            }
+        },
+    )
+
     const nameInput = inputManagerFactory(
         '',
         (data) => {
@@ -104,7 +158,7 @@ export const createOrganizationLogic = (
     )
     const headquarterIdInput = inputManagerFactory(
         '',
-        (data) => {
+        () => {
             return ''
         },
         (data) => data,
@@ -182,4 +236,43 @@ export const createOrganizationLogic = (
                 !headquarterCountryInput.error.value &&
                 headquarterCityInput.value.value &&
                 !headquarterCityInput.error.value))
+
+    const submit = async () => {
+        if (!isSubmitable()) {
+            toastManager.error('Invalid organization')
+            return
+        }
+        await createOrganizationTask.do().catch((e) => console.log(e))
+    }
+
+    return {
+        submit,
+        isSubmitable,
+        nameInput,
+        creationPlaceInput,
+        chargeInput,
+        leader: leader.state,
+        setLeader,
+        setSelectedMember,
+        selectedMemberCharacter: selectedMemberCharacter.state,
+        removeMember,
+        addMember,
+        addMemberIsSubmitable,
+        sloganInput,
+        objetiveInput,
+        headquarterIdInput,
+        headquarterCityInput,
+        headquarterKindInput,
+        headquarterNameInput,
+        headquarterCountryInput,
+        founderInput,
+        members: members.state,
+        charactersToSelect: charactersTask.data,
+        isLoadingCharacters: charactersTask.isLoading,
+        errorCharacters: charactersTask.error,
+        headquarters: headquartersJob.data,
+        isLoadingHeadquarters: headquartersJob.isLoading,
+        errorHeadquarters: headquartersJob.error,
+        firstApparitionInput,
+    }
 }

@@ -268,7 +268,7 @@ export class HeroePostgresRepository implements HeroeRepository {
 
     async getAll(): Promise<Heroe[]> {
         const heroes = await this.heroeDB
-            .createQueryBuilder()
+            .createQueryBuilder('heroe')
             .innerJoinAndSelect('heroe.character', 'character')
             .getMany()
         return heroes.asyncMap(async (heroe) => {
@@ -298,7 +298,7 @@ export class HeroePostgresRepository implements HeroeRepository {
                 new HeroeName(heroe.name),
                 person,
                 new Logo(heroe.logo),
-                new HeroeCreator('', ''),
+                new HeroeCreator('creator', 'creator'),
                 new ArchEnemy(heroe.idArchEnemy),
                 colors.map((e) => new SuitColor(e.color)),
                 powers.map(
@@ -507,10 +507,10 @@ export class HeroePostgresRepository implements HeroeRepository {
     }
     async getHeroesByPowerType(type: PowerType): Promise<Heroe[]> {
         const heroes = await this.heroeDB
-            .createQueryBuilder()
+            .createQueryBuilder('heroe')
             .limit(5)
             .innerJoinAndSelect('heroe.character', 'character')
-            .innerJoinAndSelect(Own, 'own', 'own.idCharcter = Heroe.id')
+            .innerJoinAndSelect(Own, 'own', 'own.idCharacter = Heroe.id')
             .innerJoinAndSelect(PowerDB, 'power', 'power.id = own.idPower')
             .where('power.type = :type', {
                 type: type.value,
@@ -543,7 +543,7 @@ export class HeroePostgresRepository implements HeroeRepository {
                 new HeroeName(heroe.name),
                 person,
                 new Logo(heroe.logo),
-                new HeroeCreator('', ''),
+                new HeroeCreator('creator', 'creator'),
                 new ArchEnemy(heroe.idArchEnemy),
                 colors.map((e) => new SuitColor(e.color)),
                 powers.map(
