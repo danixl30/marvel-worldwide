@@ -440,9 +440,11 @@ export class HeroePostgresRepository implements HeroeRepository {
     async getTop5MoreUsedObjects(): Promise<ObjectItem[]> {
         const objects = await this.objectDB
             .createQueryBuilder('object')
-            .where(
-                'object.id IN (SELECT t."use_idObject" from (SELECT "use"."idObject" AS "use_idObject", COUNT("use"."idObject") AS "count_object", COUNT("use"."idCharacter") AS "count_char" FROM "use" "use" GROUP BY "use"."idObject" ORDER BY count_object DESC LIMIT 5) AS t)',
-            )
+            .innerJoin(Use, 'use', 'use.idObject = object.id')
+            .groupBy('use.idObject')
+            .groupBy('object.id')
+            .orderBy('count(use.idCharacter)', 'DESC')
+            .limit(5)
             .getMany()
         return objects.map(
             (e) =>

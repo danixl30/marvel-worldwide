@@ -1,7 +1,7 @@
 import { ValueObject } from 'src/core/domain/value-objects/value.object'
 
 export const serieTypes = [
-    '2D animation   ',
+    '2D animation',
     '3D animation',
     'live-action',
     'stop-motion',

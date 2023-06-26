@@ -357,6 +357,7 @@ export default function CreateProfilePage() {
                                             )
                                         }
                                         selectionMode="single"
+                                        disabledKeys={['None']}
                                         selectedKeys={[subPreference3.value]}
                                     >
                                         {preference3.value ===
@@ -380,6 +381,7 @@ export default function CreateProfilePage() {
                                                     {type}
                                                 </Dropdown.Item>
                                             ))}
+                                        <Dropdown.Item key={'None'}>None</Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
                                 <Spacer x={1} />

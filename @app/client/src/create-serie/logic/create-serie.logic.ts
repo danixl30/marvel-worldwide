@@ -10,7 +10,7 @@ import { getAllOrganizationsApplicationService } from '../../create-videogame/ap
 import { createSerieApplicationService } from '../application/create.serie'
 
 export const serieTypes = [
-    '2D animation   ',
+    '2D animation',
     '3D animation',
     'live-action',
     'stop-motion',
