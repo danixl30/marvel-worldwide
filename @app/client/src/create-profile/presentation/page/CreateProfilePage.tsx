@@ -381,7 +381,9 @@ export default function CreateProfilePage() {
                                                     {type}
                                                 </Dropdown.Item>
                                             ))}
-                                        <Dropdown.Item key={'None'}>None</Dropdown.Item>
+                                        <Dropdown.Item key={'None'}>
+                                            None
+                                        </Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
                                 <Spacer x={1} />

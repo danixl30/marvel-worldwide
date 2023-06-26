@@ -112,13 +112,13 @@ export const createSerieLogic = (
     const channelInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
+            if (data.length < 6) return 'Invalid channel'
             return ''
         },
         (data) => data,
     )
     const episodesInput = inputManagerFactory(
-        '',
+        '0',
         () => {
             return ''
         },
@@ -188,9 +188,7 @@ export const createSerieLogic = (
     const addActor = (actor: Actor) => {
         if (
             actors.state.value.find(
-                (e) =>
-                    e.name.firstName === actor.name.firstName &&
-                    actor.name.lastName === e.name.lastName,
+                (e) => e.character.id === actor.character.id,
             )
         )
             return
@@ -199,9 +197,7 @@ export const createSerieLogic = (
     const removeActor = (actor: Actor) => {
         actors.setState(
             actors.state.value.filter(
-                (e) =>
-                    e.name.firstName !== actor.name.firstName &&
-                    actor.name.lastName !== e.name.lastName,
+                (e) => e.character.id !== actor.character.id,
             ),
         )
     }

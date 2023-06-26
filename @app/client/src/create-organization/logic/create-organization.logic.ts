@@ -79,7 +79,7 @@ export const createOrganizationLogic = (
     const nameInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid title'
+            if (data.length < 6) return 'Invalid name'
             return ''
         },
         (data) => data,
@@ -87,7 +87,7 @@ export const createOrganizationLogic = (
     const objetiveInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid synopsis'
+            if (data.length < 6) return 'Invalid objetive'
             return ''
         },
         (data) => data,
@@ -95,7 +95,6 @@ export const createOrganizationLogic = (
     const sloganInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
             return ''
         },
         (data) => data,
@@ -103,7 +102,7 @@ export const createOrganizationLogic = (
     const creationPlaceInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
+            if (data.length < 5) return 'Invalid creation place'
             return ''
         },
         (data) => data,
@@ -119,7 +118,7 @@ export const createOrganizationLogic = (
     const firstApparitionInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
+            if (data.length < 6) return 'Invalid first apparition'
             return ''
         },
         (data) => data,
@@ -127,7 +126,7 @@ export const createOrganizationLogic = (
     const headquarterNameInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
+            if (data.length < 6) return 'Invalid headquarter name'
             return ''
         },
         (data) => data,
@@ -135,7 +134,7 @@ export const createOrganizationLogic = (
     const headquarterKindInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
+            if (data.length < 6) return 'Invalid headquarter kind'
             return ''
         },
         (data) => data,
@@ -143,7 +142,7 @@ export const createOrganizationLogic = (
     const headquarterCountryInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
+            if (data.length < 6) return 'Invalid headquarter country'
             return ''
         },
         (data) => data,
@@ -151,7 +150,7 @@ export const createOrganizationLogic = (
     const headquarterCityInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
+            if (data.length < 6) return 'Invalid headquarter city'
             return ''
         },
         (data) => data,

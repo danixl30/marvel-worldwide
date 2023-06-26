@@ -119,7 +119,7 @@ export const createMovieLogic = (
     const directorNameInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid creator'
+            if (data.length < 6) return 'Invalid director name'
             return ''
         },
         (data) => data,
@@ -223,9 +223,7 @@ export const createMovieLogic = (
     const addActor = (actor: Actor) => {
         if (
             actors.state.value.find(
-                (e) =>
-                    e.name.firstName === actor.name.firstName &&
-                    actor.name.lastName === e.name.lastName,
+                (e) => e.character.id === actor.character.id,
             )
         )
             return
@@ -234,9 +232,7 @@ export const createMovieLogic = (
     const removeActor = (actor: Actor) => {
         actors.setState(
             actors.state.value.filter(
-                (e) =>
-                    e.name.firstName !== actor.name.firstName &&
-                    actor.name.lastName !== e.name.lastName,
+                (e) => e.character.id !== actor.character.id,
             ),
         )
     }

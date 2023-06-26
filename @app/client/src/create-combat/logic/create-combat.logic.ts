@@ -68,7 +68,7 @@ export const createCombatLogic = (
     const placeNameInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 6) return 'Invalid place'
             return ''
         },
         (data) => data,

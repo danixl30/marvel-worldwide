@@ -110,17 +110,10 @@ export const createVillainLogic = (
         },
         (data) => data,
     )
-    const enemyInput = inputManagerFactory(
-        '',
-        () => {
-            return ''
-        },
-        (data) => data,
-    )
     const hairColorInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 3) return 'Invalid color'
             return ''
         },
         (data) => data,
@@ -128,7 +121,7 @@ export const createVillainLogic = (
     const nationalityInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 6) return 'Invalid nationality'
             return ''
         },
         (data) => data,
@@ -136,7 +129,7 @@ export const createVillainLogic = (
     const occupationInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 6) return 'Invalid occupation'
             return ''
         },
         (data) => data,
@@ -144,7 +137,7 @@ export const createVillainLogic = (
     const eyesColorInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 3) return 'Invalid color'
             return ''
         },
         (data) => data,
@@ -161,20 +154,12 @@ export const createVillainLogic = (
     const genderStatusInput = inputManagerFactory(
         '',
         (data) => {
-            if (!genders.find((e) => e === data)) return 'Invalid person name'
+            if (!genders.find((e) => e === data)) return 'Invalid gender'
             return ''
         },
         (data) => data,
     )
     const nameInput = inputManagerFactory(
-        '',
-        (data) => {
-            if (data.length < 6) return 'Invalid name'
-            return ''
-        },
-        (data) => data,
-    )
-    const objetiveInput = inputManagerFactory(
         '',
         (data) => {
             if (data.length < 6) return 'Invalid name'
@@ -193,7 +178,7 @@ export const createVillainLogic = (
     const creatorLastNameNameInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid name'
+            if (data.length < 6) return 'Invalid last name'
             return ''
         },
         (data) => data,
@@ -209,7 +194,7 @@ export const createVillainLogic = (
     const powerDescriptionInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid name'
+            if (data.length < 6) return 'Invalid description'
             return ''
         },
         (data) => data,
@@ -233,7 +218,7 @@ export const createVillainLogic = (
     const objectDescriptionInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid name'
+            if (data.length < 6) return 'Invalid description'
             return ''
         },
         (data) => data,
@@ -241,7 +226,7 @@ export const createVillainLogic = (
     const objectKindInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid name'
+            if (data.length < 6) return 'Invalid kind'
             return ''
         },
         (data) => data,
@@ -249,12 +234,27 @@ export const createVillainLogic = (
     const objectCreatorInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid name'
+            if (data.length < 6) return 'Invalid creator'
             return ''
         },
         (data) => data,
     )
     const objectMaterialInput = inputManagerFactory(
+        '',
+        (data) => {
+            if (data.length < 6) return 'Invalid material'
+            return ''
+        },
+        (data) => data,
+    )
+    const enemyInput = inputManagerFactory(
+        '',
+        () => {
+            return ''
+        },
+        (data) => data,
+    )
+    const objetiveInput = inputManagerFactory(
         '',
         (data) => {
             if (data.length < 6) return 'Invalid name'

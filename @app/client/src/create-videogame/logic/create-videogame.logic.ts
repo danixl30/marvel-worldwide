@@ -177,9 +177,7 @@ export const createVideogameLogic = (
     const addActor = (actor: Actor) => {
         if (
             actors.state.value.find(
-                (e) =>
-                    e.name.firstName === actor.name.firstName &&
-                    actor.name.lastName === e.name.lastName,
+                (e) => e.character.id === actor.character.id,
             )
         )
             return
@@ -188,9 +186,7 @@ export const createVideogameLogic = (
     const removeActor = (actor: Actor) => {
         actors.setState(
             actors.state.value.filter(
-                (e) =>
-                    e.name.firstName !== actor.name.firstName &&
-                    actor.name.lastName !== e.name.lastName,
+                (e) => e.character.id !== actor.character.id,
             ),
         )
     }

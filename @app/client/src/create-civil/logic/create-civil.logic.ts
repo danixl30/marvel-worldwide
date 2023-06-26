@@ -80,7 +80,7 @@ export const createCivilLogic = (
     const hairColorInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 3) return 'Invalid color'
             return ''
         },
         (data) => data,
@@ -88,7 +88,7 @@ export const createCivilLogic = (
     const nationalityInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 6) return 'Invalid nationality'
             return ''
         },
         (data) => data,
@@ -96,7 +96,7 @@ export const createCivilLogic = (
     const occupationInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 5) return 'Invalid occupation'
             return ''
         },
         (data) => data,
@@ -104,7 +104,7 @@ export const createCivilLogic = (
     const eyesColorInput = inputManagerFactory(
         '',
         (data) => {
-            if (data.length < 6) return 'Invalid person name'
+            if (data.length < 3) return 'Invalid color'
             return ''
         },
         (data) => data,
@@ -121,7 +121,7 @@ export const createCivilLogic = (
     const genderStatusInput = inputManagerFactory(
         '',
         (data) => {
-            if (!genders.find((e) => e === data)) return 'Invalid person name'
+            if (!genders.find((e) => e === data)) return 'Invalid gender'
             return ''
         },
         (data) => data,
