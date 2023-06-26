@@ -12,7 +12,7 @@ export class CivilRelationship implements ValueObject<CivilRelationship> {
             this.kind.length < 5
         )
             throw new Error('Civil must relate to someone')
-        if (this.kind != 'hero' && this.kind != 'villain')
+        if (this.kind != 'heroe' && this.kind != 'villain')
             throw new Error('Civil can only relate to hero or villain')
     }
 

@@ -6,7 +6,7 @@ export class CharacterId implements ValueObject<CharacterId> {
         if (!regExpUUID.test(this.id) || !_kind)
             throw new Error('Invalid character id')
         if (
-            this.kind != 'hero' &&
+            this.kind != 'heroe' &&
             this.kind != 'villain' &&
             this.kind != 'civil'
         )
