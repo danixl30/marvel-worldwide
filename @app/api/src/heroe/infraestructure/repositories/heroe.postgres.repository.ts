@@ -43,6 +43,7 @@ import { SuitColor } from 'src/heroe/domain/value-object/suit.color'
 import { Phrase } from 'src/heroe/domain/entities/person/value-objects/phrase'
 import { Injectable } from '@nestjs/common'
 import { Character } from '../models/postgres/character.entity'
+import { Utilize } from 'src/combat/infraestructure/models/postgres/utilize.entity'
 
 @Injectable()
 export class HeroePostgresRepository implements HeroeRepository {
@@ -440,7 +441,7 @@ export class HeroePostgresRepository implements HeroeRepository {
     async getTop5MoreUsedObjects(): Promise<ObjectItem[]> {
         const objects = await this.objectDB
             .createQueryBuilder('object')
-            .innerJoin(Use, 'use', 'use.idObject = object.id')
+            .innerJoin(Utilize, 'use', 'use.idObject = object.id')
             .groupBy('use.idObject')
             .groupBy('object.id')
             .orderBy('count(use.idCharacter)', 'DESC')

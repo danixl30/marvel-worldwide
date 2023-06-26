@@ -1,6 +1,4 @@
 import { Character } from 'src/heroe/infraestructure/models/postgres/character.entity'
-import { Heroe } from 'src/heroe/infraestructure/models/postgres/heroe.entity'
-import { Villain } from 'src/villain/infraestructure/models/postgres/villain.entity'
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 
 @Entity()

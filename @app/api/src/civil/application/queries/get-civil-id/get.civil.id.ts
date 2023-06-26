@@ -22,7 +22,6 @@ export class GetCivilByIdQuery
     ): Promise<Result<GetCivilByIdResponse, ApplicationError>> {
         const civil = await this.civilRepository.getById(new CivilId(data.id))
         if (!civil) return Result.error(new CivilNotFoundError())
-        await this.civilRepository.delete(civil)
         return Result.success({
             id: data.id,
             person: {
