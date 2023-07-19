@@ -23,7 +23,10 @@ export class GetCivilsByCriteriaQuery
         return Result.success(
             civils.map((e) => ({
                 id: e.id.value,
-                name: e.person.name,
+                name: {
+                    firstName: e.person.name.firstName,
+                    lastName: e.person.name.lastName,
+                },
             })),
         )
     }

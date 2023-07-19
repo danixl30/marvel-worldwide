@@ -17,6 +17,7 @@ export type GetSerieByIdResponse = {
         role: string
         character: {
             id: string
+            kind: string
             name: string
         }
     }[]

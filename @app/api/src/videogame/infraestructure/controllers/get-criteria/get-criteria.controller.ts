@@ -24,7 +24,13 @@ export class GetVideogamesByCriteriaController
     ): Promise<GetVideogamesByCriterioResponse> {
         const resp = await new GetVideogamesByCriterioQuery(
             this.videogameRepository,
-        ).execute(data)
+        ).execute({
+            term: data.term,
+            pagination: {
+                page: data.page || 1,
+                limit: data.limit || 10,
+            },
+        })
         return resp.unwrap()
     }
 }

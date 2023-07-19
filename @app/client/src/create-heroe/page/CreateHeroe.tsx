@@ -34,6 +34,7 @@ import {
     maritialStatuses,
     powerTypes,
 } from '../logic/create-heroe.logic'
+import { SketchPicker } from 'react-color'
 
 export default function CreateHeroePage() {
     const stateFactory = useRefStateFactory()
@@ -771,15 +772,13 @@ export default function CreateHeroePage() {
                                 <Spacer x={1} />
                                 <Spacer x={1} />
                                 <Spacer x={1} />
-                                <Input
-                                    value={colorInput.value.value}
-                                    onChange={(e) =>
-                                        colorInput.onChange(e.target.value)
+                                <SketchPicker
+                                    color={{
+                                        hex: colorInput.value.value,
+                                    }}
+                                    onChange={(color) =>
+                                        colorInput.onChange(color.hex)
                                     }
-                                    helperText={colorInput.error.value}
-                                    label="Suit color"
-                                    rounded
-                                    bordered
                                 />
                                 <Spacer x={1} />
                                 <Button
@@ -801,7 +800,14 @@ export default function CreateHeroePage() {
                                             background: '#575757',
                                         }}
                                     >
-                                        <Text h3>{color}</Text>
+                                        <div
+                                            style={{
+                                                width: 300,
+                                                height: 50,
+                                                background: color,
+                                            }}
+                                        />
+                                        <Spacer />
                                         <Button
                                             onPress={() => removeColor(color)}
                                         >

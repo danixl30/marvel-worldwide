@@ -227,11 +227,11 @@ export class OrganizationPostgresRepository implements OrganizationRepository {
             .innerJoinAndSelect('organization.founder', 'founder')
             .limit(criteria.pagination?.limit || 10)
             .skip(
-                (criteria.pagination?.page || 1) -
-                    1 * (criteria.pagination?.limit || 0),
+                ((criteria.pagination?.page || 1) - 1) *
+                    (criteria.pagination?.limit || 0),
             )
-            .where({
-                name: criteria.term,
+            .where('organization.name like :name', {
+                name: `%${criteria.term}%`,
             })
             .getMany()
         return organizations.asyncMap(async (organization) => {

@@ -13,4 +13,5 @@ export interface VideogameRepository
     getByCriteria(criteria: SearchByCriteriaDTO): Promise<Videogame[]>
     getAtLeast2WeeksNearRelease(): Promise<Videogame[]>
     getTrending(profileId: ProfileId): Promise<Videogame[]>
+    getTop10History(profileId: ProfileId): Promise<Videogame[]>
 }

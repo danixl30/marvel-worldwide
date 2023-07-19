@@ -25,6 +25,7 @@ export type GetMovieByIdResponse = {
         role: string
         character: {
             id: string
+            kind: string
             name: string
         }
     }[]

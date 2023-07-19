@@ -49,12 +49,14 @@ export class GetMovieByIdQuery
         if (civil)
             return {
                 id: civil.id.value,
+                kind: 'civil',
                 name: civil.person.name.value,
             }
         const heroe = await this.heroeRepository.getById(new HeroeId(id.id))
         if (heroe)
             return {
                 id: heroe.id.value,
+                kind: 'heroe',
                 name: heroe.name.value,
             }
         const villain = await this.villainRepository.getById(
@@ -63,6 +65,7 @@ export class GetMovieByIdQuery
         if (villain)
             return {
                 id: villain.id.value,
+                kind: 'villain',
                 name: villain.name.value,
             }
         throw new Error('Target not found')
@@ -80,13 +83,23 @@ export class GetMovieByIdQuery
             creator: movie.creator.value,
             release: movie.release.value,
             directorName: movie.director.value,
-            duration: movie.duration,
+            duration: {
+                hours: movie.duration.hours,
+                minutes: movie.duration.minutes,
+                seconds: movie.duration.seconds,
+            },
             type: movie.type.value,
-            cost: movie.cost,
+            cost: {
+                earning: movie.cost.earning,
+                cost: movie.cost.cost,
+            },
             comic: movie.basedOn.value,
             actors: await movie.actors.asyncMap(async (e) => ({
                 id: e.id.value,
-                name: e.name,
+                name: {
+                    firstName: e.name.firstName,
+                    lastName: e.name.lastName,
+                },
                 role: e.role.value,
                 character: await this.getHeroeVillainOrCivil(e.character),
             })),

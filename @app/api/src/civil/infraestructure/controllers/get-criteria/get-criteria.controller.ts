@@ -23,7 +23,13 @@ export class GetCivilsByCriteriaController
     ): Promise<GetCivilsByCriteriaResponse> {
         const resp = await new GetCivilsByCriteriaQuery(
             this.civilRepository,
-        ).execute(data)
+        ).execute({
+            term: data.term,
+            pagination: {
+                page: data.page || 1,
+                limit: data.limit || 10,
+            },
+        })
         return resp.unwrap()
     }
 }

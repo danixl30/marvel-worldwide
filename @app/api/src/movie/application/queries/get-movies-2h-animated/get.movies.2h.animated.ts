@@ -20,9 +20,14 @@ export class GetMoviesThatIsAnimatedAnd2hAndHalfMoreQuery
     async execute(): Promise<
         Result<GetMoviesByCriteriaResponse, ApplicationError>
     > {
-        const movies = await this.movieRepository.getByType(
-            new MovieType('animated'),
-        )
+        const movies = [
+            ...(await this.movieRepository.getByType(
+                new MovieType('2D animation'),
+            )),
+            ...(await this.movieRepository.getByType(
+                new MovieType('3D animation'),
+            )),
+        ]
         if (movies.isEmpty()) return Result.success([])
         const moviesFiltered =
             filterMoviesByDurationGreaterThan2H30MAndGreaterThanAverageCost(

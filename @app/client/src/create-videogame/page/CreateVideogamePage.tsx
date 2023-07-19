@@ -100,7 +100,11 @@ export default function CreateVideogamePage() {
             ),
         ),
         createVideogameApplicationService(
-            videogameHttpRepository(useAxiosHttp(), useCookieSession()),
+            videogameHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
         ),
     )
     const platformInput = stateFactory('')

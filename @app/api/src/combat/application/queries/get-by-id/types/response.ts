@@ -1,3 +1,8 @@
+import {
+    ObjectDTO,
+    PowerDTO,
+} from 'src/heroe/application/commands/create/types/dto'
+
 export type GetCombatByIdResponse = {
     id: string
     date: Date
@@ -5,7 +10,8 @@ export type GetCombatByIdResponse = {
     characters: {
         id: string
         name: string
-        powers: string[]
-        objects: string[]
+        kind: string
+        objects: ({ id: string } & ObjectDTO)[]
+        powers: ({ id: string } & PowerDTO)[]
     }[]
 }

@@ -23,7 +23,13 @@ export class GetVillainByCriteriaController
     ): Promise<GetVillainsByCriteriaResponse> {
         const resp = await new GetVillainsByCriteriaQuery(
             this.villainRepository,
-        ).execute(data)
+        ).execute({
+            term: data.term,
+            pagination: {
+                page: data.page || 1,
+                limit: data.limit || 10,
+            },
+        })
         return resp.unwrap()
     }
 }

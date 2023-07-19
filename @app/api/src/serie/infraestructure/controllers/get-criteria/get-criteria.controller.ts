@@ -23,7 +23,13 @@ export class GetSerieByCriteria
     ): Promise<GetSeriesByCriteriaResponse> {
         const resp = await new GetSeriesByCriteriaQuery(
             this.serieRepository,
-        ).execute(data)
+        ).execute({
+            term: data.term,
+            pagination: {
+                page: data.page || 1,
+                limit: data.limit || 10,
+            },
+        })
         return resp.unwrap()
     }
 }

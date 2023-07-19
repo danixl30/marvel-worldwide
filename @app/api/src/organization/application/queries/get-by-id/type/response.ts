@@ -1,10 +1,18 @@
 export type GetOrganizationByIdResponse = {
     id: string
     name: string
-    leader: string
+    leader: {
+        id: string
+        name: string
+        kind: string
+    }
     objetive: string
     slogan: string
-    founder: string
+    founder: {
+        id: string
+        name: string
+        kind: string
+    }
     creationPlace: string
     headquarter: {
         id: string
@@ -18,6 +26,7 @@ export type GetOrganizationByIdResponse = {
     members: {
         id: string
         name: string
+        kind: string
         charge: string
     }[]
     firstApparition: string

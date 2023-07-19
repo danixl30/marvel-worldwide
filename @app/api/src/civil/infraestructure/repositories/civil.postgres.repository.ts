@@ -134,14 +134,18 @@ export class CivilPostgresRepository implements CivilRepository {
             .createQueryBuilder('civil')
             .limit(criteria.pagination?.limit || 10)
             .skip(
-                (criteria.pagination?.page || 1) -
-                    1 * (criteria.pagination?.limit || 0),
+                ((criteria.pagination?.page || 1) - 1) *
+                    (criteria.pagination?.limit || 0),
             )
-            .innerJoinAndSelect('civil.id', 'character')
-            .innerJoinAndSelect('civil.idRelation', 'relation')
-            .where('civil.character.person.name = :name', {
-                name: criteria.term,
-            })
+            .innerJoinAndSelect('civil.character', 'character')
+            .innerJoinAndSelect('character.person', 'person')
+            .innerJoinAndSelect('civil.relation', 'relation')
+            .where(
+                'person.firstName like :name or person.lastName like :name',
+                {
+                    name: `%${criteria.term}%`,
+                },
+            )
             .getMany()
         return civils.asyncMap(async (e) => {
             const person = e.character.person

@@ -28,11 +28,13 @@ export class AddRateCommand
             new ProfileId(data.profileId),
         )
         if (!profile) return Result.error(new ProfileNotFoundError())
+        const rateId = new RateId(data.target)
         const rate = new Rate(
-            new RateId(data.target),
+            rateId,
             new RateKind(data.kind),
             new RateCalification(data.calification),
         )
+        profile.removeRate(rate)
         profile.addRate(rate)
         await this.profileRepository.save(profile)
         this.eventHandler.publish(profile.pullEvents())

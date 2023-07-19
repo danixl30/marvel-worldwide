@@ -44,7 +44,7 @@ export const userHttpRepository = (
 
     const getDetails = async () => {
         const { job, cancel } = http.get<unknown, User>({
-            url: '/user',
+            url: '/user/details',
             headers: {
                 auth: sessionManager.getSession() || '',
             },

@@ -4,5 +4,5 @@ export type RequestConfiguration<T> = {
     url: string
     body?: T
     headers?: Dictionary<string>
-    queries?: Dictionary<string>
+    queries?: Dictionary<string | number | boolean>
 }

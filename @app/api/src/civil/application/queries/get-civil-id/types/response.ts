@@ -16,6 +16,7 @@ export type GetCivilByIdResponse = {
     }
     relation: {
         target: string
+        name: string
         kind: string
     }
 }

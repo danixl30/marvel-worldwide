@@ -26,7 +26,13 @@ export class GetOrganizationsByCriteriaController
     ): Promise<GetOrganizationsByCriteriaResponse> {
         const resp = await new GetOrganizationsByCriteriaQuery(
             this.organizationRepository,
-        ).execute(data)
+        ).execute({
+            term: data.term,
+            pagination: {
+                page: data.page || 1,
+                limit: data.limit || 10,
+            },
+        })
         return resp.unwrap()
     }
 }

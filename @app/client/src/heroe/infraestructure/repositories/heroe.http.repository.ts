@@ -1,11 +1,15 @@
+import { GetByCriteriaDTO } from '../../../civil/application/repositories/civil.repository'
 import { CancelHandler, HttpHandler } from '../../../core/application/http'
 import { SessionManager } from '../../../core/application/session/session.manager'
 import {
     CreateHeroeDTO,
+    GetHeroeByIdResponse,
+    GetHeroesByCriteriaResponse,
     GetHeroesThatHaveArtificialPowersAndLeaderResponse,
     GetTop5MoreUsedObjectsResponse,
     HeroeList,
     HeroeRepository,
+    ModifyHeroeDTO,
     ObjectList,
     PowerList,
 } from '../../application/repositories/heroe.repository'
@@ -26,12 +30,53 @@ export const heroeHttpRepository = (
         await job()
     }
 
+    const modify = async (data: ModifyHeroeDTO) => {
+        const { job } = httpHandler.put({
+            url: '/heroe/modify',
+            headers: {
+                auth: session.getSession() || '',
+            },
+            body: data,
+        })
+        await job()
+    }
+
     const getAll = async () => {
         const { job, cancel } = httpHandler.get<unknown, HeroeList[]>({
             url: '/heroe/all',
             headers: {
                 auth: session.getSession() || '',
             },
+        })
+        cancelHandler.subscribeCancel(cancel)
+        const resp = await job()
+        cancelHandler.unsubscribeCancel(cancel)
+        return resp.body
+    }
+
+    const getById = async (id: string) => {
+        const { job, cancel } = httpHandler.get<unknown, GetHeroeByIdResponse>({
+            url: '/heroe/details/' + id,
+            headers: {
+                auth: session.getSession() || '',
+            },
+        })
+        cancelHandler.subscribeCancel(cancel)
+        const resp = await job()
+        cancelHandler.unsubscribeCancel(cancel)
+        return resp.body
+    }
+
+    const getByCriteria = async (dto: GetByCriteriaDTO) => {
+        const { job, cancel } = httpHandler.get<
+            unknown,
+            GetHeroesByCriteriaResponse
+        >({
+            url: '/heroe/criteria',
+            headers: {
+                auth: session.getSession() || '',
+            },
+            queries: dto,
         })
         cancelHandler.subscribeCancel(cancel)
         const resp = await job()
@@ -103,5 +148,8 @@ export const heroeHttpRepository = (
         getAllObjects,
         getHeroesWithArtificialPowersAndLeader,
         getTop5MoreUsedObjects,
+        getById,
+        getByCriteria,
+        modify,
     }
 }

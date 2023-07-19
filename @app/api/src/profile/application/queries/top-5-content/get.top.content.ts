@@ -37,7 +37,7 @@ export class GetTop5ContentPremiumVIPQuery
                     new VideogameId(target.postId),
                 ),
         }
-        const post = await kindRecord[target.kind]
+        const post = await kindRecord[target.kind]?.()
         if (!post) throw new Error('Post not exist')
         return post
     }

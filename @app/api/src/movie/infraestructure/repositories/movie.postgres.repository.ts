@@ -27,6 +27,12 @@ import { ActorCharacter } from 'src/movie/domain/entities/actor/value-objects/ac
 import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.role'
 import { Injectable } from '@nestjs/common'
 import { Media } from '../models/postgres/media.entity'
+import { Calification } from 'src/profile/infraestructure/models/postgres/calification.entity'
+import { Rate } from 'src/movie/domain/entities/rate/rate'
+import { RateId } from 'src/movie/domain/entities/rate/value-objects/rate.id'
+import { RateCalification } from 'src/movie/domain/entities/rate/value-objects/rate.calification'
+import { RateTimestamp } from 'src/movie/domain/entities/rate/value-objects/rate.timestamp'
+import { History } from 'src/profile/infraestructure/models/postgres/history.entity'
 
 @Injectable()
 export class MoviePostgresRepository implements MovieRepository {
@@ -41,6 +47,8 @@ export class MoviePostgresRepository implements MovieRepository {
         private readonly representDB: Repository<Represent>,
         @InjectRepository(Media)
         private readonly mediaDB: Repository<Media>,
+        @InjectRepository(Calification)
+        private readonly calificationDB: Repository<Calification>,
     ) {}
 
     async save(aggregate: Movie): Promise<void> {
@@ -140,6 +148,9 @@ export class MoviePostgresRepository implements MovieRepository {
             })
             .getOne()
         if (!movie) return null
+        const rates = await this.calificationDB.findBy({
+            idMedia: movie.id,
+        })
         return new Movie(
             new MovieId(movie.id),
             new MovieTitle(movie.media.title),
@@ -165,6 +176,14 @@ export class MoviePostgresRepository implements MovieRepository {
                         new ActorRole(e.type),
                     ),
             ),
+            rates.map(
+                (e) =>
+                    new Rate(
+                        new RateId(e.idProfile),
+                        new RateCalification(e.rating),
+                        new RateTimestamp(e.timestamp),
+                    ),
+            ),
         )
     }
 
@@ -174,10 +193,10 @@ export class MoviePostgresRepository implements MovieRepository {
             .innerJoinAndSelect('movie.media', 'media')
             .limit(criteria.pagination?.limit || 10)
             .skip(
-                (criteria.pagination?.page || 1) -
-                    1 * (criteria.pagination?.limit || 0),
+                ((criteria.pagination?.page || 1) - 1) *
+                    (criteria.pagination?.limit || 0),
             )
-            .where('media.title = :term', {
+            .where('media.title like :term', {
                 term: `%${criteria.term}%`,
             })
             .orWhere(
@@ -194,6 +213,9 @@ export class MoviePostgresRepository implements MovieRepository {
                 })
                 .getMany()
             const appear = await this.appearDB.findBy({
+                idMedia: movie.id,
+            })
+            const rates = await this.calificationDB.findBy({
                 idMedia: movie.id,
             })
             return new Movie(
@@ -221,6 +243,14 @@ export class MoviePostgresRepository implements MovieRepository {
                             new ActorName(e.firstName, e.lastName),
                             new ActorCharacter(e.idCharacter, e.character.kind),
                             new ActorRole(e.type),
+                        ),
+                ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
                         ),
                 ),
             )
@@ -248,6 +278,9 @@ export class MoviePostgresRepository implements MovieRepository {
             const appear = await this.appearDB.findBy({
                 idMedia: movie.id,
             })
+            const rates = await this.calificationDB.findBy({
+                idMedia: movie.id,
+            })
             return new Movie(
                 new MovieId(movie.id),
                 new MovieTitle(movie.media.title),
@@ -273,6 +306,14 @@ export class MoviePostgresRepository implements MovieRepository {
                             new ActorName(e.firstName, e.lastName),
                             new ActorCharacter(e.idCharacter, e.character.kind),
                             new ActorRole(e.type),
+                        ),
+                ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
                         ),
                 ),
             )
@@ -299,58 +340,7 @@ export class MoviePostgresRepository implements MovieRepository {
             const appear = await this.appearDB.findBy({
                 idMedia: movie.id,
             })
-            return new Movie(
-                new MovieId(movie.id),
-                new MovieTitle(movie.media.title),
-                new MovieSynopsis(movie.media.synopsis),
-                new ReleaseDate(movie.media.release),
-                new MovieCreator(movie.media.creator),
-                new MovieDirector(movie.director),
-                new MovieDuration(
-                    movie.durationH,
-                    movie.durationM,
-                    movie.durationS,
-                ),
-                new MovieType(movie.type),
-                new ProductionCost(movie.productionCost, movie.earning),
-                new Comic(movie.media.comic),
-                appear.map(
-                    (e) => new OrganizationRef(e.idOrganization, e.type),
-                ),
-                actors.map(
-                    (e) =>
-                        new Actor(
-                            new ActorId(e.id),
-                            new ActorName(e.firstName, e.lastName),
-                            new ActorCharacter(e.idCharacter, e.character.kind),
-                            new ActorRole(e.type),
-                        ),
-                ),
-            )
-        })
-    }
-
-    async getTrending(profileId: ProfileId): Promise<Movie[]> {
-        const movies = await this.movieDB
-            .createQueryBuilder('movie')
-            .innerJoinAndSelect('movie.media', 'media')
-            .where(
-                'movie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "idProfile" = :id and "mediaKind" = \'movie\' and "endDate" is not NULL order by time DESC) as t) or movie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'movie\' and "endDate" is not NULL order by time DESC) as t) or movie.id in (select "idMedia" from calification order by rating DESC)',
-                {
-                    id: profileId.value,
-                },
-            )
-            .limit(10)
-            .getMany()
-        return movies.asyncMap(async (movie) => {
-            const actors = await this.representDB
-                .createQueryBuilder('actor')
-                .innerJoinAndSelect('actor.character', 'character')
-                .where('actor.idMedia = :id', {
-                    id: movie.id,
-                })
-                .getMany()
-            const appear = await this.appearDB.findBy({
+            const rates = await this.calificationDB.findBy({
                 idMedia: movie.id,
             })
             return new Movie(
@@ -380,11 +370,157 @@ export class MoviePostgresRepository implements MovieRepository {
                             new ActorRole(e.type),
                         ),
                 ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
+            )
+        })
+    }
+
+    async getTrending(profileId: ProfileId): Promise<Movie[]> {
+        const movies = await this.movieDB
+            .createQueryBuilder('movie')
+            .innerJoinAndSelect('movie.media', 'media')
+            .innerJoin(History, 'history', 'history.idMedia = movie.id')
+            .innerJoin(
+                Calification,
+                'calification',
+                'calification.idMedia = movie.id',
+            )
+            .where('history.endDate is not null and history.idProfile = :id', {
+                id: profileId.value,
+            })
+            .groupBy('movie.id')
+            .addGroupBy('history.idMedia')
+            .addGroupBy('calification.idMedia')
+            .addGroupBy('media.id')
+            .orderBy('avg(calification.rating)', 'DESC')
+            .addOrderBy('max(history.endDate - history.initDate)', 'DESC')
+            .limit(10)
+            .getMany()
+        return movies.asyncMap(async (movie) => {
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: movie.id,
+                })
+                .getMany()
+            const appear = await this.appearDB.findBy({
+                idMedia: movie.id,
+            })
+            const rates = await this.calificationDB.findBy({
+                idMedia: movie.id,
+            })
+            return new Movie(
+                new MovieId(movie.id),
+                new MovieTitle(movie.media.title),
+                new MovieSynopsis(movie.media.synopsis),
+                new ReleaseDate(movie.media.release),
+                new MovieCreator(movie.media.creator),
+                new MovieDirector(movie.director),
+                new MovieDuration(
+                    movie.durationH,
+                    movie.durationM,
+                    movie.durationS,
+                ),
+                new MovieType(movie.type),
+                new ProductionCost(movie.productionCost, movie.earning),
+                new Comic(movie.media.comic),
+                appear.map(
+                    (e) => new OrganizationRef(e.idOrganization, e.type),
+                ),
+                actors.map(
+                    (e) =>
+                        new Actor(
+                            new ActorId(e.id),
+                            new ActorName(e.firstName, e.lastName),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
+                            new ActorRole(e.type),
+                        ),
+                ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
             )
         })
     }
 
     async getActorByName(name: ActorName): Promise<Optional<Actor>> {
         return null
+    }
+
+    async getTop10History(profileId: ProfileId): Promise<Movie[]> {
+        const movies = await this.movieDB
+            .createQueryBuilder('movie')
+            .innerJoinAndSelect('movie.media', 'media')
+            .innerJoin(History, 'history', 'history.idMedia = movie.id')
+            .where('history.idProfile = :id and history.endDate is not null', {
+                id: profileId.value,
+            })
+            .orderBy('history.endDate - history.initDate', 'DESC')
+            .limit(10)
+            .getMany()
+        return movies.asyncMap(async (movie) => {
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: movie.id,
+                })
+                .getMany()
+            const appear = await this.appearDB.findBy({
+                idMedia: movie.id,
+            })
+            const rates = await this.calificationDB.findBy({
+                idMedia: movie.id,
+            })
+            return new Movie(
+                new MovieId(movie.id),
+                new MovieTitle(movie.media.title),
+                new MovieSynopsis(movie.media.synopsis),
+                new ReleaseDate(movie.media.release),
+                new MovieCreator(movie.media.creator),
+                new MovieDirector(movie.director),
+                new MovieDuration(
+                    movie.durationH,
+                    movie.durationM,
+                    movie.durationS,
+                ),
+                new MovieType(movie.type),
+                new ProductionCost(movie.productionCost, movie.earning),
+                new Comic(movie.media.comic),
+                appear.map(
+                    (e) => new OrganizationRef(e.idOrganization, e.type),
+                ),
+                actors.map(
+                    (e) =>
+                        new Actor(
+                            new ActorId(e.id),
+                            new ActorName(e.firstName, e.lastName),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
+                            new ActorRole(e.type),
+                        ),
+                ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
+            )
+        })
     }
 }

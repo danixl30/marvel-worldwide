@@ -202,24 +202,40 @@ export class ProfilePostgresRepository implements ProfileRepository {
             .getMany()
         const profiles = await this.profileDB
             .createQueryBuilder()
-            .orWhere(
+            .where(
                 membershipVIPPremium.map((e) => ({
                     userId: e.userId,
                 })),
             )
             .getMany()
         const histories = await this.historyDB
-            .createQueryBuilder()
-            .limit(5)
-            .orderBy('endDate', 'ASC')
-            .orWhere(
+            .createQueryBuilder('profile')
+            .orderBy('profile.endDate - profile.endDate', 'DESC')
+            .where(
                 profiles.map((e) => ({
                     idProfile: e.id,
                 })),
             )
             .getMany()
-        return histories.map((e) => ({
-            target: new HistoryTarget(e.idMedia, e.mediaKind),
-        }))
+        return histories.reduce<{ target: HistoryTarget }[]>(
+            (acc: { target: HistoryTarget }[], e: HistoryDB) => {
+                if (acc.length === 5) return acc
+                if (
+                    acc.find((h) =>
+                        h.target.equals(
+                            new HistoryTarget(e.idMedia, e.mediaKind),
+                        ),
+                    )
+                )
+                    return acc
+                return [
+                    ...acc,
+                    {
+                        target: new HistoryTarget(e.idMedia, e.mediaKind),
+                    },
+                ]
+            },
+            [] as { target: HistoryTarget }[],
+        )
     }
 }

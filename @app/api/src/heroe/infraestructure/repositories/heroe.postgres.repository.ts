@@ -358,15 +358,15 @@ export class HeroePostgresRepository implements HeroeRepository {
 
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Heroe[]> {
         const heroes = await this.heroeDB
-            .createQueryBuilder()
+            .createQueryBuilder('heroe')
             .innerJoinAndSelect('heroe.character', 'character')
             .limit(criteria.pagination?.limit || 10)
             .skip(
-                (criteria.pagination?.page || 1) -
-                    1 * (criteria.pagination?.limit || 0),
+                ((criteria.pagination?.page || 1) - 1) *
+                    (criteria.pagination?.limit || 0),
             )
-            .andWhere({
-                name: criteria.term,
+            .where('heroe.name like :name', {
+                name: `%${criteria.term}%`,
             })
             .getMany()
         return heroes.asyncMap(async (heroe) => {
@@ -396,7 +396,7 @@ export class HeroePostgresRepository implements HeroeRepository {
                 new HeroeName(heroe.name),
                 person,
                 new Logo(heroe.logo),
-                new HeroeCreator('', ''),
+                new HeroeCreator('creator', 'creator'),
                 new ArchEnemy(heroe.idArchEnemy),
                 colors.map((e) => new SuitColor(e.color)),
                 powers.map(

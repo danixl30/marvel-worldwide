@@ -24,6 +24,15 @@ import { villainHttpRepository } from '../../villain/infraestructure/repositorie
 import { serieHttpRepository } from '../../serie/infraestructure/repositories/serie.http.repository'
 import { combatHttpRepository } from '../../combat/infraestructure/repositories/combat.http.repository'
 import { nativeOnInitJob } from '../../core/infraestructure/on-init-job/nativeOnInitJob'
+import { getMovies2HAnimatedApplicationService } from '../application/get.movies.2h.animated'
+import { movieHttpRepository } from '../../movie/infraestructure/repositories/movie.http.repository'
+import { getSuperPowersApplicationService } from '../application/get.super.powers'
+import { getMedias2WApplicationService } from '../application/get.medias.2w'
+import { videogameHttpRepository } from '../../videogames/infraestructure/repositories/videogame.http.repository'
+import { getTop5ContentApplicationService } from '../application/get.top5.content'
+import { profileHttpRepository } from '../../profile/infraestructure/repositories/profile.http.repository'
+import ReactStars from 'react-rating-star-with-type'
+import { useRouterDomNavigation } from '../../core/infraestructure/router/router-dom/react-router-dom-navigation'
 
 export default function ReportsPage() {
     const {
@@ -31,6 +40,16 @@ export default function ReportsPage() {
         getSeriesEpisodesGreaterThanAverageJob,
         getTop3LocationsJob,
         getTop5MoreUsedObjectsJob,
+        movies2HJob,
+        superPowersJob,
+        medias2wJob,
+        top5Content,
+        onClickCivil,
+        onClickHeroe,
+        onClickMovie,
+        onClickSerie,
+        onClickVideogame,
+        onClickVillain,
     } = reportsLogic(
         nativeOnInitJob(
             useRefStateFactory(),
@@ -70,6 +89,45 @@ export default function ReportsPage() {
                 cancelHandler(useRefValueProvider(), useEffectOnInit),
             ),
         ),
+        getMovies2HAnimatedApplicationService(
+            movieHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+        ),
+        getSuperPowersApplicationService(
+            villainHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+        ),
+        getMedias2WApplicationService(
+            movieHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+            serieHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+            videogameHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+        ),
+        getTop5ContentApplicationService(
+            profileHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
+        ),
+        useRouterDomNavigation(),
     )
     return (
         <>
@@ -108,6 +166,9 @@ export default function ReportsPage() {
                                         marginLeft: 20,
                                     }}
                                     key={heroe.id}
+                                    isPressable
+                                    isHoverable
+                                    onPress={() => onClickHeroe(heroe.id)}
                                 >
                                     <Image
                                         width={100}
@@ -130,6 +191,9 @@ export default function ReportsPage() {
                                         marginBottom: 20,
                                     }}
                                     key={villain.id}
+                                    isPressable
+                                    isHoverable
+                                    onPress={() => onClickVillain(villain.id)}
                                 >
                                     <Image
                                         width={100}
@@ -162,6 +226,9 @@ export default function ReportsPage() {
                                         marginLeft: 20,
                                     }}
                                     key={serie.id}
+                                    isPressable
+                                    isHoverable
+                                    onPress={() => onClickSerie(serie.id)}
                                 >
                                     <Image
                                         width={100}
@@ -170,10 +237,14 @@ export default function ReportsPage() {
                                     <Text h4>Title: {serie.title}</Text>
                                     <Spacer />
                                     <Text h4>Synopsis: {serie.synopsis}</Text>
-                                    <Spacer />
                                     <Text h4>
                                         Num of episodes: {serie.episodes}
                                     </Text>
+                                    <Spacer />
+                                    <ReactStars
+                                        isEdit={false}
+                                        value={serie.rating}
+                                    />
                                 </Card>
                             ),
                         )}
@@ -215,6 +286,147 @@ export default function ReportsPage() {
                                 <Text h4>Material: {object.material}</Text>
                                 <Spacer />
                                 <Text h4>Creator: {object.creator}</Text>
+                            </Card>
+                        ))}
+                </Row>
+                <Text h2>
+                    Report #5: Movies more 2 hours and half animated, type
+                    animated, earning more than average, and sorted by cost
+                </Text>
+                {movies2HJob.isLoading.value && <Spinner />}
+                {movies2HJob.error.value && <Text>Error getting data</Text>}
+                <Row>
+                    {movies2HJob.data.value &&
+                        movies2HJob.data.value.map((movie) => (
+                            <Card
+                                css={{
+                                    padding: 10,
+                                    alignItems: 'center',
+                                    marginLeft: 20,
+                                }}
+                                key={movie.id}
+                                isPressable
+                                isHoverable
+                                onPress={() => onClickMovie(movie.id)}
+                            >
+                                <Image
+                                    width={100}
+                                    src="https://www.iconarchive.com/download/i88530/icons8/ios7/Media-Controls-Tv-Show.ico"
+                                />
+                                <Text h4>Title: {movie.title}</Text>
+                                <Spacer />
+                                <Text h4>Synopsis: {movie.synopsis}</Text>
+                                <Spacer />
+                                <ReactStars
+                                    isEdit={false}
+                                    value={movie.rating}
+                                />
+                            </Card>
+                        ))}
+                </Row>
+                <Text h2>
+                    Report #6: Powers with word "Super" and used at least two
+                    villains
+                </Text>
+                {superPowersJob.isLoading.value && <Spinner />}
+                {superPowersJob.error.value && <Text>Error getting data</Text>}
+                <Row>
+                    {superPowersJob.data.value &&
+                        superPowersJob.data.value.map((power) => (
+                            <Card
+                                css={{
+                                    padding: 10,
+                                    alignItems: 'center',
+                                    marginLeft: 20,
+                                }}
+                                key={power.id}
+                            >
+                                <Text h4>Name: {power.name}</Text>
+                                <Spacer />
+                                <Text h4>Description: {power.description}</Text>
+                                <Spacer />
+                                <Text h4>Type: {power.type}</Text>
+                            </Card>
+                        ))}
+                </Row>
+                <Text h2>
+                    Report #7: Medias that release was 2 weeks, sorted by rating
+                </Text>
+                {medias2wJob.isLoading.value && <Spinner />}
+                {medias2wJob.error.value && <Text>Error getting data</Text>}
+                <Row>
+                    {medias2wJob.data.value &&
+                        medias2wJob.data.value.map((media) => (
+                            <Card
+                                css={{
+                                    padding: 10,
+                                    alignItems: 'center',
+                                    marginLeft: 20,
+                                }}
+                                key={media.id}
+                                isPressable
+                                isHoverable
+                                onPress={() => {
+                                    if (media.kind === 'movie')
+                                        onClickMovie(media.id)
+                                    if (media.kind === 'serie')
+                                        onClickSerie(media.id)
+                                    if (media.kind === 'videogame')
+                                        onClickVideogame(media.id)
+                                }}
+                            >
+                                <Image
+                                    width={100}
+                                    src="https://www.iconarchive.com/download/i88530/icons8/ios7/Media-Controls-Tv-Show.ico"
+                                />
+                                <Text h4>Title: {media.title}</Text>
+                                <Spacer />
+                                <Text h4>Synopsis: {media.synopsis}</Text>
+                                <Spacer />
+                                <Text h4>Kind: {media.kind}</Text>
+                                <Spacer />
+                                <ReactStars
+                                    isEdit={false}
+                                    value={media.rating}
+                                />
+                            </Card>
+                        ))}
+                </Row>
+                <Text h2>
+                    Report #8: Top 5 content that VIP and Premium see
+                </Text>
+                {top5Content.isLoading.value && <Spinner />}
+                {top5Content.error.value && <Text>Error getting data</Text>}
+                <Row>
+                    {top5Content.data.value &&
+                        top5Content.data.value.map((media) => (
+                            <Card
+                                css={{
+                                    padding: 10,
+                                    alignItems: 'center',
+                                    marginLeft: 20,
+                                }}
+                                key={media.id}
+                                isPressable
+                                isHoverable
+                                onPress={() => {
+                                    if (media.kind === 'movie')
+                                        onClickMovie(media.id)
+                                    if (media.kind === 'serie')
+                                        onClickSerie(media.id)
+                                    if (media.kind === 'videogame')
+                                        onClickVideogame(media.id)
+                                }}
+                            >
+                                <Image
+                                    width={100}
+                                    src="https://www.iconarchive.com/download/i88530/icons8/ios7/Media-Controls-Tv-Show.ico"
+                                />
+                                <Text h4>Title: {media.title}</Text>
+                                <Spacer />
+                                <Text h4>Synopsis: {media.synopsis}</Text>
+                                <Spacer />
+                                <Text h4>Kind: {media.kind}</Text>
                             </Card>
                         ))}
                 </Row>

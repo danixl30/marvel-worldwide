@@ -35,12 +35,14 @@ export class GetOrganizationByIdQuery
             return {
                 id: civil.id.value,
                 name: civil.person.name.value,
+                kind: 'civil',
             }
         const heroe = await this.heroeRepository.getById(new HeroeId(id.id))
         if (heroe)
             return {
                 id: heroe.id.value,
                 name: heroe.name.value,
+                kind: 'heroe',
             }
         const villain = await this.villainRepository.getById(
             new VillainId(id.id),
@@ -49,6 +51,7 @@ export class GetOrganizationByIdQuery
             return {
                 id: villain.id.value,
                 name: villain.name.value,
+                kind: 'villain',
             }
         throw new Error('Target not found')
     }
@@ -76,13 +79,21 @@ export class GetOrganizationByIdQuery
             firstApparition: organization.firstApparition.value,
             creationPlace: organization.creationPlace.value,
             objetive: organization.objetive.value,
-            founder: organization.founder.value,
-            leader: organization.leader.id,
-            members: await organization.members.asyncMap(async (e) => ({
-                id: e.id.value,
-                name: (await this.getHeroeVillainOrCivil(e.id)).name,
-                charge: e.charge.value,
-            })),
+            founder: await this.getHeroeVillainOrCivil(
+                new MemberId(organization.founder.value, 'civil'),
+            ),
+            leader: await this.getHeroeVillainOrCivil(
+                new MemberId(organization.leader.id, 'civil'),
+            ),
+            members: await organization.members.asyncMap(async (e) => {
+                const character = await this.getHeroeVillainOrCivil(e.id)
+                return {
+                    id: e.id.id,
+                    name: character.name,
+                    kind: character.kind,
+                    charge: e.charge.value,
+                }
+            }),
         })
     }
 }

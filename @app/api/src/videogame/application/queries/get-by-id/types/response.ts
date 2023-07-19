@@ -8,6 +8,7 @@ export type GetVideogameByIdResponse = {
     platforms: string[]
     comic: string
     actors: {
+        id: string
         name: {
             firstName: string
             lastName: string
@@ -16,6 +17,7 @@ export type GetVideogameByIdResponse = {
         character: {
             id: string
             name: string
+            kind: string
         }
     }[]
     rating: number

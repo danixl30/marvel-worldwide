@@ -26,6 +26,12 @@ import { OrganizationRef } from 'src/movie/domain/value-objects/organization'
 import { VideogamePlatform } from 'src/videogame/domain/value-objects/platform'
 import { Injectable } from '@nestjs/common'
 import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
+import { Calification } from 'src/profile/infraestructure/models/postgres/calification.entity'
+import { Rate } from 'src/movie/domain/entities/rate/rate'
+import { RateId } from 'src/movie/domain/entities/rate/value-objects/rate.id'
+import { RateCalification } from 'src/movie/domain/entities/rate/value-objects/rate.calification'
+import { RateTimestamp } from 'src/movie/domain/entities/rate/value-objects/rate.timestamp'
+import { History } from 'src/profile/infraestructure/models/postgres/history.entity'
 
 @Injectable()
 export class VideogamePostgresRepository implements VideogameRepository {
@@ -42,6 +48,8 @@ export class VideogamePostgresRepository implements VideogameRepository {
         private readonly representDB: Repository<Represent>,
         @InjectRepository(Media)
         private readonly mediaDB: Repository<Media>,
+        @InjectRepository(Calification)
+        private readonly calificationDB: Repository<Calification>,
     ) {}
     async save(aggregate: Videogame): Promise<void> {
         await this.mediaDB.upsert(
@@ -151,6 +159,9 @@ export class VideogamePostgresRepository implements VideogameRepository {
         const platforms = await this.platformDB.findBy({
             idVideogame: videogame.id,
         })
+        const rates = await this.calificationDB.findBy({
+            idMedia: videogame.id,
+        })
         return new Videogame(
             new VideogameId(videogame.id),
             new VideogameTitle(videogame.media.title),
@@ -168,6 +179,14 @@ export class VideogamePostgresRepository implements VideogameRepository {
                         new ActorName(e.firstName, e.lastName),
                         new ActorCharacter(e.idCharacter, e.character.kind),
                         new ActorRole(e.type),
+                    ),
+            ),
+            rates.map(
+                (e) =>
+                    new Rate(
+                        new RateId(e.idProfile),
+                        new RateCalification(e.rating),
+                        new RateTimestamp(e.timestamp),
                     ),
             ),
         )
@@ -197,6 +216,9 @@ export class VideogamePostgresRepository implements VideogameRepository {
             const platforms = await this.platformDB.findBy({
                 idVideogame: videogame.id,
             })
+            const rates = await this.calificationDB.findBy({
+                idMedia: videogame.id,
+            })
             return new Videogame(
                 new VideogameId(videogame.id),
                 new VideogameTitle(videogame.media.title),
@@ -218,6 +240,14 @@ export class VideogamePostgresRepository implements VideogameRepository {
                             new ActorRole(e.type),
                         ),
                 ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
             )
         })
     }
@@ -226,12 +256,21 @@ export class VideogamePostgresRepository implements VideogameRepository {
         const videogames = await this.videogameDB
             .createQueryBuilder('videogame')
             .innerJoinAndSelect('videogame.media', 'media')
-            .where(
-                'videogame.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "idProfile" = :id and "mediaKind" = \'videogame\' and "endDate" is not NULL order by time DESC) as t) or videogame.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'videogame\' and "endDate" is not NULL order by time DESC) as t) or videogame.id in (select "idMedia" from calification order by rating DESC)',
-                {
-                    id: profileId.value,
-                },
+            .innerJoin(History, 'history', 'history.idMedia = videogame.id')
+            .innerJoin(
+                Calification,
+                'calification',
+                'calification.idMedia = videogame.id',
             )
+            .where('history.endDate is not null and history.idProfile = :id', {
+                id: profileId.value,
+            })
+            .groupBy('videogame.id')
+            .addGroupBy('history.idMedia')
+            .addGroupBy('calification.idMedia')
+            .addGroupBy('media.id')
+            .orderBy('avg(calification.rating)', 'DESC')
+            .addOrderBy('max(history.endDate - history.initDate)', 'DESC')
             .limit(10)
             .getMany()
         return videogames.asyncMap(async (videogame) => {
@@ -248,6 +287,9 @@ export class VideogamePostgresRepository implements VideogameRepository {
             const platforms = await this.platformDB.findBy({
                 idVideogame: videogame.id,
             })
+            const rates = await this.calificationDB.findBy({
+                idMedia: videogame.id,
+            })
             return new Videogame(
                 new VideogameId(videogame.id),
                 new VideogameTitle(videogame.media.title),
@@ -269,6 +311,14 @@ export class VideogamePostgresRepository implements VideogameRepository {
                             new ActorRole(e.type),
                         ),
                 ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
             )
         })
     }
@@ -277,14 +327,14 @@ export class VideogamePostgresRepository implements VideogameRepository {
         const videogames = await this.videogameDB
             .createQueryBuilder('videogame')
             .innerJoinAndSelect('videogame.media', 'media')
-            .limit(criteria.pagination?.limit || 10)
-            .skip(
-                (criteria.pagination?.page || 1) -
-                    1 * (criteria.pagination?.limit || 0),
-            )
             .where(`media.title like '%${criteria.term}%'`)
             .orWhere(
                 'videogame.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'videogame\' and "endDate" is not NULL order by time DESC) as t)',
+            )
+            .limit(criteria.pagination?.limit || 10)
+            .skip(
+                ((criteria.pagination?.page || 1) - 1) *
+                    (criteria.pagination?.limit || 0),
             )
             .getMany()
         return videogames.asyncMap(async (videogame) => {
@@ -301,6 +351,9 @@ export class VideogamePostgresRepository implements VideogameRepository {
             const platforms = await this.platformDB.findBy({
                 idVideogame: videogame.id,
             })
+            const rates = await this.calificationDB.findBy({
+                idMedia: videogame.id,
+            })
             return new Videogame(
                 new VideogameId(videogame.id),
                 new VideogameTitle(videogame.media.title),
@@ -322,11 +375,80 @@ export class VideogamePostgresRepository implements VideogameRepository {
                             new ActorRole(e.type),
                         ),
                 ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
             )
         })
     }
 
     async getActorByName(name: ActorName): Promise<Optional<Actor>> {
         return null
+    }
+
+    async getTop10History(profileId: ProfileId): Promise<Videogame[]> {
+        const videogames = await this.videogameDB
+            .createQueryBuilder('videogame')
+            .innerJoinAndSelect('videogame.media', 'media')
+            .innerJoin(History, 'history', 'history.idMedia = videogame.id')
+            .where('history.idProfile = :id and history.endDate is not null', {
+                id: profileId.value,
+            })
+            .orderBy('history.endDate - history.initDate', 'DESC')
+            .limit(10)
+            .getMany()
+        return videogames.asyncMap(async (videogame) => {
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: videogame.id,
+                })
+                .getMany()
+            const appear = await this.appearDB.findBy({
+                idMedia: videogame.id,
+            })
+            const platforms = await this.platformDB.findBy({
+                idVideogame: videogame.id,
+            })
+            const rates = await this.calificationDB.findBy({
+                idMedia: videogame.id,
+            })
+            return new Videogame(
+                new VideogameId(videogame.id),
+                new VideogameTitle(videogame.media.title),
+                new VideogameSynopsis(videogame.media.synopsis),
+                new ReleaseDate(videogame.media.release),
+                new VideogameCreator(videogame.media.creator),
+                new VideogameType(videogame.type),
+                new Comic(videogame.media.comic),
+                appear.map(
+                    (e) => new OrganizationRef(e.idOrganization, e.type),
+                ),
+                platforms.map((e) => new VideogamePlatform(e.name)),
+                actors.map(
+                    (e) =>
+                        new Actor(
+                            new ActorId(e.id),
+                            new ActorName(e.firstName, e.lastName),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
+                            new ActorRole(e.type),
+                        ),
+                ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
+            )
+        })
     }
 }

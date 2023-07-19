@@ -23,7 +23,13 @@ export class GetHeroesByCriteriaController
     ): Promise<GetHeroesByCriteriaResponse> {
         const resp = await new GetHeroesByCriteriaQuery(
             this.heroeRepository,
-        ).execute(data)
+        ).execute({
+            term: data.term,
+            pagination: {
+                page: data.page || 1,
+                limit: data.limit || 10,
+            },
+        })
         return resp.unwrap()
     }
 }

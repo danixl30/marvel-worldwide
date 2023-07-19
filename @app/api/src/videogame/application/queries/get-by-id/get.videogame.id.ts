@@ -50,12 +50,14 @@ export class GetVideogameByIdQuery
             return {
                 id: civil.id.value,
                 name: civil.person.name.value,
+                kind: 'civil',
             }
         const heroe = await this.heroeRepository.getById(new HeroeId(id.id))
         if (heroe)
             return {
                 id: heroe.id.value,
                 name: heroe.name.value,
+                kind: 'heroe',
             }
         const villain = await this.villainRepository.getById(
             new VillainId(id.id),
@@ -64,6 +66,7 @@ export class GetVideogameByIdQuery
             return {
                 id: villain.id.value,
                 name: villain.name.value,
+                kind: 'villain',
             }
         throw new Error('Target not found')
     }
@@ -86,7 +89,10 @@ export class GetVideogameByIdQuery
             comic: videogame.basedOn.value,
             actors: await videogame.actors.asyncMap(async (e) => ({
                 id: e.id.value,
-                name: e.name,
+                name: {
+                    firstName: e.name.firstName,
+                    lastName: e.name.lastName,
+                },
                 role: e.role.value,
                 character: await this.getHeroeVillainOrCivil(e.character),
             })),

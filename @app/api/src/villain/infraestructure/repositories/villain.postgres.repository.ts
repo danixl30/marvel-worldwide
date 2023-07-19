@@ -295,18 +295,23 @@ export class VillainPostgresRepository implements VillainRepository {
         const powers = await this.powerDB
             .createQueryBuilder('power')
             .where(
-                'power.id IN (Select sub2."idPower" from (Select "idPower" from own where "idCharacter" in (Select own."idCharacter" from own inner join character as cha on (cha.id = own."idCharacter") where cha.kind = \'villain\' group by own."idCharacter" having count(own."idCharacter") >= 2)) as sub2) and name = \'%Super%\' and type = \'inherited\'',
+                'power.id IN (Select sub2."idPower" from (Select "idPower" from own where "idCharacter" in (Select own."idCharacter" from own inner join character as cha on (cha.id = own."idCharacter") where cha.kind = \'villain\' group by own."idCharacter" having count(own."idCharacter") >= 2)) as sub2) and name like \'%Super%\' and type like \'inherited\'',
             )
             .getMany()
-        return powers.map(
-            (e) =>
-                new Power(
-                    new PowerId(e.id),
-                    new PowerName(e.name),
-                    new PowerDescription(e.description),
-                    new PowerType(e.type),
-                ),
-        )
+        return powers
+            .reduce((acc: PowerDB[], power) => {
+                if (acc.find((e) => e.id === power.id)) return acc
+                return [...acc, power]
+            }, [])
+            .map(
+                (e) =>
+                    new Power(
+                        new PowerId(e.id),
+                        new PowerName(e.name),
+                        new PowerDescription(e.description),
+                        new PowerType(e.type),
+                    ),
+            )
     }
 
     async getAll(): Promise<Villain[]> {
@@ -377,8 +382,8 @@ export class VillainPostgresRepository implements VillainRepository {
             .innerJoinAndSelect('villain.character', 'character')
             .limit(criteria.pagination?.limit || 10)
             .skip(
-                (criteria.pagination?.page || 1) -
-                    1 * (criteria.pagination?.limit || 0),
+                ((criteria.pagination?.page || 1) - 1) *
+                    (criteria.pagination?.limit || 0),
             )
             .where('villain.name like :term', {
                 term: `%${criteria.term}%`,

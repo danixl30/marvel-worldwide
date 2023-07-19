@@ -23,7 +23,13 @@ export class GetMoviesByCriteria
     ): Promise<GetMoviesByCriteriaResponse> {
         const resp = await new GetMoviesByCriteriaQuery(
             this.movieRepository,
-        ).execute(data)
+        ).execute({
+            term: data.term,
+            pagination: {
+                page: data.page || 1,
+                limit: data.limit || 10,
+            },
+        })
         return resp.unwrap()
     }
 }

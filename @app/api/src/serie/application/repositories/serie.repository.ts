@@ -13,4 +13,5 @@ export interface SerieRepository extends Repository<SerieId, Serie> {
     getAll(): Promise<Serie[]>
     getAtLeast2WeeksNearRelease(): Promise<Serie[]>
     getTrending(profileId: ProfileId): Promise<Serie[]>
+    getTop10History(profileId: ProfileId): Promise<Serie[]>
 }

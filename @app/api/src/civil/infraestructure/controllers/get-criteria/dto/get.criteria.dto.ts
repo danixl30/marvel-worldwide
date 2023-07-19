@@ -6,8 +6,7 @@ export class GetByCriteria {
     @IsString()
     term: string
     @ApiProperty()
-    pagination?: {
-        page: number
-        limit: number
-    }
+    page?: number
+    @ApiProperty()
+    limit?: number
 }

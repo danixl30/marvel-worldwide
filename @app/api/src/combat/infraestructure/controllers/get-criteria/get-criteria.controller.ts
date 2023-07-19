@@ -23,7 +23,13 @@ export class GetCombatsByCriteriaController
     ): Promise<GetComabtsByCriteriaResponse> {
         const resp = await new GetComabtsByCriteriaQuery(
             this.combatRepository,
-        ).execute(data)
+        ).execute({
+            term: data.term,
+            pagination: {
+                page: data.page || 1,
+                limit: data.limit || 10,
+            },
+        })
         return resp.unwrap()
     }
 }

@@ -127,8 +127,8 @@ export class CombatPostgresRepository implements CombatRepository {
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Combat[]> {
         const combats = await this.combatDB
             .createQueryBuilder()
-            .andWhere({
-                id: criteria.term,
+            .where('place like :term', {
+                term: `%${criteria.term}%`,
             })
             .getMany()
         return combats.map(

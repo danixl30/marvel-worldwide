@@ -14,4 +14,5 @@ export interface MovieRepository extends Repository<MovieId, Movie> {
     getByType(type: MovieType): Promise<Movie[]>
     getAtLeast2WeeksNearRelease(): Promise<Movie[]>
     getTrending(profileId: ProfileId): Promise<Movie[]>
+    getTop10History(profile: ProfileId): Promise<Movie[]>
 }

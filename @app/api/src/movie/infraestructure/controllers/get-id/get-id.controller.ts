@@ -21,7 +21,13 @@ import { Profile } from 'src/profile/domain/profile'
 @Controller(MOVIE_ROUTE)
 @ApiTags(MOVIE_TAG)
 export class GetMovieByIdController
-    implements ControllerContract<string | Profile, GetMovieByIdResponse>
+    implements
+        ControllerContract<
+            string | Profile,
+            GetMovieByIdResponse & {
+                history: string
+            }
+        >
 {
     constructor(
         private movieRepository: MoviePostgresRepository,
@@ -41,7 +47,11 @@ export class GetMovieByIdController
     async execute(
         @Param('id') id: string,
         @GetProfile() profile: Profile,
-    ): Promise<GetMovieByIdResponse> {
+    ): Promise<
+        GetMovieByIdResponse & {
+            history: string
+        }
+    > {
         const resp = await new GetMovieByIdQuery(
             this.movieRepository,
             this.heroeRepository,
@@ -51,7 +61,7 @@ export class GetMovieByIdController
         ).execute({
             id,
         })
-        await new AddHistoryCommand(
+        const respHistory = await new AddHistoryCommand(
             this.profileRepository,
             this.uuidGen,
             this.eventHandler,
@@ -60,6 +70,9 @@ export class GetMovieByIdController
             target: id,
             kind: 'movie',
         })
-        return resp.unwrap()
+        return {
+            ...resp.unwrap(),
+            history: respHistory.unwrap().historyId,
+        }
     }
 }

@@ -15,7 +15,6 @@ export type Membreship = {
 export type User = {
     id: string
     email: string
-    password: string
     birthDate: Date
     cardNumber: string
     membreship: Membreship

@@ -21,7 +21,13 @@ import { AddHistoryCommand } from 'src/profile/application/commands/add-history/
 @Controller(VIDEOGAME_ROUTE)
 @ApiTags(VIDEOGAME_TAG)
 export class GetVideogameByIdController
-    implements ControllerContract<string | Profile, GetVideogameByIdResponse>
+    implements
+        ControllerContract<
+            string | Profile,
+            GetVideogameByIdResponse & {
+                history: string
+            }
+        >
 {
     constructor(
         private videogameRepository: VideogamePostgresRepository,
@@ -41,7 +47,11 @@ export class GetVideogameByIdController
     async execute(
         @Param('id') id: string,
         @GetProfile() profile: Profile,
-    ): Promise<GetVideogameByIdResponse> {
+    ): Promise<
+        GetVideogameByIdResponse & {
+            history: string
+        }
+    > {
         const resp = await new GetVideogameByIdQuery(
             this.videogameRepository,
             this.heroeRepository,
@@ -51,7 +61,7 @@ export class GetVideogameByIdController
         ).execute({
             id,
         })
-        await new AddHistoryCommand(
+        const historyResp = await new AddHistoryCommand(
             this.profileRepository,
             this.uuidGen,
             this.eventHandler,
@@ -60,6 +70,9 @@ export class GetVideogameByIdController
             target: id,
             kind: 'videogame',
         })
-        return resp.unwrap()
+        return {
+            ...resp.unwrap(),
+            history: historyResp.unwrap().historyId,
+        }
     }
 }

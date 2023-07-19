@@ -21,7 +21,13 @@ import { AddHistoryCommand } from 'src/profile/application/commands/add-history/
 @Controller(SERIE_ROUTE)
 @ApiTags(SERIE_TAG)
 export class GetSerieByIdController
-    implements ControllerContract<string | Profile, GetSerieByIdResponse>
+    implements
+        ControllerContract<
+            string | Profile,
+            GetSerieByIdResponse & {
+                history: string
+            }
+        >
 {
     constructor(
         private serieRepository: SeriePostgresRepository,
@@ -34,14 +40,18 @@ export class GetSerieByIdController
         private eventHandler: EventHandlerNative,
     ) {}
 
-    @Get('detial/:id')
+    @Get('detail/:id')
     @ApiHeader({ name: 'auth' })
     @ApiHeader({ name: 'profile' })
     @UseGuards(AuthCuard, ProfileGuard)
     async execute(
         @Param('id') id: string,
         @GetProfile() profile: Profile,
-    ): Promise<GetSerieByIdResponse> {
+    ): Promise<
+        GetSerieByIdResponse & {
+            history: string
+        }
+    > {
         const resp = await new GetSerieByIdQuery(
             this.serieRepository,
             this.heroeRepository,
@@ -51,7 +61,7 @@ export class GetSerieByIdController
         ).execute({
             id,
         })
-        await new AddHistoryCommand(
+        const historyResp = await new AddHistoryCommand(
             this.profileRepository,
             this.uuidGen,
             this.eventHandler,
@@ -60,6 +70,9 @@ export class GetSerieByIdController
             target: id,
             kind: 'serie',
         })
-        return resp.unwrap()
+        return {
+            ...resp.unwrap(),
+            history: historyResp.unwrap().historyId,
+        }
     }
 }

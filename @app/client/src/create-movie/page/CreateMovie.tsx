@@ -103,7 +103,11 @@ export default function CreateMoviePage() {
             ),
         ),
         createMovieApplicationService(
-            movieHttpRepository(useAxiosHttp(), useCookieSession()),
+            movieHttpRepository(
+                useAxiosHttp(),
+                useCookieSession(),
+                cancelHandler(useRefValueProvider(), useEffectOnInit),
+            ),
         ),
     )
     const organizationInput = stateFactory('')

@@ -25,6 +25,12 @@ import { ActorRole } from 'src/movie/domain/entities/actor/value-objects/actor.r
 import { SerieEpisodes } from 'src/serie/domain/value-objects/episodes'
 import { SerieChannel } from 'src/serie/domain/value-objects/channel'
 import { Media } from 'src/movie/infraestructure/models/postgres/media.entity'
+import { Calification } from 'src/profile/infraestructure/models/postgres/calification.entity'
+import { Rate } from 'src/movie/domain/entities/rate/rate'
+import { RateId } from 'src/movie/domain/entities/rate/value-objects/rate.id'
+import { RateCalification } from 'src/movie/domain/entities/rate/value-objects/rate.calification'
+import { RateTimestamp } from 'src/movie/domain/entities/rate/value-objects/rate.timestamp'
+import { History } from 'src/profile/infraestructure/models/postgres/history.entity'
 
 export class SeriePostgresRepository implements SerieRepository {
     constructor(
@@ -38,6 +44,8 @@ export class SeriePostgresRepository implements SerieRepository {
         private readonly representDB: Repository<Represent>,
         @InjectRepository(Media)
         private readonly mediaDB: Repository<Media>,
+        @InjectRepository(Calification)
+        private readonly calificationDB: Repository<Calification>,
     ) {}
     async save(aggregate: Serie): Promise<void> {
         await this.mediaDB.upsert(
@@ -131,6 +139,9 @@ export class SeriePostgresRepository implements SerieRepository {
             })
             .getOne()
         if (!serie) return null
+        const rates = await this.calificationDB.findBy({
+            idMedia: serie.id,
+        })
         return new Serie(
             new SerieId(serie.id),
             new SerieTitle(serie.media.title),
@@ -149,6 +160,14 @@ export class SeriePostgresRepository implements SerieRepository {
                         new ActorName(e.firstName, e.lastName),
                         new ActorCharacter(e.idCharacter, e.character.kind),
                         new ActorRole(e.type),
+                    ),
+            ),
+            rates.map(
+                (e) =>
+                    new Rate(
+                        new RateId(e.idProfile),
+                        new RateCalification(e.rating),
+                        new RateTimestamp(e.timestamp),
                     ),
             ),
         )
@@ -170,6 +189,9 @@ export class SeriePostgresRepository implements SerieRepository {
             const appear = await this.appearDB.findBy({
                 idMedia: serie.id,
             })
+            const rates = await this.calificationDB.findBy({
+                idMedia: serie.id,
+            })
             return new Serie(
                 new SerieId(serie.id),
                 new SerieTitle(serie.media.title),
@@ -192,6 +214,14 @@ export class SeriePostgresRepository implements SerieRepository {
                             new ActorRole(e.type),
                         ),
                 ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
             )
         })
     }
@@ -199,11 +229,8 @@ export class SeriePostgresRepository implements SerieRepository {
     async getAtLeast2WeeksNearRelease(): Promise<Serie[]> {
         const series = await this.serieDB
             .createQueryBuilder('serie')
-            .innerJoinAndSelect('actor.character', 'character')
+            .innerJoinAndSelect('serie.media', 'media')
             .where("media.release BETWEEN now() - interval '2 week' AND NOW()")
-            .andWhere(
-                'serie.id in (select "idMedia" from calification order by rating DESC)',
-            )
             .orderBy('release', 'DESC')
             .getMany()
         return series.asyncMap(async (serie) => {
@@ -217,53 +244,7 @@ export class SeriePostgresRepository implements SerieRepository {
             const appear = await this.appearDB.findBy({
                 idMedia: serie.id,
             })
-            return new Serie(
-                new SerieId(serie.id),
-                new SerieTitle(serie.media.title),
-                new SerieSynopsis(serie.media.synopsis),
-                new ReleaseDate(serie.media.release),
-                new SerieCreator(serie.media.creator),
-                new SerieType(serie.type),
-                new SerieEpisodes(serie.episodes),
-                new SerieChannel(serie.channel),
-                new Comic(serie.media.comic),
-                appear.map(
-                    (e) => new OrganizationRef(e.idOrganization, e.type),
-                ),
-                actors.map(
-                    (e) =>
-                        new Actor(
-                            new ActorId(e.id),
-                            new ActorName(e.firstName, e.lastName),
-                            new ActorCharacter(e.idCharacter, e.character.kind),
-                            new ActorRole(e.type),
-                        ),
-                ),
-            )
-        })
-    }
-
-    async getTrending(profileId: ProfileId): Promise<Serie[]> {
-        const series = await this.serieDB
-            .createQueryBuilder('serie')
-            .innerJoinAndSelect('serie.media', 'media')
-            .where(
-                'serie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "idProfile" = :id and "mediaKind" = \'serie\' and "endDate" is not NULL order by time DESC) as t) or serie.id in (select t."idMedia" from (select "idMedia", "endDate" - "initDate" as time from history where "mediaKind" = \'serie\' and "endDate" is not NULL order by time DESC) as t) or serie.id in (select "idMedia" from calification order by rating DESC)',
-                {
-                    id: profileId.value,
-                },
-            )
-            .limit(10)
-            .getMany()
-        return series.asyncMap(async (serie) => {
-            const actors = await this.representDB
-                .createQueryBuilder('actor')
-                .innerJoinAndSelect('actor.character', 'character')
-                .where('actor.idMedia = :id', {
-                    id: serie.id,
-                })
-                .getMany()
-            const appear = await this.appearDB.findBy({
+            const rates = await this.calificationDB.findBy({
                 idMedia: serie.id,
             })
             return new Serie(
@@ -288,6 +269,83 @@ export class SeriePostgresRepository implements SerieRepository {
                             new ActorRole(e.type),
                         ),
                 ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
+            )
+        })
+    }
+
+    async getTrending(profileId: ProfileId): Promise<Serie[]> {
+        const series = await this.serieDB
+            .createQueryBuilder('serie')
+            .innerJoinAndSelect('serie.media', 'media')
+            .innerJoin(History, 'history', 'history.idMedia = serie.id')
+            .innerJoin(
+                Calification,
+                'calification',
+                'calification.idMedia = serie.id',
+            )
+            .where('history.endDate is not null and history.idProfile = :id', {
+                id: profileId.value,
+            })
+            .groupBy('serie.id')
+            .addGroupBy('history.idMedia')
+            .addGroupBy('calification.idMedia')
+            .addGroupBy('media.id')
+            .orderBy('avg(calification.rating)', 'DESC')
+            .addOrderBy('max(history.endDate - history.initDate)', 'DESC')
+            .limit(10)
+            .getMany()
+        return series.asyncMap(async (serie) => {
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: serie.id,
+                })
+                .getMany()
+            const appear = await this.appearDB.findBy({
+                idMedia: serie.id,
+            })
+            const rates = await this.calificationDB.findBy({
+                idMedia: serie.id,
+            })
+            return new Serie(
+                new SerieId(serie.id),
+                new SerieTitle(serie.media.title),
+                new SerieSynopsis(serie.media.synopsis),
+                new ReleaseDate(serie.media.release),
+                new SerieCreator(serie.media.creator),
+                new SerieType(serie.type),
+                new SerieEpisodes(serie.episodes),
+                new SerieChannel(serie.channel),
+                new Comic(serie.media.comic),
+                appear.map(
+                    (e) => new OrganizationRef(e.idOrganization, e.type),
+                ),
+                actors.map(
+                    (e) =>
+                        new Actor(
+                            new ActorId(e.id),
+                            new ActorName(e.firstName, e.lastName),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
+                            new ActorRole(e.type),
+                        ),
+                ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
             )
         })
     }
@@ -295,13 +353,13 @@ export class SeriePostgresRepository implements SerieRepository {
     async getByCriteria(criteria: SearchByCriteriaDTO): Promise<Serie[]> {
         const series = await this.serieDB
             .createQueryBuilder('serie')
-            .innerJoinAndSelect('actor.character', 'character')
+            .innerJoinAndSelect('serie.media', 'media')
             .limit(criteria.pagination?.limit || 10)
             .skip(
-                (criteria.pagination?.page || 1) -
-                    1 * (criteria.pagination?.limit || 0),
+                ((criteria.pagination?.page || 1) - 1) *
+                    (criteria.pagination?.limit || 0),
             )
-            .where('media.title = :term', {
+            .where('media.title like :term', {
                 term: `%${criteria.term}%`,
             })
             .orWhere(
@@ -319,6 +377,9 @@ export class SeriePostgresRepository implements SerieRepository {
             const appear = await this.appearDB.findBy({
                 idMedia: serie.id,
             })
+            const rates = await this.calificationDB.findBy({
+                idMedia: serie.id,
+            })
             return new Serie(
                 new SerieId(serie.id),
                 new SerieTitle(serie.media.title),
@@ -341,11 +402,78 @@ export class SeriePostgresRepository implements SerieRepository {
                             new ActorRole(e.type),
                         ),
                 ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
             )
         })
     }
 
     async getActorByName(name: ActorName): Promise<Optional<Actor>> {
         return null
+    }
+
+    async getTop10History(profileId: ProfileId): Promise<Serie[]> {
+        const series = await this.serieDB
+            .createQueryBuilder('serie')
+            .innerJoinAndSelect('serie.media', 'media')
+            .innerJoin(History, 'history', 'history.idMedia = serie.id')
+            .where('history.idProfile = :id and history.endDate is not null', {
+                id: profileId.value,
+            })
+            .orderBy('history.endDate - history.initDate', 'DESC')
+            .limit(10)
+            .getMany()
+        return series.asyncMap(async (serie) => {
+            const actors = await this.representDB
+                .createQueryBuilder('actor')
+                .innerJoinAndSelect('actor.character', 'character')
+                .where('actor.idMedia = :id', {
+                    id: serie.id,
+                })
+                .getMany()
+            const appear = await this.appearDB.findBy({
+                idMedia: serie.id,
+            })
+            const rates = await this.calificationDB.findBy({
+                idMedia: serie.id,
+            })
+            return new Serie(
+                new SerieId(serie.id),
+                new SerieTitle(serie.media.title),
+                new SerieSynopsis(serie.media.synopsis),
+                new ReleaseDate(serie.media.release),
+                new SerieCreator(serie.media.creator),
+                new SerieType(serie.type),
+                new SerieEpisodes(serie.episodes),
+                new SerieChannel(serie.channel),
+                new Comic(serie.media.comic),
+                appear.map(
+                    (e) => new OrganizationRef(e.idOrganization, e.type),
+                ),
+                actors.map(
+                    (e) =>
+                        new Actor(
+                            new ActorId(e.id),
+                            new ActorName(e.firstName, e.lastName),
+                            new ActorCharacter(e.idCharacter, e.character.kind),
+                            new ActorRole(e.type),
+                        ),
+                ),
+                rates.map(
+                    (e) =>
+                        new Rate(
+                            new RateId(e.idProfile),
+                            new RateCalification(e.rating),
+                            new RateTimestamp(e.timestamp),
+                        ),
+                ),
+            )
+        })
     }
 }
